@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Offline Chart Example</title>
+  <title>chart_gizmo_js Chart Example</title>
   <script src="./dist/chart_gizmo_js.umd.js"></script>
 </head>
 <body>
-  <h2>Offline Chart from MyChartLib</h2>
+  <h2>Test Chart from chart_gizmo_js</h2>
   <canvas id="myChart" width="400" height="200"></canvas>
   <script>
     const ctx = document.getElementById("myChart").getContext("2d");
-    MyChartLib.createSimpleBarChart(ctx, ["Red", "Blue", "Yellow"], [12, 19, 3]);
+    chart_gizmo_js.createSimpleBarChart(ctx, ["Red", "Blue", "Yellow"], [12, 19, 3]);
   </script>
 </body>
 </html>

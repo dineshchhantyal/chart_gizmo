@@ -5,7 +5,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
-      name: 'MyChartLib',
+      name: 'chart_gizmo_js',
       fileName: () => 'chart_gizmo_js.umd.js',
       formats: ['umd']
     },
