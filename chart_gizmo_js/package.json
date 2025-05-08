@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "dist/chart_gizmo_js.umd.js",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "postbuild": "cp dist/chart_gizmo_js.umd.js ../chart_gizmo/js/chart_gizmo.umd.js"
   },
   "dependencies": {
     "chart.js": "^4.4.0",
