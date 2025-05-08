@@ -4,6 +4,7 @@ from H5Gizmos import jQueryComponent, do, get
 import importlib.resources
 
 class RawChart(jQueryComponent):
+
     def __init__(self, configuration, width=400, height=400):
         # canvas tag with width and height
         tag = f'<canvas id="myChart" width="{width}" height="{height}"></canvas>'
@@ -12,6 +13,7 @@ class RawChart(jQueryComponent):
         # load the js file from the package
         js_path = package_root / "js" / "chart_gizmo.umd.js"
         self.js_file(str(js_path))
+
     def configure_jQuery_element(self, element):
         super().configure_jQuery_element(element)
         dom_canvas = element[0].querySelector('*')
@@ -23,11 +25,13 @@ class RawChart(jQueryComponent):
         #do(console.log("dom_canvas", dom_canvas))
         my_chart = self.cache("my_chart", self.new(Chart, dom_canvas, configuration))
         self.chart = my_chart
+
     async def getBase64URL(self, type=None, quality=1):
         if type is not None:
             return await get(self.chart.toBase64Image(type, quality))
         else:
             return await get(self.chart.toBase64Image())
+        
     async def getBase64ImageData(self):
         # only for png
         url = await self.getBase64URL()
@@ -35,6 +39,7 @@ class RawChart(jQueryComponent):
         assert url.startswith(prefix), f"Invalid base64 image data: {url[:40]}..."
         base64_data = url[len(prefix):]
         return base64_data
+    
     async def getImageBinary(self):
         import base64
         base64_data = await self.getBase64ImageData()
@@ -42,6 +47,7 @@ class RawChart(jQueryComponent):
         binary_data = base64.b64decode(base64_data)
         # convert to bytes
         return bytes(binary_data)
+    
     async def saveImage(self, filename):
         # save the image to a file
         binary_data = await self.getImageBinary()
