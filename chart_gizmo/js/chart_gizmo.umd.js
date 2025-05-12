@@ -170,7 +170,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const l = n2p(a[2]);
     return v.a < 255 ? `hsla(${h}, ${s}%, ${l}%, ${b2n(v.a)})` : `hsl(${h}, ${s}%, ${l}%)`;
   }
-  const map = {
+  const map$2 = {
     x: "dark",
     Z: "light",
     Y: "re",
@@ -352,13 +352,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function unpack() {
     const unpacked = {};
     const keys = Object.keys(names$1);
-    const tkeys = Object.keys(map);
+    const tkeys = Object.keys(map$2);
     let i, j, k, ok, nk;
     for (i = 0; i < keys.length; i++) {
       ok = nk = keys[i];
       for (j = 0; j < tkeys.length; j++) {
         k = tkeys[j];
-        nk = nk.replace(k, map[k]);
+        nk = nk.replace(k, map$2[k]);
       }
       k = parseInt(names$1[ok], 16);
       unpacked[nk] = [k >> 16 & 255, k >> 8 & 255, k & 255];
@@ -603,6 +603,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function valueOrDefault(value, defaultValue) {
     return typeof value === "undefined" ? defaultValue : value;
   }
+  const toPercentage = (value, dimension) => typeof value === "string" && value.endsWith("%") ? parseFloat(value) / 100 : +value / dimension;
   const toDimension = (value, dimension) => typeof value === "string" && value.endsWith("%") ? parseFloat(value) / 100 * dimension : +value;
   function callback(fn, args, thisArg) {
     if (fn && typeof fn.call === "function") {
@@ -774,6 +775,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   }
   const PI = Math.PI;
   const TAU = 2 * PI;
+  const PITAU = TAU + PI;
   const INFINITY = Number.POSITIVE_INFINITY;
   const RAD_PER_DEG = PI / 180;
   const HALF_PI = PI / 2;
@@ -862,6 +864,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function distanceBetweenPoints(pt1, pt2) {
     return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
   }
+  function _angleDiff(a, b) {
+    return (a - b + PITAU) % TAU - PI;
+  }
   function _normalizeAngle(a) {
     return (a % TAU + TAU) % TAU;
   }
@@ -873,7 +878,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const angleToEnd = _normalizeAngle(e - a);
     const startToAngle = _normalizeAngle(a - s);
     const endToAngle = _normalizeAngle(a - e);
-    return a === s || a === e || sameAngleIsFullCircle || angleToStart > angleToEnd && startToAngle < endToAngle;
+    return a === s || a === e || sameAngleIsFullCircle && s === e || angleToStart > angleToEnd && startToAngle < endToAngle;
   }
   function _limitValue(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -885,7 +890,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     return value >= Math.min(start, end) - epsilon && value <= Math.max(start, end) + epsilon;
   }
   function _lookup(table, value, cmp) {
-    cmp = cmp || ((index) => table[index] < value);
+    cmp = cmp || ((index2) => table[index2] < value);
     let hi = table.length - 1;
     let lo = 0;
     let mid;
@@ -902,11 +907,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       hi
     };
   }
-  const _lookupByKey = (table, key, value, last) => _lookup(table, value, last ? (index) => {
-    const ti = table[index][key];
-    return ti < value || ti === value && table[index + 1][key] === value;
-  } : (index) => table[index][key] < value);
-  const _rlookupByKey = (table, key, value) => _lookup(table, value, (index) => table[index][key] >= value);
+  const _lookupByKey = (table, key, value, last) => _lookup(table, value, last ? (index2) => {
+    const ti = table[index2][key];
+    return ti < value || ti === value && table[index2 + 1][key] === value;
+  } : (index2) => table[index2][key] < value);
+  const _rlookupByKey = (table, key, value) => _lookup(table, value, (index2) => table[index2][key] >= value);
   function _filterBetween(values, min, max) {
     let start = 0;
     let end = values.length;
@@ -963,9 +968,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return;
     }
     const listeners = stub.listeners;
-    const index = listeners.indexOf(listener);
-    if (index !== -1) {
-      listeners.splice(index, 1);
+    const index2 = listeners.indexOf(listener);
+    if (index2 !== -1) {
+      listeners.splice(index2, 1);
     }
     if (listeners.length > 0) {
       return;
@@ -1022,6 +1027,65 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const check = rtl ? "left" : "right";
     return align === check ? right : align === "center" ? (left + right) / 2 : left;
   };
+  function _getStartAndCountOfVisiblePoints(meta, points, animationsDisabled) {
+    const pointCount = points.length;
+    let start = 0;
+    let count = pointCount;
+    if (meta._sorted) {
+      const { iScale, vScale, _parsed } = meta;
+      const spanGaps = meta.dataset ? meta.dataset.options ? meta.dataset.options.spanGaps : null : null;
+      const axis = iScale.axis;
+      const { min, max, minDefined, maxDefined } = iScale.getUserBounds();
+      if (minDefined) {
+        start = Math.min(
+          // @ts-expect-error Need to type _parsed
+          _lookupByKey(_parsed, axis, min).lo,
+          // @ts-expect-error Need to fix types on _lookupByKey
+          animationsDisabled ? pointCount : _lookupByKey(points, axis, iScale.getPixelForValue(min)).lo
+        );
+        if (spanGaps) {
+          const distanceToDefinedLo = _parsed.slice(0, start + 1).reverse().findIndex((point) => !isNullOrUndef(point[vScale.axis]));
+          start -= Math.max(0, distanceToDefinedLo);
+        }
+        start = _limitValue(start, 0, pointCount - 1);
+      }
+      if (maxDefined) {
+        let end = Math.max(
+          // @ts-expect-error Need to type _parsed
+          _lookupByKey(_parsed, iScale.axis, max, true).hi + 1,
+          // @ts-expect-error Need to fix types on _lookupByKey
+          animationsDisabled ? 0 : _lookupByKey(points, axis, iScale.getPixelForValue(max), true).hi + 1
+        );
+        if (spanGaps) {
+          const distanceToDefinedHi = _parsed.slice(end - 1).findIndex((point) => !isNullOrUndef(point[vScale.axis]));
+          end += Math.max(0, distanceToDefinedHi);
+        }
+        count = _limitValue(end, start, pointCount) - start;
+      } else {
+        count = pointCount - start;
+      }
+    }
+    return {
+      start,
+      count
+    };
+  }
+  function _scaleRangesChanged(meta) {
+    const { xScale, yScale, _scaleRanges } = meta;
+    const newRanges = {
+      xmin: xScale.min,
+      xmax: xScale.max,
+      ymin: yScale.min,
+      ymax: yScale.max
+    };
+    if (!_scaleRanges) {
+      meta._scaleRanges = newRanges;
+      return true;
+    }
+    const changed = _scaleRanges.xmin !== xScale.min || _scaleRanges.xmax !== xScale.max || _scaleRanges.ymin !== yScale.min || _scaleRanges.ymax !== yScale.max;
+    Object.assign(_scaleRanges, newRanges);
+    return changed;
+  }
   const atEdge = (t) => t === 0 || t === 1;
   const elasticIn = (t, s, p) => -(Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * TAU / p));
   const elasticOut = (t, s, p) => Math.pow(2, -10 * t) * Math.sin((t - s) * TAU / p) + 1;
@@ -1206,7 +1270,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     values(value) {
       return isArray(value) ? value : "" + value;
     },
-    numeric(tickValue, index, ticks) {
+    numeric(tickValue, index2, ticks) {
       if (tickValue === 0) {
         return "0";
       }
@@ -1230,11 +1294,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       Object.assign(options, this.options.ticks.format);
       return formatNumber(tickValue, locale, options);
     },
-    logarithmic(tickValue, index, ticks) {
+    logarithmic(tickValue, index2, ticks) {
       if (tickValue === 0) {
         return "0";
       }
-      const remain = ticks[index].significand || tickValue / Math.pow(10, Math.floor(log10(tickValue)));
+      const remain = ticks[index2].significand || tickValue / Math.pow(10, Math.floor(log10(tickValue)));
       if ([
         1,
         2,
@@ -1242,8 +1306,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         5,
         10,
         15
-      ].includes(remain) || index > 0.8 * ticks.length) {
-        return formatters.numeric.call(this, tickValue, index, ticks);
+      ].includes(remain) || index2 > 0.8 * ticks.length) {
+        return formatters.numeric.call(this, tickValue, index2, ticks);
       }
       return "";
     }
@@ -1467,6 +1531,43 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return longest;
   }
+  function _longestText(ctx, font, arrayOfThings, cache) {
+    cache = cache || {};
+    let data = cache.data = cache.data || {};
+    let gc = cache.garbageCollect = cache.garbageCollect || [];
+    if (cache.font !== font) {
+      data = cache.data = {};
+      gc = cache.garbageCollect = [];
+      cache.font = font;
+    }
+    ctx.save();
+    ctx.font = font;
+    let longest = 0;
+    const ilen = arrayOfThings.length;
+    let i, j, jlen, thing, nestedThing;
+    for (i = 0; i < ilen; i++) {
+      thing = arrayOfThings[i];
+      if (thing !== void 0 && thing !== null && !isArray(thing)) {
+        longest = _measureText(ctx, data, gc, longest, thing);
+      } else if (isArray(thing)) {
+        for (j = 0, jlen = thing.length; j < jlen; j++) {
+          nestedThing = thing[j];
+          if (nestedThing !== void 0 && nestedThing !== null && !isArray(nestedThing)) {
+            longest = _measureText(ctx, data, gc, longest, nestedThing);
+          }
+        }
+      }
+    }
+    ctx.restore();
+    const gcLen = gc.length / 2;
+    if (gcLen > arrayOfThings.length) {
+      for (i = 0; i < gcLen; i++) {
+        delete data[gc[i]];
+      }
+      gc.splice(0, gcLen);
+    }
+    return longest;
+  }
   function _alignPixel(chart, pixel, width) {
     const devicePixelRatio2 = chart.currentDevicePixelRatio;
     const halfWidth = width !== 0 ? Math.max(width / 2, 0.5) : 0;
@@ -1618,6 +1719,27 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   }
   function unclipArea(ctx) {
     ctx.restore();
+  }
+  function _steppedLineTo(ctx, previous, target, flip, mode) {
+    if (!previous) {
+      return ctx.lineTo(target.x, target.y);
+    }
+    if (mode === "middle") {
+      const midpoint = (previous.x + target.x) / 2;
+      ctx.lineTo(midpoint, previous.y);
+      ctx.lineTo(midpoint, target.y);
+    } else if (mode === "after" !== !!flip) {
+      ctx.lineTo(previous.x, target.y);
+    } else {
+      ctx.lineTo(target.x, previous.y);
+    }
+    ctx.lineTo(target.x, target.y);
+  }
+  function _bezierCurveTo(ctx, previous, target, flip) {
+    if (!previous) {
+      return ctx.lineTo(target.x, target.y);
+    }
+    ctx.bezierCurveTo(flip ? previous.cp1x : previous.cp2x, flip ? previous.cp1y : previous.cp2y, flip ? target.cp2x : target.cp1x, flip ? target.cp2y : target.cp1y, target.x, target.y);
   }
   function setRenderOpts(ctx, opts) {
     if (opts.translation) {
@@ -1771,7 +1893,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     font.string = toFontString(font);
     return font;
   }
-  function resolve$1(inputs, context, index, info) {
+  function resolve$1(inputs, context, index2, info) {
     let i, ilen, value;
     for (i = 0, ilen = inputs.length; i < ilen; ++i) {
       value = inputs[i];
@@ -1781,8 +1903,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (context !== void 0 && typeof value === "function") {
         value = value(context);
       }
-      if (index !== void 0 && isArray(value)) {
-        value = value[index % value.length];
+      if (index2 !== void 0 && isArray(value)) {
+        value = value[index2 % value.length];
       }
       if (value !== void 0) {
         return value;
@@ -2096,6 +2218,167 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return Array.from(set2);
   }
+  function _parseObjectDataRadialScale(meta, data, start, count) {
+    const { iScale } = meta;
+    const { key = "r" } = this._parsing;
+    const parsed = new Array(count);
+    let i, ilen, index2, item;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      index2 = i + start;
+      item = data[index2];
+      parsed[i] = {
+        r: iScale.parse(resolveObjectKey(item, key), index2)
+      };
+    }
+    return parsed;
+  }
+  const EPSILON$1 = Number.EPSILON || 1e-14;
+  const getPoint = (points, i) => i < points.length && !points[i].skip && points[i];
+  const getValueAxis = (indexAxis) => indexAxis === "x" ? "y" : "x";
+  function splineCurve(firstPoint, middlePoint, afterPoint, t) {
+    const previous = firstPoint.skip ? middlePoint : firstPoint;
+    const current = middlePoint;
+    const next = afterPoint.skip ? middlePoint : afterPoint;
+    const d01 = distanceBetweenPoints(current, previous);
+    const d12 = distanceBetweenPoints(next, current);
+    let s01 = d01 / (d01 + d12);
+    let s12 = d12 / (d01 + d12);
+    s01 = isNaN(s01) ? 0 : s01;
+    s12 = isNaN(s12) ? 0 : s12;
+    const fa = t * s01;
+    const fb = t * s12;
+    return {
+      previous: {
+        x: current.x - fa * (next.x - previous.x),
+        y: current.y - fa * (next.y - previous.y)
+      },
+      next: {
+        x: current.x + fb * (next.x - previous.x),
+        y: current.y + fb * (next.y - previous.y)
+      }
+    };
+  }
+  function monotoneAdjust(points, deltaK, mK) {
+    const pointsLen = points.length;
+    let alphaK, betaK, tauK, squaredMagnitude, pointCurrent;
+    let pointAfter = getPoint(points, 0);
+    for (let i = 0; i < pointsLen - 1; ++i) {
+      pointCurrent = pointAfter;
+      pointAfter = getPoint(points, i + 1);
+      if (!pointCurrent || !pointAfter) {
+        continue;
+      }
+      if (almostEquals(deltaK[i], 0, EPSILON$1)) {
+        mK[i] = mK[i + 1] = 0;
+        continue;
+      }
+      alphaK = mK[i] / deltaK[i];
+      betaK = mK[i + 1] / deltaK[i];
+      squaredMagnitude = Math.pow(alphaK, 2) + Math.pow(betaK, 2);
+      if (squaredMagnitude <= 9) {
+        continue;
+      }
+      tauK = 3 / Math.sqrt(squaredMagnitude);
+      mK[i] = alphaK * tauK * deltaK[i];
+      mK[i + 1] = betaK * tauK * deltaK[i];
+    }
+  }
+  function monotoneCompute(points, mK, indexAxis = "x") {
+    const valueAxis = getValueAxis(indexAxis);
+    const pointsLen = points.length;
+    let delta, pointBefore, pointCurrent;
+    let pointAfter = getPoint(points, 0);
+    for (let i = 0; i < pointsLen; ++i) {
+      pointBefore = pointCurrent;
+      pointCurrent = pointAfter;
+      pointAfter = getPoint(points, i + 1);
+      if (!pointCurrent) {
+        continue;
+      }
+      const iPixel = pointCurrent[indexAxis];
+      const vPixel = pointCurrent[valueAxis];
+      if (pointBefore) {
+        delta = (iPixel - pointBefore[indexAxis]) / 3;
+        pointCurrent[`cp1${indexAxis}`] = iPixel - delta;
+        pointCurrent[`cp1${valueAxis}`] = vPixel - delta * mK[i];
+      }
+      if (pointAfter) {
+        delta = (pointAfter[indexAxis] - iPixel) / 3;
+        pointCurrent[`cp2${indexAxis}`] = iPixel + delta;
+        pointCurrent[`cp2${valueAxis}`] = vPixel + delta * mK[i];
+      }
+    }
+  }
+  function splineCurveMonotone(points, indexAxis = "x") {
+    const valueAxis = getValueAxis(indexAxis);
+    const pointsLen = points.length;
+    const deltaK = Array(pointsLen).fill(0);
+    const mK = Array(pointsLen);
+    let i, pointBefore, pointCurrent;
+    let pointAfter = getPoint(points, 0);
+    for (i = 0; i < pointsLen; ++i) {
+      pointBefore = pointCurrent;
+      pointCurrent = pointAfter;
+      pointAfter = getPoint(points, i + 1);
+      if (!pointCurrent) {
+        continue;
+      }
+      if (pointAfter) {
+        const slopeDelta = pointAfter[indexAxis] - pointCurrent[indexAxis];
+        deltaK[i] = slopeDelta !== 0 ? (pointAfter[valueAxis] - pointCurrent[valueAxis]) / slopeDelta : 0;
+      }
+      mK[i] = !pointBefore ? deltaK[i] : !pointAfter ? deltaK[i - 1] : sign(deltaK[i - 1]) !== sign(deltaK[i]) ? 0 : (deltaK[i - 1] + deltaK[i]) / 2;
+    }
+    monotoneAdjust(points, deltaK, mK);
+    monotoneCompute(points, mK, indexAxis);
+  }
+  function capControlPoint(pt, min, max) {
+    return Math.max(Math.min(pt, max), min);
+  }
+  function capBezierPoints(points, area) {
+    let i, ilen, point, inArea, inAreaPrev;
+    let inAreaNext = _isPointInArea(points[0], area);
+    for (i = 0, ilen = points.length; i < ilen; ++i) {
+      inAreaPrev = inArea;
+      inArea = inAreaNext;
+      inAreaNext = i < ilen - 1 && _isPointInArea(points[i + 1], area);
+      if (!inArea) {
+        continue;
+      }
+      point = points[i];
+      if (inAreaPrev) {
+        point.cp1x = capControlPoint(point.cp1x, area.left, area.right);
+        point.cp1y = capControlPoint(point.cp1y, area.top, area.bottom);
+      }
+      if (inAreaNext) {
+        point.cp2x = capControlPoint(point.cp2x, area.left, area.right);
+        point.cp2y = capControlPoint(point.cp2y, area.top, area.bottom);
+      }
+    }
+  }
+  function _updateBezierControlPoints(points, options, area, loop, indexAxis) {
+    let i, ilen, point, controlPoints;
+    if (options.spanGaps) {
+      points = points.filter((pt) => !pt.skip);
+    }
+    if (options.cubicInterpolationMode === "monotone") {
+      splineCurveMonotone(points, indexAxis);
+    } else {
+      let prev = loop ? points[points.length - 1] : points[0];
+      for (i = 0, ilen = points.length; i < ilen; ++i) {
+        point = points[i];
+        controlPoints = splineCurve(prev, point, points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen], options.tension);
+        point.cp1x = controlPoints.previous.x;
+        point.cp1y = controlPoints.previous.y;
+        point.cp2x = controlPoints.next.x;
+        point.cp2y = controlPoints.next.y;
+        prev = point;
+      }
+    }
+    if (options.capBezierPoints) {
+      capBezierPoints(points, area);
+    }
+  }
   function _isDomSupported() {
     return typeof window !== "undefined" && typeof document !== "undefined";
   }
@@ -2281,6 +2564,34 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const matches = value && value.match(/^(\d+)(\.\d+)?px$/);
     return matches ? +matches[1] : void 0;
   }
+  function _pointInLine(p1, p2, t, mode) {
+    return {
+      x: p1.x + t * (p2.x - p1.x),
+      y: p1.y + t * (p2.y - p1.y)
+    };
+  }
+  function _steppedInterpolation(p1, p2, t, mode) {
+    return {
+      x: p1.x + t * (p2.x - p1.x),
+      y: mode === "middle" ? t < 0.5 ? p1.y : p2.y : mode === "after" ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
+    };
+  }
+  function _bezierInterpolation(p1, p2, t, mode) {
+    const cp1 = {
+      x: p1.cp2x,
+      y: p1.cp2y
+    };
+    const cp2 = {
+      x: p2.cp1x,
+      y: p2.cp1y
+    };
+    const a = _pointInLine(p1, cp1, t);
+    const b = _pointInLine(cp1, cp2, t);
+    const c = _pointInLine(cp2, p2, t);
+    const d = _pointInLine(a, b, t);
+    const e = _pointInLine(b, c, t);
+    return _pointInLine(d, e, t);
+  }
   const getRightToLeftAdapter = function(rectX, width) {
     return {
       x(x) {
@@ -2341,6 +2652,295 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       delete ctx.prevTextDirection;
       ctx.canvas.style.setProperty("direction", original[0], original[1]);
     }
+  }
+  function propertyFn(property) {
+    if (property === "angle") {
+      return {
+        between: _angleBetween,
+        compare: _angleDiff,
+        normalize: _normalizeAngle
+      };
+    }
+    return {
+      between: _isBetween,
+      compare: (a, b) => a - b,
+      normalize: (x) => x
+    };
+  }
+  function normalizeSegment({ start, end, count, loop, style }) {
+    return {
+      start: start % count,
+      end: end % count,
+      loop: loop && (end - start + 1) % count === 0,
+      style
+    };
+  }
+  function getSegment(segment, points, bounds) {
+    const { property, start: startBound, end: endBound } = bounds;
+    const { between, normalize } = propertyFn(property);
+    const count = points.length;
+    let { start, end, loop } = segment;
+    let i, ilen;
+    if (loop) {
+      start += count;
+      end += count;
+      for (i = 0, ilen = count; i < ilen; ++i) {
+        if (!between(normalize(points[start % count][property]), startBound, endBound)) {
+          break;
+        }
+        start--;
+        end--;
+      }
+      start %= count;
+      end %= count;
+    }
+    if (end < start) {
+      end += count;
+    }
+    return {
+      start,
+      end,
+      loop,
+      style: segment.style
+    };
+  }
+  function _boundSegment(segment, points, bounds) {
+    if (!bounds) {
+      return [
+        segment
+      ];
+    }
+    const { property, start: startBound, end: endBound } = bounds;
+    const count = points.length;
+    const { compare, between, normalize } = propertyFn(property);
+    const { start, end, loop, style } = getSegment(segment, points, bounds);
+    const result = [];
+    let inside = false;
+    let subStart = null;
+    let value, point, prevValue;
+    const startIsBefore = () => between(startBound, prevValue, value) && compare(startBound, prevValue) !== 0;
+    const endIsBefore = () => compare(endBound, value) === 0 || between(endBound, prevValue, value);
+    const shouldStart = () => inside || startIsBefore();
+    const shouldStop = () => !inside || endIsBefore();
+    for (let i = start, prev = start; i <= end; ++i) {
+      point = points[i % count];
+      if (point.skip) {
+        continue;
+      }
+      value = normalize(point[property]);
+      if (value === prevValue) {
+        continue;
+      }
+      inside = between(value, startBound, endBound);
+      if (subStart === null && shouldStart()) {
+        subStart = compare(value, startBound) === 0 ? i : prev;
+      }
+      if (subStart !== null && shouldStop()) {
+        result.push(normalizeSegment({
+          start: subStart,
+          end: i,
+          loop,
+          count,
+          style
+        }));
+        subStart = null;
+      }
+      prev = i;
+      prevValue = value;
+    }
+    if (subStart !== null) {
+      result.push(normalizeSegment({
+        start: subStart,
+        end,
+        loop,
+        count,
+        style
+      }));
+    }
+    return result;
+  }
+  function _boundSegments(line, bounds) {
+    const result = [];
+    const segments = line.segments;
+    for (let i = 0; i < segments.length; i++) {
+      const sub = _boundSegment(segments[i], line.points, bounds);
+      if (sub.length) {
+        result.push(...sub);
+      }
+    }
+    return result;
+  }
+  function findStartAndEnd(points, count, loop, spanGaps) {
+    let start = 0;
+    let end = count - 1;
+    if (loop && !spanGaps) {
+      while (start < count && !points[start].skip) {
+        start++;
+      }
+    }
+    while (start < count && points[start].skip) {
+      start++;
+    }
+    start %= count;
+    if (loop) {
+      end += start;
+    }
+    while (end > start && points[end % count].skip) {
+      end--;
+    }
+    end %= count;
+    return {
+      start,
+      end
+    };
+  }
+  function solidSegments(points, start, max, loop) {
+    const count = points.length;
+    const result = [];
+    let last = start;
+    let prev = points[start];
+    let end;
+    for (end = start + 1; end <= max; ++end) {
+      const cur = points[end % count];
+      if (cur.skip || cur.stop) {
+        if (!prev.skip) {
+          loop = false;
+          result.push({
+            start: start % count,
+            end: (end - 1) % count,
+            loop
+          });
+          start = last = cur.stop ? end : null;
+        }
+      } else {
+        last = end;
+        if (prev.skip) {
+          start = end;
+        }
+      }
+      prev = cur;
+    }
+    if (last !== null) {
+      result.push({
+        start: start % count,
+        end: last % count,
+        loop
+      });
+    }
+    return result;
+  }
+  function _computeSegments(line, segmentOptions) {
+    const points = line.points;
+    const spanGaps = line.options.spanGaps;
+    const count = points.length;
+    if (!count) {
+      return [];
+    }
+    const loop = !!line._loop;
+    const { start, end } = findStartAndEnd(points, count, loop, spanGaps);
+    if (spanGaps === true) {
+      return splitByStyles(line, [
+        {
+          start,
+          end,
+          loop
+        }
+      ], points, segmentOptions);
+    }
+    const max = end < start ? end + count : end;
+    const completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
+    return splitByStyles(line, solidSegments(points, start, max, completeLoop), points, segmentOptions);
+  }
+  function splitByStyles(line, segments, points, segmentOptions) {
+    if (!segmentOptions || !segmentOptions.setContext || !points) {
+      return segments;
+    }
+    return doSplitByStyles(line, segments, points, segmentOptions);
+  }
+  function doSplitByStyles(line, segments, points, segmentOptions) {
+    const chartContext = line._chart.getContext();
+    const baseStyle = readStyle(line.options);
+    const { _datasetIndex: datasetIndex, options: { spanGaps } } = line;
+    const count = points.length;
+    const result = [];
+    let prevStyle = baseStyle;
+    let start = segments[0].start;
+    let i = start;
+    function addStyle(s, e, l, st) {
+      const dir = spanGaps ? -1 : 1;
+      if (s === e) {
+        return;
+      }
+      s += count;
+      while (points[s % count].skip) {
+        s -= dir;
+      }
+      while (points[e % count].skip) {
+        e += dir;
+      }
+      if (s % count !== e % count) {
+        result.push({
+          start: s % count,
+          end: e % count,
+          loop: l,
+          style: st
+        });
+        prevStyle = st;
+        start = e % count;
+      }
+    }
+    for (const segment of segments) {
+      start = spanGaps ? start : segment.start;
+      let prev = points[start % count];
+      let style;
+      for (i = start + 1; i <= segment.end; i++) {
+        const pt = points[i % count];
+        style = readStyle(segmentOptions.setContext(createContext(chartContext, {
+          type: "segment",
+          p0: prev,
+          p1: pt,
+          p0DataIndex: (i - 1) % count,
+          p1DataIndex: i % count,
+          datasetIndex
+        })));
+        if (styleChanged(style, prevStyle)) {
+          addStyle(start, i - 1, segment.loop, prevStyle);
+        }
+        prev = pt;
+        prevStyle = style;
+      }
+      if (start < i - 1) {
+        addStyle(start, i - 1, segment.loop, prevStyle);
+      }
+    }
+    return result;
+  }
+  function readStyle(options) {
+    return {
+      backgroundColor: options.backgroundColor,
+      borderCapStyle: options.borderCapStyle,
+      borderDash: options.borderDash,
+      borderDashOffset: options.borderDashOffset,
+      borderJoinStyle: options.borderJoinStyle,
+      borderWidth: options.borderWidth,
+      borderColor: options.borderColor
+    };
+  }
+  function styleChanged(style, prevStyle) {
+    if (!prevStyle) {
+      return false;
+    }
+    const cache = [];
+    const replacer = function(key, value) {
+      if (!isPatternOrGradient(value)) {
+        return value;
+      }
+      if (!cache.includes(value)) {
+        cache.push(value);
+      }
+      return cache.indexOf(value);
+    };
+    return JSON.stringify(style, replacer) !== JSON.stringify(prevStyle, replacer);
   }
   function getSizeForArea(scale, chartArea, field) {
     return scale.options.clip ? scale[field] : chartArea[field];
@@ -2877,9 +3477,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     let stack;
     for (let i = 0; i < ilen; ++i) {
       const item = parsed[i];
-      const { [iAxis]: index, [vAxis]: value } = item;
+      const { [iAxis]: index2, [vAxis]: value } = item;
       const itemStacks = item._stacks || (item._stacks = {});
-      stack = itemStacks[vAxis] = getOrCreateStack(stacks, key, index);
+      stack = itemStacks[vAxis] = getOrCreateStack(stacks, key, index2);
       stack[datasetIndex] = value;
       stack._top = getLastIndexInStack(stack, vScale, true, meta.type);
       stack._bottom = getLastIndexInStack(stack, vScale, false, meta.type);
@@ -2891,24 +3491,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const scales = chart.scales;
     return Object.keys(scales).filter((key) => scales[key].axis === axis).shift();
   }
-  function createDatasetContext(parent, index) {
+  function createDatasetContext(parent, index2) {
     return createContext(parent, {
       active: false,
       dataset: void 0,
-      datasetIndex: index,
-      index,
+      datasetIndex: index2,
+      index: index2,
       mode: "default",
       type: "dataset"
     });
   }
-  function createDataContext(parent, index, element) {
+  function createDataContext(parent, index2, element) {
     return createContext(parent, {
       active: false,
-      dataIndex: index,
+      dataIndex: index2,
       parsed: void 0,
       raw: void 0,
       element,
-      index,
+      index: index2,
       mode: "default",
       type: "data"
     });
@@ -3114,12 +3714,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const labels = iScale.getLabels();
       const singleScale = iScale === vScale;
       const parsed = new Array(count);
-      let i, ilen, index;
+      let i, ilen, index2;
       for (i = 0, ilen = count; i < ilen; ++i) {
-        index = i + start;
+        index2 = i + start;
         parsed[i] = {
-          [iAxis]: singleScale || iScale.parse(labels[index], index),
-          [vAxis]: vScale.parse(data[index], index)
+          [iAxis]: singleScale || iScale.parse(labels[index2], index2),
+          [vAxis]: vScale.parse(data[index2], index2)
         };
       }
       return parsed;
@@ -3127,13 +3727,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     parseArrayData(meta, data, start, count) {
       const { xScale, yScale } = meta;
       const parsed = new Array(count);
-      let i, ilen, index, item;
+      let i, ilen, index2, item;
       for (i = 0, ilen = count; i < ilen; ++i) {
-        index = i + start;
-        item = data[index];
+        index2 = i + start;
+        item = data[index2];
         parsed[i] = {
-          x: xScale.parse(item[0], index),
-          y: yScale.parse(item[1], index)
+          x: xScale.parse(item[0], index2),
+          y: yScale.parse(item[1], index2)
         };
       }
       return parsed;
@@ -3142,22 +3742,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const { xScale, yScale } = meta;
       const { xAxisKey = "x", yAxisKey = "y" } = this._parsing;
       const parsed = new Array(count);
-      let i, ilen, index, item;
+      let i, ilen, index2, item;
       for (i = 0, ilen = count; i < ilen; ++i) {
-        index = i + start;
-        item = data[index];
+        index2 = i + start;
+        item = data[index2];
         parsed[i] = {
-          x: xScale.parse(resolveObjectKey(item, xAxisKey), index),
-          y: yScale.parse(resolveObjectKey(item, yAxisKey), index)
+          x: xScale.parse(resolveObjectKey(item, xAxisKey), index2),
+          y: yScale.parse(resolveObjectKey(item, yAxisKey), index2)
         };
       }
       return parsed;
     }
-    getParsed(index) {
-      return this._cachedMeta._parsed[index];
+    getParsed(index2) {
+      return this._cachedMeta._parsed[index2];
     }
-    getDataElement(index) {
-      return this._cachedMeta.data[index];
+    getDataElement(index2) {
+      return this._cachedMeta.data[index2];
     }
     applyStack(scale, parsed, mode) {
       const chart = this.chart;
@@ -3235,11 +3835,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getMaxOverflow() {
       return false;
     }
-    getLabelAndValue(index) {
+    getLabelAndValue(index2) {
       const meta = this._cachedMeta;
       const iScale = meta.iScale;
       const vScale = meta.vScale;
-      const parsed = this.getParsed(index);
+      const parsed = this.getParsed(index2);
       return {
         label: iScale ? "" + iScale.getLabelForValue(parsed[iScale.axis]) : "",
         value: vScale ? "" + vScale.getLabelForValue(parsed[vScale.axis]) : ""
@@ -3281,19 +3881,19 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         active[i].draw(ctx, area);
       }
     }
-    getStyle(index, active) {
+    getStyle(index2, active) {
       const mode = active ? "active" : "default";
-      return index === void 0 && this._cachedMeta.dataset ? this.resolveDatasetElementOptions(mode) : this.resolveDataElementOptions(index || 0, mode);
+      return index2 === void 0 && this._cachedMeta.dataset ? this.resolveDatasetElementOptions(mode) : this.resolveDataElementOptions(index2 || 0, mode);
     }
-    getContext(index, active, mode) {
+    getContext(index2, active, mode) {
       const dataset = this.getDataset();
       let context;
-      if (index >= 0 && index < this._cachedMeta.data.length) {
-        const element = this._cachedMeta.data[index];
-        context = element.$context || (element.$context = createDataContext(this.getContext(), index, element));
-        context.parsed = this.getParsed(index);
-        context.raw = dataset.data[index];
-        context.index = context.dataIndex = index;
+      if (index2 >= 0 && index2 < this._cachedMeta.data.length) {
+        const element = this._cachedMeta.data[index2];
+        context = element.$context || (element.$context = createDataContext(this.getContext(), index2, element));
+        context.parsed = this.getParsed(index2);
+        context.raw = dataset.data[index2];
+        context.index = context.dataIndex = index2;
       } else {
         context = this.$context || (this.$context = createDatasetContext(this.chart.getContext(), this.index));
         context.dataset = dataset;
@@ -3306,15 +3906,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     resolveDatasetElementOptions(mode) {
       return this._resolveElementOptions(this.datasetElementType.id, mode);
     }
-    resolveDataElementOptions(index, mode) {
-      return this._resolveElementOptions(this.dataElementType.id, mode, index);
+    resolveDataElementOptions(index2, mode) {
+      return this._resolveElementOptions(this.dataElementType.id, mode, index2);
     }
-    _resolveElementOptions(elementType, mode = "default", index) {
+    _resolveElementOptions(elementType, mode = "default", index2) {
       const active = mode === "active";
       const cache = this._cachedDataOpts;
       const cacheKey = elementType + "-" + mode;
       const cached = cache[cacheKey];
-      const sharing = this.enableOptionSharing && defined(index);
+      const sharing = this.enableOptionSharing && defined(index2);
       if (cached) {
         return cloneIfNotShared(cached, sharing);
       }
@@ -3331,7 +3931,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       ];
       const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
       const names2 = Object.keys(defaults$1.elements[elementType]);
-      const context = () => this.getContext(index, active, mode);
+      const context = () => this.getContext(index2, active, mode);
       const values = config.resolveNamedOptions(scopes, names2, context, prefixes);
       if (values.$shared) {
         values.$shared = sharing;
@@ -3339,7 +3939,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       return values;
     }
-    _resolveAnimations(index, transition, active) {
+    _resolveAnimations(index2, transition, active) {
       const chart = this.chart;
       const cache = this._cachedDataOpts;
       const cacheKey = `animation-${transition}`;
@@ -3352,7 +3952,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         const config = this.chart.config;
         const scopeKeys = config.datasetAnimationScopeKeys(this._type, transition);
         const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
-        options = config.createResolver(scopes, this.getContext(index, active, transition));
+        options = config.createResolver(scopes, this.getContext(index2, active, transition));
       }
       const animations = new Animations(chart, options && options.animations);
       if (options && options._cacheable) {
@@ -3380,11 +3980,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         includeOptions
       };
     }
-    updateElement(element, index, properties, mode) {
+    updateElement(element, index2, properties, mode) {
       if (isDirectUpdateMode(mode)) {
         Object.assign(element, properties);
       } else {
-        this._resolveAnimations(index, mode).update(element, properties);
+        this._resolveAnimations(index2, mode).update(element, properties);
       }
     }
     updateSharedOptions(sharedOptions, mode, newOptions) {
@@ -3392,18 +3992,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this._resolveAnimations(void 0, mode).update(sharedOptions, newOptions);
       }
     }
-    _setStyle(element, index, mode, active) {
+    _setStyle(element, index2, mode, active) {
       element.active = active;
-      const options = this.getStyle(index, active);
-      this._resolveAnimations(index, mode, active).update(element, {
+      const options = this.getStyle(index2, active);
+      this._resolveAnimations(index2, mode, active).update(element, {
         options: !active && this.getSharedOptions(options) || options
       });
     }
-    removeHoverStyle(element, datasetIndex, index) {
-      this._setStyle(element, index, "active", false);
+    removeHoverStyle(element, datasetIndex, index2) {
+      this._setStyle(element, index2, "active", false);
     }
-    setHoverStyle(element, datasetIndex, index) {
-      this._setStyle(element, index, "active", true);
+    setHoverStyle(element, datasetIndex, index2) {
+      this._setStyle(element, index2, "active", true);
     }
     _removeDatasetHoverStyle() {
       const element = this._cachedMeta.dataset;
@@ -3569,7 +4169,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return min;
   }
-  function computeFitCategoryTraits(index, ruler, options, stackCount) {
+  function computeFitCategoryTraits(index2, ruler, options, stackCount) {
     const thickness = options.barThickness;
     let size, ratio;
     if (isNullOrUndef(thickness)) {
@@ -3582,14 +4182,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     return {
       chunk: size / stackCount,
       ratio,
-      start: ruler.pixels[index] - size / 2
+      start: ruler.pixels[index2] - size / 2
     };
   }
-  function computeFlexCategoryTraits(index, ruler, options, stackCount) {
+  function computeFlexCategoryTraits(index2, ruler, options, stackCount) {
     const pixels = ruler.pixels;
-    const curr = pixels[index];
-    let prev = index > 0 ? pixels[index - 1] : null;
-    let next = index < pixels.length - 1 ? pixels[index + 1] : null;
+    const curr = pixels[index2];
+    let prev = index2 > 0 ? pixels[index2 - 1] : null;
+    let next = index2 < pixels.length - 1 ? pixels[index2 + 1] : null;
     const percent = options.categoryPercentage;
     if (prev === null) {
       prev = curr - (next === null ? ruler.end - ruler.start : next - curr);
@@ -3684,7 +4284,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       bottom
     };
   }
-  function setBorderSkipped(properties, options, stack, index) {
+  function setBorderSkipped(properties, options, stack, index2) {
     let edge = options.borderSkipped;
     const res = {};
     if (!edge) {
@@ -3703,9 +4303,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const { start, end, reverse, top, bottom } = borderProps(properties);
     if (edge === "middle" && stack) {
       properties.enableBorderRadius = true;
-      if ((stack._top || 0) === index) {
+      if ((stack._top || 0) === index2) {
         edge = top;
-      } else if ((stack._bottom || 0) === index) {
+      } else if ((stack._bottom || 0) === index2) {
         edge = bottom;
       } else {
         res[parseEdge(bottom, start, end, reverse)] = true;
@@ -3766,10 +4366,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getMaxOverflow() {
       return 0;
     }
-    getLabelAndValue(index) {
+    getLabelAndValue(index2) {
       const meta = this._cachedMeta;
       const { iScale, vScale } = meta;
-      const parsed = this.getParsed(index);
+      const parsed = this.getParsed(index2);
       const custom = parsed._custom;
       const value = isFloatBar(custom) ? "[" + custom.start + ", " + custom.end + "]" : "" + vScale.getLabelForValue(parsed[vScale.axis]);
       return {
@@ -3789,7 +4389,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     updateElements(bars, start, count, mode) {
       const reset = mode === "reset";
-      const { index, _cachedMeta: { vScale } } = this;
+      const { index: index2, _cachedMeta: { vScale } } = this;
       const base = vScale.getBasePixel();
       const horizontal = vScale.isHorizontal();
       const ruler = this._getRuler();
@@ -3805,7 +4405,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         const properties = {
           horizontal,
           base: vpixels.base,
-          enableBorderRadius: !stack || isFloatBar(parsed._custom) || index === stack._top || index === stack._bottom,
+          enableBorderRadius: !stack || isFloatBar(parsed._custom) || index2 === stack._top || index2 === stack._bottom,
           x: horizontal ? vpixels.head : ipixels.center,
           y: horizontal ? ipixels.center : vpixels.head,
           height: horizontal ? ipixels.size : Math.abs(vpixels.size),
@@ -3815,7 +4415,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           properties.options = sharedOptions || this.resolveDataElementOptions(i, bars[i].active ? "active" : mode);
         }
         const options = properties.options || bars[i].options;
-        setBorderSkipped(properties, options, stack, index);
+        setBorderSkipped(properties, options, stack, index2);
         setInflateAmount(properties, options, ruler.ratio);
         this.updateElement(bars[i], i, properties, mode);
       }
@@ -3850,13 +4450,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       return stacks;
     }
-    _getStackCount(index) {
-      return this._getStacks(void 0, index).length;
+    _getStackCount(index2) {
+      return this._getStacks(void 0, index2).length;
     }
     _getStackIndex(datasetIndex, name2, dataIndex) {
       const stacks = this._getStacks(datasetIndex, dataIndex);
-      const index = name2 !== void 0 ? stacks.indexOf(name2) : -1;
-      return index === -1 ? stacks.length - 1 : index;
+      const index2 = name2 !== void 0 ? stacks.indexOf(name2) : -1;
+      return index2 === -1 ? stacks.length - 1 : index2;
     }
     _getRuler() {
       const opts = this.options;
@@ -3880,10 +4480,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         ratio: barThickness ? 1 : opts.categoryPercentage * opts.barPercentage
       };
     }
-    _calculateBarValuePixels(index) {
+    _calculateBarValuePixels(index2) {
       const { _cachedMeta: { vScale, _stacked, index: datasetIndex }, options: { base: baseValue, minBarLength } } = this;
       const actualBase = baseValue || 0;
-      const parsed = this.getParsed(index);
+      const parsed = this.getParsed(index2);
       const custom = parsed._custom;
       const floating = isFloatBar(custom);
       let value = parsed[vScale.axis];
@@ -3904,7 +4504,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       const startValue = !isNullOrUndef(baseValue) && !floating ? baseValue : start;
       let base = vScale.getPixelForValue(startValue);
-      if (this.chart.getDataVisibility(index)) {
+      if (this.chart.getDataVisibility(index2)) {
         head = vScale.getPixelForValue(start + length);
       } else {
         head = base;
@@ -3937,20 +4537,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         center: head + size / 2
       };
     }
-    _calculateBarIndexPixels(index, ruler) {
+    _calculateBarIndexPixels(index2, ruler) {
       const scale = ruler.scale;
       const options = this.options;
       const skipNull = options.skipNull;
       const maxBarThickness = valueOrDefault(options.maxBarThickness, Infinity);
       let center, size;
       if (ruler.grouped) {
-        const stackCount = skipNull ? this._getStackCount(index) : ruler.stackCount;
-        const range = options.barThickness === "flex" ? computeFlexCategoryTraits(index, ruler, options, stackCount) : computeFitCategoryTraits(index, ruler, options, stackCount);
-        const stackIndex = this._getStackIndex(this.index, this._cachedMeta.stack, skipNull ? index : void 0);
+        const stackCount = skipNull ? this._getStackCount(index2) : ruler.stackCount;
+        const range = options.barThickness === "flex" ? computeFlexCategoryTraits(index2, ruler, options, stackCount) : computeFitCategoryTraits(index2, ruler, options, stackCount);
+        const stackIndex = this._getStackIndex(this.index, this._cachedMeta.stack, skipNull ? index2 : void 0);
         center = range.start + range.chunk * stackIndex + range.chunk / 2;
         size = Math.min(maxBarThickness, range.chunk * range.ratio);
       } else {
-        center = scale.getPixelForValue(this.getParsed(index)[scale.axis], index);
+        center = scale.getPixelForValue(this.getParsed(index2)[scale.axis], index2);
         size = Math.min(maxBarThickness, ruler.min * ruler.ratio);
       }
       return {
@@ -4005,6 +4605,917 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       _value_: {
         type: "linear",
         beginAtZero: true
+      }
+    }
+  });
+  class BubbleController extends DatasetController {
+    initialize() {
+      this.enableOptionSharing = true;
+      super.initialize();
+    }
+    parsePrimitiveData(meta, data, start, count) {
+      const parsed = super.parsePrimitiveData(meta, data, start, count);
+      for (let i = 0; i < parsed.length; i++) {
+        parsed[i]._custom = this.resolveDataElementOptions(i + start).radius;
+      }
+      return parsed;
+    }
+    parseArrayData(meta, data, start, count) {
+      const parsed = super.parseArrayData(meta, data, start, count);
+      for (let i = 0; i < parsed.length; i++) {
+        const item = data[start + i];
+        parsed[i]._custom = valueOrDefault(item[2], this.resolveDataElementOptions(i + start).radius);
+      }
+      return parsed;
+    }
+    parseObjectData(meta, data, start, count) {
+      const parsed = super.parseObjectData(meta, data, start, count);
+      for (let i = 0; i < parsed.length; i++) {
+        const item = data[start + i];
+        parsed[i]._custom = valueOrDefault(item && item.r && +item.r, this.resolveDataElementOptions(i + start).radius);
+      }
+      return parsed;
+    }
+    getMaxOverflow() {
+      const data = this._cachedMeta.data;
+      let max = 0;
+      for (let i = data.length - 1; i >= 0; --i) {
+        max = Math.max(max, data[i].size(this.resolveDataElementOptions(i)) / 2);
+      }
+      return max > 0 && max;
+    }
+    getLabelAndValue(index2) {
+      const meta = this._cachedMeta;
+      const labels = this.chart.data.labels || [];
+      const { xScale, yScale } = meta;
+      const parsed = this.getParsed(index2);
+      const x = xScale.getLabelForValue(parsed.x);
+      const y = yScale.getLabelForValue(parsed.y);
+      const r = parsed._custom;
+      return {
+        label: labels[index2] || "",
+        value: "(" + x + ", " + y + (r ? ", " + r : "") + ")"
+      };
+    }
+    update(mode) {
+      const points = this._cachedMeta.data;
+      this.updateElements(points, 0, points.length, mode);
+    }
+    updateElements(points, start, count, mode) {
+      const reset = mode === "reset";
+      const { iScale, vScale } = this._cachedMeta;
+      const { sharedOptions, includeOptions } = this._getSharedOptions(start, mode);
+      const iAxis = iScale.axis;
+      const vAxis = vScale.axis;
+      for (let i = start; i < start + count; i++) {
+        const point = points[i];
+        const parsed = !reset && this.getParsed(i);
+        const properties = {};
+        const iPixel = properties[iAxis] = reset ? iScale.getPixelForDecimal(0.5) : iScale.getPixelForValue(parsed[iAxis]);
+        const vPixel = properties[vAxis] = reset ? vScale.getBasePixel() : vScale.getPixelForValue(parsed[vAxis]);
+        properties.skip = isNaN(iPixel) || isNaN(vPixel);
+        if (includeOptions) {
+          properties.options = sharedOptions || this.resolveDataElementOptions(i, point.active ? "active" : mode);
+          if (reset) {
+            properties.options.radius = 0;
+          }
+        }
+        this.updateElement(point, i, properties, mode);
+      }
+    }
+    resolveDataElementOptions(index2, mode) {
+      const parsed = this.getParsed(index2);
+      let values = super.resolveDataElementOptions(index2, mode);
+      if (values.$shared) {
+        values = Object.assign({}, values, {
+          $shared: false
+        });
+      }
+      const radius = values.radius;
+      if (mode !== "active") {
+        values.radius = 0;
+      }
+      values.radius += valueOrDefault(parsed && parsed._custom, radius);
+      return values;
+    }
+  }
+  __publicField(BubbleController, "id", "bubble");
+  __publicField(BubbleController, "defaults", {
+    datasetElementType: false,
+    dataElementType: "point",
+    animations: {
+      numbers: {
+        type: "number",
+        properties: [
+          "x",
+          "y",
+          "borderWidth",
+          "radius"
+        ]
+      }
+    }
+  });
+  __publicField(BubbleController, "overrides", {
+    scales: {
+      x: {
+        type: "linear"
+      },
+      y: {
+        type: "linear"
+      }
+    }
+  });
+  function getRatioAndOffset(rotation, circumference, cutout) {
+    let ratioX = 1;
+    let ratioY = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    if (circumference < TAU) {
+      const startAngle = rotation;
+      const endAngle = startAngle + circumference;
+      const startX = Math.cos(startAngle);
+      const startY = Math.sin(startAngle);
+      const endX = Math.cos(endAngle);
+      const endY = Math.sin(endAngle);
+      const calcMax = (angle, a, b) => _angleBetween(angle, startAngle, endAngle, true) ? 1 : Math.max(a, a * cutout, b, b * cutout);
+      const calcMin = (angle, a, b) => _angleBetween(angle, startAngle, endAngle, true) ? -1 : Math.min(a, a * cutout, b, b * cutout);
+      const maxX = calcMax(0, startX, endX);
+      const maxY = calcMax(HALF_PI, startY, endY);
+      const minX = calcMin(PI, startX, endX);
+      const minY = calcMin(PI + HALF_PI, startY, endY);
+      ratioX = (maxX - minX) / 2;
+      ratioY = (maxY - minY) / 2;
+      offsetX = -(maxX + minX) / 2;
+      offsetY = -(maxY + minY) / 2;
+    }
+    return {
+      ratioX,
+      ratioY,
+      offsetX,
+      offsetY
+    };
+  }
+  class DoughnutController extends DatasetController {
+    constructor(chart, datasetIndex) {
+      super(chart, datasetIndex);
+      this.enableOptionSharing = true;
+      this.innerRadius = void 0;
+      this.outerRadius = void 0;
+      this.offsetX = void 0;
+      this.offsetY = void 0;
+    }
+    linkScales() {
+    }
+    parse(start, count) {
+      const data = this.getDataset().data;
+      const meta = this._cachedMeta;
+      if (this._parsing === false) {
+        meta._parsed = data;
+      } else {
+        let getter = (i2) => +data[i2];
+        if (isObject(data[start])) {
+          const { key = "value" } = this._parsing;
+          getter = (i2) => +resolveObjectKey(data[i2], key);
+        }
+        let i, ilen;
+        for (i = start, ilen = start + count; i < ilen; ++i) {
+          meta._parsed[i] = getter(i);
+        }
+      }
+    }
+    _getRotation() {
+      return toRadians(this.options.rotation - 90);
+    }
+    _getCircumference() {
+      return toRadians(this.options.circumference);
+    }
+    _getRotationExtents() {
+      let min = TAU;
+      let max = -TAU;
+      for (let i = 0; i < this.chart.data.datasets.length; ++i) {
+        if (this.chart.isDatasetVisible(i) && this.chart.getDatasetMeta(i).type === this._type) {
+          const controller = this.chart.getDatasetMeta(i).controller;
+          const rotation = controller._getRotation();
+          const circumference = controller._getCircumference();
+          min = Math.min(min, rotation);
+          max = Math.max(max, rotation + circumference);
+        }
+      }
+      return {
+        rotation: min,
+        circumference: max - min
+      };
+    }
+    update(mode) {
+      const chart = this.chart;
+      const { chartArea } = chart;
+      const meta = this._cachedMeta;
+      const arcs = meta.data;
+      const spacing = this.getMaxBorderWidth() + this.getMaxOffset(arcs) + this.options.spacing;
+      const maxSize = Math.max((Math.min(chartArea.width, chartArea.height) - spacing) / 2, 0);
+      const cutout = Math.min(toPercentage(this.options.cutout, maxSize), 1);
+      const chartWeight = this._getRingWeight(this.index);
+      const { circumference, rotation } = this._getRotationExtents();
+      const { ratioX, ratioY, offsetX, offsetY } = getRatioAndOffset(rotation, circumference, cutout);
+      const maxWidth = (chartArea.width - spacing) / ratioX;
+      const maxHeight = (chartArea.height - spacing) / ratioY;
+      const maxRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
+      const outerRadius = toDimension(this.options.radius, maxRadius);
+      const innerRadius = Math.max(outerRadius * cutout, 0);
+      const radiusLength = (outerRadius - innerRadius) / this._getVisibleDatasetWeightTotal();
+      this.offsetX = offsetX * outerRadius;
+      this.offsetY = offsetY * outerRadius;
+      meta.total = this.calculateTotal();
+      this.outerRadius = outerRadius - radiusLength * this._getRingWeightOffset(this.index);
+      this.innerRadius = Math.max(this.outerRadius - radiusLength * chartWeight, 0);
+      this.updateElements(arcs, 0, arcs.length, mode);
+    }
+    _circumference(i, reset) {
+      const opts = this.options;
+      const meta = this._cachedMeta;
+      const circumference = this._getCircumference();
+      if (reset && opts.animation.animateRotate || !this.chart.getDataVisibility(i) || meta._parsed[i] === null || meta.data[i].hidden) {
+        return 0;
+      }
+      return this.calculateCircumference(meta._parsed[i] * circumference / TAU);
+    }
+    updateElements(arcs, start, count, mode) {
+      const reset = mode === "reset";
+      const chart = this.chart;
+      const chartArea = chart.chartArea;
+      const opts = chart.options;
+      const animationOpts = opts.animation;
+      const centerX = (chartArea.left + chartArea.right) / 2;
+      const centerY = (chartArea.top + chartArea.bottom) / 2;
+      const animateScale = reset && animationOpts.animateScale;
+      const innerRadius = animateScale ? 0 : this.innerRadius;
+      const outerRadius = animateScale ? 0 : this.outerRadius;
+      const { sharedOptions, includeOptions } = this._getSharedOptions(start, mode);
+      let startAngle = this._getRotation();
+      let i;
+      for (i = 0; i < start; ++i) {
+        startAngle += this._circumference(i, reset);
+      }
+      for (i = start; i < start + count; ++i) {
+        const circumference = this._circumference(i, reset);
+        const arc = arcs[i];
+        const properties = {
+          x: centerX + this.offsetX,
+          y: centerY + this.offsetY,
+          startAngle,
+          endAngle: startAngle + circumference,
+          circumference,
+          outerRadius,
+          innerRadius
+        };
+        if (includeOptions) {
+          properties.options = sharedOptions || this.resolveDataElementOptions(i, arc.active ? "active" : mode);
+        }
+        startAngle += circumference;
+        this.updateElement(arc, i, properties, mode);
+      }
+    }
+    calculateTotal() {
+      const meta = this._cachedMeta;
+      const metaData = meta.data;
+      let total = 0;
+      let i;
+      for (i = 0; i < metaData.length; i++) {
+        const value = meta._parsed[i];
+        if (value !== null && !isNaN(value) && this.chart.getDataVisibility(i) && !metaData[i].hidden) {
+          total += Math.abs(value);
+        }
+      }
+      return total;
+    }
+    calculateCircumference(value) {
+      const total = this._cachedMeta.total;
+      if (total > 0 && !isNaN(value)) {
+        return TAU * (Math.abs(value) / total);
+      }
+      return 0;
+    }
+    getLabelAndValue(index2) {
+      const meta = this._cachedMeta;
+      const chart = this.chart;
+      const labels = chart.data.labels || [];
+      const value = formatNumber(meta._parsed[index2], chart.options.locale);
+      return {
+        label: labels[index2] || "",
+        value
+      };
+    }
+    getMaxBorderWidth(arcs) {
+      let max = 0;
+      const chart = this.chart;
+      let i, ilen, meta, controller, options;
+      if (!arcs) {
+        for (i = 0, ilen = chart.data.datasets.length; i < ilen; ++i) {
+          if (chart.isDatasetVisible(i)) {
+            meta = chart.getDatasetMeta(i);
+            arcs = meta.data;
+            controller = meta.controller;
+            break;
+          }
+        }
+      }
+      if (!arcs) {
+        return 0;
+      }
+      for (i = 0, ilen = arcs.length; i < ilen; ++i) {
+        options = controller.resolveDataElementOptions(i);
+        if (options.borderAlign !== "inner") {
+          max = Math.max(max, options.borderWidth || 0, options.hoverBorderWidth || 0);
+        }
+      }
+      return max;
+    }
+    getMaxOffset(arcs) {
+      let max = 0;
+      for (let i = 0, ilen = arcs.length; i < ilen; ++i) {
+        const options = this.resolveDataElementOptions(i);
+        max = Math.max(max, options.offset || 0, options.hoverOffset || 0);
+      }
+      return max;
+    }
+    _getRingWeightOffset(datasetIndex) {
+      let ringWeightOffset = 0;
+      for (let i = 0; i < datasetIndex; ++i) {
+        if (this.chart.isDatasetVisible(i)) {
+          ringWeightOffset += this._getRingWeight(i);
+        }
+      }
+      return ringWeightOffset;
+    }
+    _getRingWeight(datasetIndex) {
+      return Math.max(valueOrDefault(this.chart.data.datasets[datasetIndex].weight, 1), 0);
+    }
+    _getVisibleDatasetWeightTotal() {
+      return this._getRingWeightOffset(this.chart.data.datasets.length) || 1;
+    }
+  }
+  __publicField(DoughnutController, "id", "doughnut");
+  __publicField(DoughnutController, "defaults", {
+    datasetElementType: false,
+    dataElementType: "arc",
+    animation: {
+      animateRotate: true,
+      animateScale: false
+    },
+    animations: {
+      numbers: {
+        type: "number",
+        properties: [
+          "circumference",
+          "endAngle",
+          "innerRadius",
+          "outerRadius",
+          "startAngle",
+          "x",
+          "y",
+          "offset",
+          "borderWidth",
+          "spacing"
+        ]
+      }
+    },
+    cutout: "50%",
+    rotation: 0,
+    circumference: 360,
+    radius: "100%",
+    spacing: 0,
+    indexAxis: "r"
+  });
+  __publicField(DoughnutController, "descriptors", {
+    _scriptable: (name2) => name2 !== "spacing",
+    _indexable: (name2) => name2 !== "spacing" && !name2.startsWith("borderDash") && !name2.startsWith("hoverBorderDash")
+  });
+  __publicField(DoughnutController, "overrides", {
+    aspectRatio: 1,
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels(chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              const { labels: { pointStyle, color: color2 } } = chart.legend.options;
+              return data.labels.map((label, i) => {
+                const meta = chart.getDatasetMeta(0);
+                const style = meta.controller.getStyle(i);
+                return {
+                  text: label,
+                  fillStyle: style.backgroundColor,
+                  strokeStyle: style.borderColor,
+                  fontColor: color2,
+                  lineWidth: style.borderWidth,
+                  pointStyle,
+                  hidden: !chart.getDataVisibility(i),
+                  index: i
+                };
+              });
+            }
+            return [];
+          }
+        },
+        onClick(e, legendItem, legend) {
+          legend.chart.toggleDataVisibility(legendItem.index);
+          legend.chart.update();
+        }
+      }
+    }
+  });
+  class LineController extends DatasetController {
+    initialize() {
+      this.enableOptionSharing = true;
+      this.supportsDecimation = true;
+      super.initialize();
+    }
+    update(mode) {
+      const meta = this._cachedMeta;
+      const { dataset: line, data: points = [], _dataset } = meta;
+      const animationsDisabled = this.chart._animationsDisabled;
+      let { start, count } = _getStartAndCountOfVisiblePoints(meta, points, animationsDisabled);
+      this._drawStart = start;
+      this._drawCount = count;
+      if (_scaleRangesChanged(meta)) {
+        start = 0;
+        count = points.length;
+      }
+      line._chart = this.chart;
+      line._datasetIndex = this.index;
+      line._decimated = !!_dataset._decimated;
+      line.points = points;
+      const options = this.resolveDatasetElementOptions(mode);
+      if (!this.options.showLine) {
+        options.borderWidth = 0;
+      }
+      options.segment = this.options.segment;
+      this.updateElement(line, void 0, {
+        animated: !animationsDisabled,
+        options
+      }, mode);
+      this.updateElements(points, start, count, mode);
+    }
+    updateElements(points, start, count, mode) {
+      const reset = mode === "reset";
+      const { iScale, vScale, _stacked, _dataset } = this._cachedMeta;
+      const { sharedOptions, includeOptions } = this._getSharedOptions(start, mode);
+      const iAxis = iScale.axis;
+      const vAxis = vScale.axis;
+      const { spanGaps, segment } = this.options;
+      const maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
+      const directUpdate = this.chart._animationsDisabled || reset || mode === "none";
+      const end = start + count;
+      const pointsCount = points.length;
+      let prevParsed = start > 0 && this.getParsed(start - 1);
+      for (let i = 0; i < pointsCount; ++i) {
+        const point = points[i];
+        const properties = directUpdate ? point : {};
+        if (i < start || i >= end) {
+          properties.skip = true;
+          continue;
+        }
+        const parsed = this.getParsed(i);
+        const nullData = isNullOrUndef(parsed[vAxis]);
+        const iPixel = properties[iAxis] = iScale.getPixelForValue(parsed[iAxis], i);
+        const vPixel = properties[vAxis] = reset || nullData ? vScale.getBasePixel() : vScale.getPixelForValue(_stacked ? this.applyStack(vScale, parsed, _stacked) : parsed[vAxis], i);
+        properties.skip = isNaN(iPixel) || isNaN(vPixel) || nullData;
+        properties.stop = i > 0 && Math.abs(parsed[iAxis] - prevParsed[iAxis]) > maxGapLength;
+        if (segment) {
+          properties.parsed = parsed;
+          properties.raw = _dataset.data[i];
+        }
+        if (includeOptions) {
+          properties.options = sharedOptions || this.resolveDataElementOptions(i, point.active ? "active" : mode);
+        }
+        if (!directUpdate) {
+          this.updateElement(point, i, properties, mode);
+        }
+        prevParsed = parsed;
+      }
+    }
+    getMaxOverflow() {
+      const meta = this._cachedMeta;
+      const dataset = meta.dataset;
+      const border = dataset.options && dataset.options.borderWidth || 0;
+      const data = meta.data || [];
+      if (!data.length) {
+        return border;
+      }
+      const firstPoint = data[0].size(this.resolveDataElementOptions(0));
+      const lastPoint = data[data.length - 1].size(this.resolveDataElementOptions(data.length - 1));
+      return Math.max(border, firstPoint, lastPoint) / 2;
+    }
+    draw() {
+      const meta = this._cachedMeta;
+      meta.dataset.updateControlPoints(this.chart.chartArea, meta.iScale.axis);
+      super.draw();
+    }
+  }
+  __publicField(LineController, "id", "line");
+  __publicField(LineController, "defaults", {
+    datasetElementType: "line",
+    dataElementType: "point",
+    showLine: true,
+    spanGaps: false
+  });
+  __publicField(LineController, "overrides", {
+    scales: {
+      _index_: {
+        type: "category"
+      },
+      _value_: {
+        type: "linear"
+      }
+    }
+  });
+  class PolarAreaController extends DatasetController {
+    constructor(chart, datasetIndex) {
+      super(chart, datasetIndex);
+      this.innerRadius = void 0;
+      this.outerRadius = void 0;
+    }
+    getLabelAndValue(index2) {
+      const meta = this._cachedMeta;
+      const chart = this.chart;
+      const labels = chart.data.labels || [];
+      const value = formatNumber(meta._parsed[index2].r, chart.options.locale);
+      return {
+        label: labels[index2] || "",
+        value
+      };
+    }
+    parseObjectData(meta, data, start, count) {
+      return _parseObjectDataRadialScale.bind(this)(meta, data, start, count);
+    }
+    update(mode) {
+      const arcs = this._cachedMeta.data;
+      this._updateRadius();
+      this.updateElements(arcs, 0, arcs.length, mode);
+    }
+    getMinMax() {
+      const meta = this._cachedMeta;
+      const range = {
+        min: Number.POSITIVE_INFINITY,
+        max: Number.NEGATIVE_INFINITY
+      };
+      meta.data.forEach((element, index2) => {
+        const parsed = this.getParsed(index2).r;
+        if (!isNaN(parsed) && this.chart.getDataVisibility(index2)) {
+          if (parsed < range.min) {
+            range.min = parsed;
+          }
+          if (parsed > range.max) {
+            range.max = parsed;
+          }
+        }
+      });
+      return range;
+    }
+    _updateRadius() {
+      const chart = this.chart;
+      const chartArea = chart.chartArea;
+      const opts = chart.options;
+      const minSize = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+      const outerRadius = Math.max(minSize / 2, 0);
+      const innerRadius = Math.max(opts.cutoutPercentage ? outerRadius / 100 * opts.cutoutPercentage : 1, 0);
+      const radiusLength = (outerRadius - innerRadius) / chart.getVisibleDatasetCount();
+      this.outerRadius = outerRadius - radiusLength * this.index;
+      this.innerRadius = this.outerRadius - radiusLength;
+    }
+    updateElements(arcs, start, count, mode) {
+      const reset = mode === "reset";
+      const chart = this.chart;
+      const opts = chart.options;
+      const animationOpts = opts.animation;
+      const scale = this._cachedMeta.rScale;
+      const centerX = scale.xCenter;
+      const centerY = scale.yCenter;
+      const datasetStartAngle = scale.getIndexAngle(0) - 0.5 * PI;
+      let angle = datasetStartAngle;
+      let i;
+      const defaultAngle = 360 / this.countVisibleElements();
+      for (i = 0; i < start; ++i) {
+        angle += this._computeAngle(i, mode, defaultAngle);
+      }
+      for (i = start; i < start + count; i++) {
+        const arc = arcs[i];
+        let startAngle = angle;
+        let endAngle = angle + this._computeAngle(i, mode, defaultAngle);
+        let outerRadius = chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(this.getParsed(i).r) : 0;
+        angle = endAngle;
+        if (reset) {
+          if (animationOpts.animateScale) {
+            outerRadius = 0;
+          }
+          if (animationOpts.animateRotate) {
+            startAngle = endAngle = datasetStartAngle;
+          }
+        }
+        const properties = {
+          x: centerX,
+          y: centerY,
+          innerRadius: 0,
+          outerRadius,
+          startAngle,
+          endAngle,
+          options: this.resolveDataElementOptions(i, arc.active ? "active" : mode)
+        };
+        this.updateElement(arc, i, properties, mode);
+      }
+    }
+    countVisibleElements() {
+      const meta = this._cachedMeta;
+      let count = 0;
+      meta.data.forEach((element, index2) => {
+        if (!isNaN(this.getParsed(index2).r) && this.chart.getDataVisibility(index2)) {
+          count++;
+        }
+      });
+      return count;
+    }
+    _computeAngle(index2, mode, defaultAngle) {
+      return this.chart.getDataVisibility(index2) ? toRadians(this.resolveDataElementOptions(index2, mode).angle || defaultAngle) : 0;
+    }
+  }
+  __publicField(PolarAreaController, "id", "polarArea");
+  __publicField(PolarAreaController, "defaults", {
+    dataElementType: "arc",
+    animation: {
+      animateRotate: true,
+      animateScale: true
+    },
+    animations: {
+      numbers: {
+        type: "number",
+        properties: [
+          "x",
+          "y",
+          "startAngle",
+          "endAngle",
+          "innerRadius",
+          "outerRadius"
+        ]
+      }
+    },
+    indexAxis: "r",
+    startAngle: 0
+  });
+  __publicField(PolarAreaController, "overrides", {
+    aspectRatio: 1,
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels(chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              const { labels: { pointStyle, color: color2 } } = chart.legend.options;
+              return data.labels.map((label, i) => {
+                const meta = chart.getDatasetMeta(0);
+                const style = meta.controller.getStyle(i);
+                return {
+                  text: label,
+                  fillStyle: style.backgroundColor,
+                  strokeStyle: style.borderColor,
+                  fontColor: color2,
+                  lineWidth: style.borderWidth,
+                  pointStyle,
+                  hidden: !chart.getDataVisibility(i),
+                  index: i
+                };
+              });
+            }
+            return [];
+          }
+        },
+        onClick(e, legendItem, legend) {
+          legend.chart.toggleDataVisibility(legendItem.index);
+          legend.chart.update();
+        }
+      }
+    },
+    scales: {
+      r: {
+        type: "radialLinear",
+        angleLines: {
+          display: false
+        },
+        beginAtZero: true,
+        grid: {
+          circular: true
+        },
+        pointLabels: {
+          display: false
+        },
+        startAngle: 0
+      }
+    }
+  });
+  class PieController extends DoughnutController {
+  }
+  __publicField(PieController, "id", "pie");
+  __publicField(PieController, "defaults", {
+    cutout: 0,
+    rotation: 0,
+    circumference: 360,
+    radius: "100%"
+  });
+  class RadarController extends DatasetController {
+    getLabelAndValue(index2) {
+      const vScale = this._cachedMeta.vScale;
+      const parsed = this.getParsed(index2);
+      return {
+        label: vScale.getLabels()[index2],
+        value: "" + vScale.getLabelForValue(parsed[vScale.axis])
+      };
+    }
+    parseObjectData(meta, data, start, count) {
+      return _parseObjectDataRadialScale.bind(this)(meta, data, start, count);
+    }
+    update(mode) {
+      const meta = this._cachedMeta;
+      const line = meta.dataset;
+      const points = meta.data || [];
+      const labels = meta.iScale.getLabels();
+      line.points = points;
+      if (mode !== "resize") {
+        const options = this.resolveDatasetElementOptions(mode);
+        if (!this.options.showLine) {
+          options.borderWidth = 0;
+        }
+        const properties = {
+          _loop: true,
+          _fullLoop: labels.length === points.length,
+          options
+        };
+        this.updateElement(line, void 0, properties, mode);
+      }
+      this.updateElements(points, 0, points.length, mode);
+    }
+    updateElements(points, start, count, mode) {
+      const scale = this._cachedMeta.rScale;
+      const reset = mode === "reset";
+      for (let i = start; i < start + count; i++) {
+        const point = points[i];
+        const options = this.resolveDataElementOptions(i, point.active ? "active" : mode);
+        const pointPosition = scale.getPointPositionForValue(i, this.getParsed(i).r);
+        const x = reset ? scale.xCenter : pointPosition.x;
+        const y = reset ? scale.yCenter : pointPosition.y;
+        const properties = {
+          x,
+          y,
+          angle: pointPosition.angle,
+          skip: isNaN(x) || isNaN(y),
+          options
+        };
+        this.updateElement(point, i, properties, mode);
+      }
+    }
+  }
+  __publicField(RadarController, "id", "radar");
+  __publicField(RadarController, "defaults", {
+    datasetElementType: "line",
+    dataElementType: "point",
+    indexAxis: "r",
+    showLine: true,
+    elements: {
+      line: {
+        fill: "start"
+      }
+    }
+  });
+  __publicField(RadarController, "overrides", {
+    aspectRatio: 1,
+    scales: {
+      r: {
+        type: "radialLinear"
+      }
+    }
+  });
+  class ScatterController extends DatasetController {
+    getLabelAndValue(index2) {
+      const meta = this._cachedMeta;
+      const labels = this.chart.data.labels || [];
+      const { xScale, yScale } = meta;
+      const parsed = this.getParsed(index2);
+      const x = xScale.getLabelForValue(parsed.x);
+      const y = yScale.getLabelForValue(parsed.y);
+      return {
+        label: labels[index2] || "",
+        value: "(" + x + ", " + y + ")"
+      };
+    }
+    update(mode) {
+      const meta = this._cachedMeta;
+      const { data: points = [] } = meta;
+      const animationsDisabled = this.chart._animationsDisabled;
+      let { start, count } = _getStartAndCountOfVisiblePoints(meta, points, animationsDisabled);
+      this._drawStart = start;
+      this._drawCount = count;
+      if (_scaleRangesChanged(meta)) {
+        start = 0;
+        count = points.length;
+      }
+      if (this.options.showLine) {
+        if (!this.datasetElementType) {
+          this.addElements();
+        }
+        const { dataset: line, _dataset } = meta;
+        line._chart = this.chart;
+        line._datasetIndex = this.index;
+        line._decimated = !!_dataset._decimated;
+        line.points = points;
+        const options = this.resolveDatasetElementOptions(mode);
+        options.segment = this.options.segment;
+        this.updateElement(line, void 0, {
+          animated: !animationsDisabled,
+          options
+        }, mode);
+      } else if (this.datasetElementType) {
+        delete meta.dataset;
+        this.datasetElementType = false;
+      }
+      this.updateElements(points, start, count, mode);
+    }
+    addElements() {
+      const { showLine } = this.options;
+      if (!this.datasetElementType && showLine) {
+        this.datasetElementType = this.chart.registry.getElement("line");
+      }
+      super.addElements();
+    }
+    updateElements(points, start, count, mode) {
+      const reset = mode === "reset";
+      const { iScale, vScale, _stacked, _dataset } = this._cachedMeta;
+      const firstOpts = this.resolveDataElementOptions(start, mode);
+      const sharedOptions = this.getSharedOptions(firstOpts);
+      const includeOptions = this.includeOptions(mode, sharedOptions);
+      const iAxis = iScale.axis;
+      const vAxis = vScale.axis;
+      const { spanGaps, segment } = this.options;
+      const maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
+      const directUpdate = this.chart._animationsDisabled || reset || mode === "none";
+      let prevParsed = start > 0 && this.getParsed(start - 1);
+      for (let i = start; i < start + count; ++i) {
+        const point = points[i];
+        const parsed = this.getParsed(i);
+        const properties = directUpdate ? point : {};
+        const nullData = isNullOrUndef(parsed[vAxis]);
+        const iPixel = properties[iAxis] = iScale.getPixelForValue(parsed[iAxis], i);
+        const vPixel = properties[vAxis] = reset || nullData ? vScale.getBasePixel() : vScale.getPixelForValue(_stacked ? this.applyStack(vScale, parsed, _stacked) : parsed[vAxis], i);
+        properties.skip = isNaN(iPixel) || isNaN(vPixel) || nullData;
+        properties.stop = i > 0 && Math.abs(parsed[iAxis] - prevParsed[iAxis]) > maxGapLength;
+        if (segment) {
+          properties.parsed = parsed;
+          properties.raw = _dataset.data[i];
+        }
+        if (includeOptions) {
+          properties.options = sharedOptions || this.resolveDataElementOptions(i, point.active ? "active" : mode);
+        }
+        if (!directUpdate) {
+          this.updateElement(point, i, properties, mode);
+        }
+        prevParsed = parsed;
+      }
+      this.updateSharedOptions(sharedOptions, mode, firstOpts);
+    }
+    getMaxOverflow() {
+      const meta = this._cachedMeta;
+      const data = meta.data || [];
+      if (!this.options.showLine) {
+        let max = 0;
+        for (let i = data.length - 1; i >= 0; --i) {
+          max = Math.max(max, data[i].size(this.resolveDataElementOptions(i)) / 2);
+        }
+        return max > 0 && max;
+      }
+      const dataset = meta.dataset;
+      const border = dataset.options && dataset.options.borderWidth || 0;
+      if (!data.length) {
+        return border;
+      }
+      const firstPoint = data[0].size(this.resolveDataElementOptions(0));
+      const lastPoint = data[data.length - 1].size(this.resolveDataElementOptions(data.length - 1));
+      return Math.max(border, firstPoint, lastPoint) / 2;
+    }
+  }
+  __publicField(ScatterController, "id", "scatter");
+  __publicField(ScatterController, "defaults", {
+    datasetElementType: false,
+    dataElementType: "point",
+    showLine: false,
+    fill: false
+  });
+  __publicField(ScatterController, "overrides", {
+    interaction: {
+      mode: "point"
+    },
+    scales: {
+      x: {
+        type: "linear"
+      },
+      y: {
+        type: "linear"
       }
     }
   });
@@ -4096,12 +5607,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const metasets = chart.getSortedVisibleDatasetMetas();
     const value = position[axis];
     for (let i = 0, ilen = metasets.length; i < ilen; ++i) {
-      const { index, data } = metasets[i];
+      const { index: index2, data } = metasets[i];
       const { lo, hi } = binarySearch(metasets[i], axis, value, intersect);
       for (let j = lo; j <= hi; ++j) {
         const element = data[j];
         if (!element.skip) {
-          handler(element, index, j);
+          handler(element, index2, j);
         }
       }
     }
@@ -4120,7 +5631,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     if (!includeInvisible && !chart.isPointInArea(position)) {
       return items;
     }
-    const evaluationFunc = function(element, datasetIndex, index) {
+    const evaluationFunc = function(element, datasetIndex, index2) {
       if (!includeInvisible && !_isPointInArea(element, chart.chartArea, 0)) {
         return;
       }
@@ -4128,7 +5639,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         items.push({
           element,
           datasetIndex,
-          index
+          index: index2
         });
       }
     };
@@ -4137,7 +5648,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   }
   function getNearestRadialItems(chart, position, axis, useFinalPosition) {
     let items = [];
-    function evaluationFunc(element, datasetIndex, index) {
+    function evaluationFunc(element, datasetIndex, index2) {
       const { startAngle, endAngle } = element.getProps([
         "startAngle",
         "endAngle"
@@ -4150,7 +5661,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         items.push({
           element,
           datasetIndex,
-          index
+          index: index2
         });
       }
     }
@@ -4161,7 +5672,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     let items = [];
     const distanceMetric = getDistanceMetricForAxis(axis);
     let minDistance = Number.POSITIVE_INFINITY;
-    function evaluationFunc(element, datasetIndex, index) {
+    function evaluationFunc(element, datasetIndex, index2) {
       const inRange2 = element.inRange(position.x, position.y, useFinalPosition);
       if (intersect && !inRange2) {
         return;
@@ -4177,7 +5688,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           {
             element,
             datasetIndex,
-            index
+            index: index2
           }
         ];
         minDistance = distance;
@@ -4185,7 +5696,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         items.push({
           element,
           datasetIndex,
-          index
+          index: index2
         });
       }
     }
@@ -4202,12 +5713,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const items = [];
     const rangeMethod = axis === "x" ? "inXRange" : "inYRange";
     let intersectsItem = false;
-    evaluateInteractionItems(chart, axis, position, (element, datasetIndex, index) => {
+    evaluateInteractionItems(chart, axis, position, (element, datasetIndex, index2) => {
       if (element[rangeMethod] && element[rangeMethod](position[axis], useFinalPosition)) {
         items.push({
           element,
           datasetIndex,
-          index
+          index: index2
         });
         intersectsItem = intersectsItem || element.inRange(position.x, position.y, useFinalPosition);
       }
@@ -4229,13 +5740,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           return [];
         }
         chart.getSortedVisibleDatasetMetas().forEach((meta) => {
-          const index = items[0].index;
-          const element = meta.data[index];
+          const index2 = items[0].index;
+          const element = meta.data[index2];
           if (element && !element.skip) {
             elements.push({
               element,
               datasetIndex: meta.index,
-              index
+              index: index2
             });
           }
         });
@@ -4537,9 +6048,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       chart.boxes.push(item);
     },
     removeBox(chart, layoutItem) {
-      const index = chart.boxes ? chart.boxes.indexOf(layoutItem) : -1;
-      if (index !== -1) {
-        chart.boxes.splice(index, 1);
+      const index2 = chart.boxes ? chart.boxes.indexOf(layoutItem) : -1;
+      if (index2 !== -1) {
+        chart.boxes.splice(index2, 1);
       }
     },
     configure(chart, item, options) {
@@ -5065,9 +6576,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return result;
   }
-  function getPixelForGridLine(scale, index, offsetGridLines) {
+  function getPixelForGridLine(scale, index2, offsetGridLines) {
     const length = scale.ticks.length;
-    const validIndex2 = Math.min(index, length - 1);
+    const validIndex2 = Math.min(index2, length - 1);
     const start = scale._startPixel;
     const end = scale._endPixel;
     const epsilon = 1e-6;
@@ -5076,12 +6587,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     if (offsetGridLines) {
       if (length === 1) {
         offset = Math.max(lineValue - start, end - lineValue);
-      } else if (index === 0) {
+      } else if (index2 === 0) {
         offset = (scale.getPixelForTick(1) - lineValue) / 2;
       } else {
         offset = (lineValue - scale.getPixelForTick(validIndex2 - 1)) / 2;
       }
-      lineValue += validIndex2 < index ? offset : -offset;
+      lineValue += validIndex2 < index2 ? offset : -offset;
       if (lineValue < start - epsilon || lineValue > end + epsilon) {
         return;
       }
@@ -5119,10 +6630,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       type: "scale"
     });
   }
-  function createTickContext(parent, index, tick) {
+  function createTickContext(parent, index2, tick) {
     return createContext(parent, {
       tick,
-      index,
+      index: index2,
       type: "tick"
     });
   }
@@ -5231,7 +6742,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._suggestedMin = this.parse(options.suggestedMin);
       this._suggestedMax = this.parse(options.suggestedMax);
     }
-    parse(raw, index) {
+    parse(raw, index2) {
       return raw;
     }
     getUserBounds() {
@@ -5667,17 +7178,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getLabelForValue(value) {
       return value;
     }
-    getPixelForValue(value, index) {
+    getPixelForValue(value, index2) {
       return NaN;
     }
     getValueForPixel(pixel) {
     }
-    getPixelForTick(index) {
+    getPixelForTick(index2) {
       const ticks = this.ticks;
-      if (index < 0 || index > ticks.length - 1) {
+      if (index2 < 0 || index2 > ticks.length - 1) {
         return null;
       }
-      return this.getPixelForValue(ticks[index].value);
+      return this.getPixelForValue(ticks[index2].value);
     }
     getPixelForDecimal(decimal) {
       if (this._reversePixels) {
@@ -5697,11 +7208,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const { min, max } = this;
       return min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
     }
-    getContext(index) {
+    getContext(index2) {
       const ticks = this.ticks || [];
-      if (index >= 0 && index < ticks.length) {
-        const tick = ticks[index];
-        return tick.$context || (tick.$context = createTickContext(this.getContext(), index, tick));
+      if (index2 >= 0 && index2 < ticks.length) {
+        const tick = ticks[index2];
+        return tick.$context || (tick.$context = createTickContext(this.getContext(), index2, tick));
       }
       return this.$context || (this.$context = createScaleContext(this.chart.getContext(), this));
     }
@@ -6120,9 +7631,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return 0;
       }
       const ticks = this.ticks;
-      const index = ticks.findIndex((t) => t.value === value);
-      if (index >= 0) {
-        const opts = grid.setContext(this.getContext(index));
+      const index2 = ticks.findIndex((t) => t.value === value);
+      if (index2 >= 0) {
+        const opts = grid.setContext(this.getContext(index2));
         return opts.lineWidth;
       }
       return 0;
@@ -6317,8 +7828,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       return result;
     }
-    _resolveTickFontOptions(index) {
-      const opts = this.options.ticks.setContext(this.getContext(index));
+    _resolveTickFontOptions(index2) {
+      const opts = this.options.ticks.setContext(this.getContext(index2));
       return toFont(opts.font);
     }
     _maxDigits() {
@@ -7245,9 +8756,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (metasets.length > datasets.length) {
         delete this._stacks;
       }
-      metasets.forEach((meta, index) => {
+      metasets.forEach((meta, index2) => {
         if (datasets.filter((x) => x === meta._dataset).length === 0) {
-          this._destroyDatasetMeta(index);
+          this._destroyDatasetMeta(index2);
         }
       });
     }
@@ -7403,8 +8914,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         }
         this._layers.push(...box._layers());
       }, this);
-      this._layers.forEach((item, index) => {
-        item._idx = index;
+      this._layers.forEach((item, index2) => {
+        item._idx = index2;
       });
       this.notifyPlugins("afterLayout");
     }
@@ -7427,11 +8938,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         mode
       });
     }
-    _updateDataset(index, mode) {
-      const meta = this.getDatasetMeta(index);
+    _updateDataset(index2, mode) {
+      const meta = this.getDatasetMeta(index2);
       const args = {
         meta,
-        index,
+        index: index2,
         mode,
         cancelable: true
       };
@@ -7587,11 +9098,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const meta = this.getDatasetMeta(datasetIndex);
       meta.hidden = !visible;
     }
-    toggleDataVisibility(index) {
-      this._hiddenIndices[index] = !this._hiddenIndices[index];
+    toggleDataVisibility(index2) {
+      this._hiddenIndices[index2] = !this._hiddenIndices[index2];
     }
-    getDataVisibility(index) {
-      return !this._hiddenIndices[index];
+    getDataVisibility(index2) {
+      return !this._hiddenIndices[index2];
     }
     _updateVisibility(datasetIndex, dataIndex, visible) {
       const mode = visible ? "show" : "hide";
@@ -7741,15 +9252,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setActiveElements(activeElements) {
       const lastActive = this._active || [];
-      const active = activeElements.map(({ datasetIndex, index }) => {
+      const active = activeElements.map(({ datasetIndex, index: index2 }) => {
         const meta = this.getDatasetMeta(datasetIndex);
         if (!meta) {
           throw new Error("No dataset found at index " + datasetIndex);
         }
         return {
           datasetIndex,
-          element: meta.data[index],
-          index
+          element: meta.data[index2],
+          index: index2
         };
       });
       const changed = !_elementsEqual(active, lastActive);
@@ -8111,6 +9622,291 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     _scriptable: true,
     _indexable: (name2) => name2 !== "borderDash"
   });
+  function setStyle(ctx, options, style = options) {
+    ctx.lineCap = valueOrDefault(style.borderCapStyle, options.borderCapStyle);
+    ctx.setLineDash(valueOrDefault(style.borderDash, options.borderDash));
+    ctx.lineDashOffset = valueOrDefault(style.borderDashOffset, options.borderDashOffset);
+    ctx.lineJoin = valueOrDefault(style.borderJoinStyle, options.borderJoinStyle);
+    ctx.lineWidth = valueOrDefault(style.borderWidth, options.borderWidth);
+    ctx.strokeStyle = valueOrDefault(style.borderColor, options.borderColor);
+  }
+  function lineTo(ctx, previous, target) {
+    ctx.lineTo(target.x, target.y);
+  }
+  function getLineMethod(options) {
+    if (options.stepped) {
+      return _steppedLineTo;
+    }
+    if (options.tension || options.cubicInterpolationMode === "monotone") {
+      return _bezierCurveTo;
+    }
+    return lineTo;
+  }
+  function pathVars(points, segment, params = {}) {
+    const count = points.length;
+    const { start: paramsStart = 0, end: paramsEnd = count - 1 } = params;
+    const { start: segmentStart, end: segmentEnd } = segment;
+    const start = Math.max(paramsStart, segmentStart);
+    const end = Math.min(paramsEnd, segmentEnd);
+    const outside = paramsStart < segmentStart && paramsEnd < segmentStart || paramsStart > segmentEnd && paramsEnd > segmentEnd;
+    return {
+      count,
+      start,
+      loop: segment.loop,
+      ilen: end < start && !outside ? count + end - start : end - start
+    };
+  }
+  function pathSegment(ctx, line, segment, params) {
+    const { points, options } = line;
+    const { count, start, loop, ilen } = pathVars(points, segment, params);
+    const lineMethod = getLineMethod(options);
+    let { move = true, reverse } = params || {};
+    let i, point, prev;
+    for (i = 0; i <= ilen; ++i) {
+      point = points[(start + (reverse ? ilen - i : i)) % count];
+      if (point.skip) {
+        continue;
+      } else if (move) {
+        ctx.moveTo(point.x, point.y);
+        move = false;
+      } else {
+        lineMethod(ctx, prev, point, reverse, options.stepped);
+      }
+      prev = point;
+    }
+    if (loop) {
+      point = points[(start + (reverse ? ilen : 0)) % count];
+      lineMethod(ctx, prev, point, reverse, options.stepped);
+    }
+    return !!loop;
+  }
+  function fastPathSegment(ctx, line, segment, params) {
+    const points = line.points;
+    const { count, start, ilen } = pathVars(points, segment, params);
+    const { move = true, reverse } = params || {};
+    let avgX = 0;
+    let countX = 0;
+    let i, point, prevX, minY, maxY, lastY;
+    const pointIndex = (index2) => (start + (reverse ? ilen - index2 : index2)) % count;
+    const drawX = () => {
+      if (minY !== maxY) {
+        ctx.lineTo(avgX, maxY);
+        ctx.lineTo(avgX, minY);
+        ctx.lineTo(avgX, lastY);
+      }
+    };
+    if (move) {
+      point = points[pointIndex(0)];
+      ctx.moveTo(point.x, point.y);
+    }
+    for (i = 0; i <= ilen; ++i) {
+      point = points[pointIndex(i)];
+      if (point.skip) {
+        continue;
+      }
+      const x = point.x;
+      const y = point.y;
+      const truncX = x | 0;
+      if (truncX === prevX) {
+        if (y < minY) {
+          minY = y;
+        } else if (y > maxY) {
+          maxY = y;
+        }
+        avgX = (countX * avgX + x) / ++countX;
+      } else {
+        drawX();
+        ctx.lineTo(x, y);
+        prevX = truncX;
+        countX = 0;
+        minY = maxY = y;
+      }
+      lastY = y;
+    }
+    drawX();
+  }
+  function _getSegmentMethod(line) {
+    const opts = line.options;
+    const borderDash = opts.borderDash && opts.borderDash.length;
+    const useFastPath = !line._decimated && !line._loop && !opts.tension && opts.cubicInterpolationMode !== "monotone" && !opts.stepped && !borderDash;
+    return useFastPath ? fastPathSegment : pathSegment;
+  }
+  function _getInterpolationMethod(options) {
+    if (options.stepped) {
+      return _steppedInterpolation;
+    }
+    if (options.tension || options.cubicInterpolationMode === "monotone") {
+      return _bezierInterpolation;
+    }
+    return _pointInLine;
+  }
+  function strokePathWithCache(ctx, line, start, count) {
+    let path = line._path;
+    if (!path) {
+      path = line._path = new Path2D();
+      if (line.path(path, start, count)) {
+        path.closePath();
+      }
+    }
+    setStyle(ctx, line.options);
+    ctx.stroke(path);
+  }
+  function strokePathDirect(ctx, line, start, count) {
+    const { segments, options } = line;
+    const segmentMethod = _getSegmentMethod(line);
+    for (const segment of segments) {
+      setStyle(ctx, options, segment.style);
+      ctx.beginPath();
+      if (segmentMethod(ctx, line, segment, {
+        start,
+        end: start + count - 1
+      })) {
+        ctx.closePath();
+      }
+      ctx.stroke();
+    }
+  }
+  const usePath2D = typeof Path2D === "function";
+  function draw$1(ctx, line, start, count) {
+    if (usePath2D && !line.options.segment) {
+      strokePathWithCache(ctx, line, start, count);
+    } else {
+      strokePathDirect(ctx, line, start, count);
+    }
+  }
+  class LineElement extends Element {
+    constructor(cfg) {
+      super();
+      this.animated = true;
+      this.options = void 0;
+      this._chart = void 0;
+      this._loop = void 0;
+      this._fullLoop = void 0;
+      this._path = void 0;
+      this._points = void 0;
+      this._segments = void 0;
+      this._decimated = false;
+      this._pointsUpdated = false;
+      this._datasetIndex = void 0;
+      if (cfg) {
+        Object.assign(this, cfg);
+      }
+    }
+    updateControlPoints(chartArea, indexAxis) {
+      const options = this.options;
+      if ((options.tension || options.cubicInterpolationMode === "monotone") && !options.stepped && !this._pointsUpdated) {
+        const loop = options.spanGaps ? this._loop : this._fullLoop;
+        _updateBezierControlPoints(this._points, options, chartArea, loop, indexAxis);
+        this._pointsUpdated = true;
+      }
+    }
+    set points(points) {
+      this._points = points;
+      delete this._segments;
+      delete this._path;
+      this._pointsUpdated = false;
+    }
+    get points() {
+      return this._points;
+    }
+    get segments() {
+      return this._segments || (this._segments = _computeSegments(this, this.options.segment));
+    }
+    first() {
+      const segments = this.segments;
+      const points = this.points;
+      return segments.length && points[segments[0].start];
+    }
+    last() {
+      const segments = this.segments;
+      const points = this.points;
+      const count = segments.length;
+      return count && points[segments[count - 1].end];
+    }
+    interpolate(point, property) {
+      const options = this.options;
+      const value = point[property];
+      const points = this.points;
+      const segments = _boundSegments(this, {
+        property,
+        start: value,
+        end: value
+      });
+      if (!segments.length) {
+        return;
+      }
+      const result = [];
+      const _interpolate = _getInterpolationMethod(options);
+      let i, ilen;
+      for (i = 0, ilen = segments.length; i < ilen; ++i) {
+        const { start, end } = segments[i];
+        const p1 = points[start];
+        const p2 = points[end];
+        if (p1 === p2) {
+          result.push(p1);
+          continue;
+        }
+        const t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
+        const interpolated = _interpolate(p1, p2, t, options.stepped);
+        interpolated[property] = point[property];
+        result.push(interpolated);
+      }
+      return result.length === 1 ? result[0] : result;
+    }
+    pathSegment(ctx, segment, params) {
+      const segmentMethod = _getSegmentMethod(this);
+      return segmentMethod(ctx, this, segment, params);
+    }
+    path(ctx, start, count) {
+      const segments = this.segments;
+      const segmentMethod = _getSegmentMethod(this);
+      let loop = this._loop;
+      start = start || 0;
+      count = count || this.points.length - start;
+      for (const segment of segments) {
+        loop &= segmentMethod(ctx, this, segment, {
+          start,
+          end: start + count - 1
+        });
+      }
+      return !!loop;
+    }
+    draw(ctx, chartArea, start, count) {
+      const options = this.options || {};
+      const points = this.points || [];
+      if (points.length && options.borderWidth) {
+        ctx.save();
+        draw$1(ctx, this, start, count);
+        ctx.restore();
+      }
+      if (this.animated) {
+        this._pointsUpdated = false;
+        this._path = void 0;
+      }
+    }
+  }
+  __publicField(LineElement, "id", "line");
+  __publicField(LineElement, "defaults", {
+    borderCapStyle: "butt",
+    borderDash: [],
+    borderDashOffset: 0,
+    borderJoinStyle: "miter",
+    borderWidth: 3,
+    capBezierPoints: true,
+    cubicInterpolationMode: "default",
+    fill: false,
+    spanGaps: false,
+    stepped: false,
+    tension: 0
+  });
+  __publicField(LineElement, "defaultRoutes", {
+    backgroundColor: "backgroundColor",
+    borderColor: "borderColor"
+  });
+  __publicField(LineElement, "descriptors", {
+    _scriptable: true,
+    _indexable: (name2) => name2 !== "borderDash" && name2 !== "fill"
+  });
   function inRange$1(el, pos, axis, useFinalPosition) {
     const options = el.options;
     const { [axis]: value } = el.getProps([
@@ -8380,6 +10176,805 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     backgroundColor: "backgroundColor",
     borderColor: "borderColor"
   });
+  function lttbDecimation(data, start, count, availableWidth, options) {
+    const samples = options.samples || availableWidth;
+    if (samples >= count) {
+      return data.slice(start, start + count);
+    }
+    const decimated = [];
+    const bucketWidth = (count - 2) / (samples - 2);
+    let sampledIndex = 0;
+    const endIndex = start + count - 1;
+    let a = start;
+    let i, maxAreaPoint, maxArea, area, nextA;
+    decimated[sampledIndex++] = data[a];
+    for (i = 0; i < samples - 2; i++) {
+      let avgX = 0;
+      let avgY = 0;
+      let j;
+      const avgRangeStart = Math.floor((i + 1) * bucketWidth) + 1 + start;
+      const avgRangeEnd = Math.min(Math.floor((i + 2) * bucketWidth) + 1, count) + start;
+      const avgRangeLength = avgRangeEnd - avgRangeStart;
+      for (j = avgRangeStart; j < avgRangeEnd; j++) {
+        avgX += data[j].x;
+        avgY += data[j].y;
+      }
+      avgX /= avgRangeLength;
+      avgY /= avgRangeLength;
+      const rangeOffs = Math.floor(i * bucketWidth) + 1 + start;
+      const rangeTo = Math.min(Math.floor((i + 1) * bucketWidth) + 1, count) + start;
+      const { x: pointAx, y: pointAy } = data[a];
+      maxArea = area = -1;
+      for (j = rangeOffs; j < rangeTo; j++) {
+        area = 0.5 * Math.abs((pointAx - avgX) * (data[j].y - pointAy) - (pointAx - data[j].x) * (avgY - pointAy));
+        if (area > maxArea) {
+          maxArea = area;
+          maxAreaPoint = data[j];
+          nextA = j;
+        }
+      }
+      decimated[sampledIndex++] = maxAreaPoint;
+      a = nextA;
+    }
+    decimated[sampledIndex++] = data[endIndex];
+    return decimated;
+  }
+  function minMaxDecimation(data, start, count, availableWidth) {
+    let avgX = 0;
+    let countX = 0;
+    let i, point, x, y, prevX, minIndex, maxIndex, startIndex, minY, maxY;
+    const decimated = [];
+    const endIndex = start + count - 1;
+    const xMin = data[start].x;
+    const xMax = data[endIndex].x;
+    const dx = xMax - xMin;
+    for (i = start; i < start + count; ++i) {
+      point = data[i];
+      x = (point.x - xMin) / dx * availableWidth;
+      y = point.y;
+      const truncX = x | 0;
+      if (truncX === prevX) {
+        if (y < minY) {
+          minY = y;
+          minIndex = i;
+        } else if (y > maxY) {
+          maxY = y;
+          maxIndex = i;
+        }
+        avgX = (countX * avgX + point.x) / ++countX;
+      } else {
+        const lastIndex = i - 1;
+        if (!isNullOrUndef(minIndex) && !isNullOrUndef(maxIndex)) {
+          const intermediateIndex1 = Math.min(minIndex, maxIndex);
+          const intermediateIndex2 = Math.max(minIndex, maxIndex);
+          if (intermediateIndex1 !== startIndex && intermediateIndex1 !== lastIndex) {
+            decimated.push({
+              ...data[intermediateIndex1],
+              x: avgX
+            });
+          }
+          if (intermediateIndex2 !== startIndex && intermediateIndex2 !== lastIndex) {
+            decimated.push({
+              ...data[intermediateIndex2],
+              x: avgX
+            });
+          }
+        }
+        if (i > 0 && lastIndex !== startIndex) {
+          decimated.push(data[lastIndex]);
+        }
+        decimated.push(point);
+        prevX = truncX;
+        countX = 0;
+        minY = maxY = y;
+        minIndex = maxIndex = startIndex = i;
+      }
+    }
+    return decimated;
+  }
+  function cleanDecimatedDataset(dataset) {
+    if (dataset._decimated) {
+      const data = dataset._data;
+      delete dataset._decimated;
+      delete dataset._data;
+      Object.defineProperty(dataset, "data", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: data
+      });
+    }
+  }
+  function cleanDecimatedData(chart) {
+    chart.data.datasets.forEach((dataset) => {
+      cleanDecimatedDataset(dataset);
+    });
+  }
+  function getStartAndCountOfVisiblePointsSimplified(meta, points) {
+    const pointCount = points.length;
+    let start = 0;
+    let count;
+    const { iScale } = meta;
+    const { min, max, minDefined, maxDefined } = iScale.getUserBounds();
+    if (minDefined) {
+      start = _limitValue(_lookupByKey(points, iScale.axis, min).lo, 0, pointCount - 1);
+    }
+    if (maxDefined) {
+      count = _limitValue(_lookupByKey(points, iScale.axis, max).hi + 1, start, pointCount) - start;
+    } else {
+      count = pointCount - start;
+    }
+    return {
+      start,
+      count
+    };
+  }
+  var plugin_decimation = {
+    id: "decimation",
+    defaults: {
+      algorithm: "min-max",
+      enabled: false
+    },
+    beforeElementsUpdate: (chart, args, options) => {
+      if (!options.enabled) {
+        cleanDecimatedData(chart);
+        return;
+      }
+      const availableWidth = chart.width;
+      chart.data.datasets.forEach((dataset, datasetIndex) => {
+        const { _data, indexAxis } = dataset;
+        const meta = chart.getDatasetMeta(datasetIndex);
+        const data = _data || dataset.data;
+        if (resolve$1([
+          indexAxis,
+          chart.options.indexAxis
+        ]) === "y") {
+          return;
+        }
+        if (!meta.controller.supportsDecimation) {
+          return;
+        }
+        const xAxis = chart.scales[meta.xAxisID];
+        if (xAxis.type !== "linear" && xAxis.type !== "time") {
+          return;
+        }
+        if (chart.options.parsing) {
+          return;
+        }
+        let { start, count } = getStartAndCountOfVisiblePointsSimplified(meta, data);
+        const threshold = options.threshold || 4 * availableWidth;
+        if (count <= threshold) {
+          cleanDecimatedDataset(dataset);
+          return;
+        }
+        if (isNullOrUndef(_data)) {
+          dataset._data = data;
+          delete dataset.data;
+          Object.defineProperty(dataset, "data", {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+              return this._decimated;
+            },
+            set: function(d) {
+              this._data = d;
+            }
+          });
+        }
+        let decimated;
+        switch (options.algorithm) {
+          case "lttb":
+            decimated = lttbDecimation(data, start, count, availableWidth, options);
+            break;
+          case "min-max":
+            decimated = minMaxDecimation(data, start, count, availableWidth);
+            break;
+          default:
+            throw new Error(`Unsupported decimation algorithm '${options.algorithm}'`);
+        }
+        dataset._decimated = decimated;
+      });
+    },
+    destroy(chart) {
+      cleanDecimatedData(chart);
+    }
+  };
+  function _segments(line, target, property) {
+    const segments = line.segments;
+    const points = line.points;
+    const tpoints = target.points;
+    const parts = [];
+    for (const segment of segments) {
+      let { start, end } = segment;
+      end = _findSegmentEnd(start, end, points);
+      const bounds = _getBounds(property, points[start], points[end], segment.loop);
+      if (!target.segments) {
+        parts.push({
+          source: segment,
+          target: bounds,
+          start: points[start],
+          end: points[end]
+        });
+        continue;
+      }
+      const targetSegments = _boundSegments(target, bounds);
+      for (const tgt of targetSegments) {
+        const subBounds = _getBounds(property, tpoints[tgt.start], tpoints[tgt.end], tgt.loop);
+        const fillSources = _boundSegment(segment, points, subBounds);
+        for (const fillSource of fillSources) {
+          parts.push({
+            source: fillSource,
+            target: tgt,
+            start: {
+              [property]: _getEdge(bounds, subBounds, "start", Math.max)
+            },
+            end: {
+              [property]: _getEdge(bounds, subBounds, "end", Math.min)
+            }
+          });
+        }
+      }
+    }
+    return parts;
+  }
+  function _getBounds(property, first, last, loop) {
+    if (loop) {
+      return;
+    }
+    let start = first[property];
+    let end = last[property];
+    if (property === "angle") {
+      start = _normalizeAngle(start);
+      end = _normalizeAngle(end);
+    }
+    return {
+      property,
+      start,
+      end
+    };
+  }
+  function _pointsFromSegments(boundary, line) {
+    const { x = null, y = null } = boundary || {};
+    const linePoints = line.points;
+    const points = [];
+    line.segments.forEach(({ start, end }) => {
+      end = _findSegmentEnd(start, end, linePoints);
+      const first = linePoints[start];
+      const last = linePoints[end];
+      if (y !== null) {
+        points.push({
+          x: first.x,
+          y
+        });
+        points.push({
+          x: last.x,
+          y
+        });
+      } else if (x !== null) {
+        points.push({
+          x,
+          y: first.y
+        });
+        points.push({
+          x,
+          y: last.y
+        });
+      }
+    });
+    return points;
+  }
+  function _findSegmentEnd(start, end, points) {
+    for (; end > start; end--) {
+      const point = points[end];
+      if (!isNaN(point.x) && !isNaN(point.y)) {
+        break;
+      }
+    }
+    return end;
+  }
+  function _getEdge(a, b, prop, fn) {
+    if (a && b) {
+      return fn(a[prop], b[prop]);
+    }
+    return a ? a[prop] : b ? b[prop] : 0;
+  }
+  function _createBoundaryLine(boundary, line) {
+    let points = [];
+    let _loop = false;
+    if (isArray(boundary)) {
+      _loop = true;
+      points = boundary;
+    } else {
+      points = _pointsFromSegments(boundary, line);
+    }
+    return points.length ? new LineElement({
+      points,
+      options: {
+        tension: 0
+      },
+      _loop,
+      _fullLoop: _loop
+    }) : null;
+  }
+  function _shouldApplyFill(source) {
+    return source && source.fill !== false;
+  }
+  function _resolveTarget(sources, index2, propagate) {
+    const source = sources[index2];
+    let fill2 = source.fill;
+    const visited = [
+      index2
+    ];
+    let target;
+    if (!propagate) {
+      return fill2;
+    }
+    while (fill2 !== false && visited.indexOf(fill2) === -1) {
+      if (!isNumberFinite(fill2)) {
+        return fill2;
+      }
+      target = sources[fill2];
+      if (!target) {
+        return false;
+      }
+      if (target.visible) {
+        return fill2;
+      }
+      visited.push(fill2);
+      fill2 = target.fill;
+    }
+    return false;
+  }
+  function _decodeFill(line, index2, count) {
+    const fill2 = parseFillOption(line);
+    if (isObject(fill2)) {
+      return isNaN(fill2.value) ? false : fill2;
+    }
+    let target = parseFloat(fill2);
+    if (isNumberFinite(target) && Math.floor(target) === target) {
+      return decodeTargetIndex(fill2[0], index2, target, count);
+    }
+    return [
+      "origin",
+      "start",
+      "end",
+      "stack",
+      "shape"
+    ].indexOf(fill2) >= 0 && fill2;
+  }
+  function decodeTargetIndex(firstCh, index2, target, count) {
+    if (firstCh === "-" || firstCh === "+") {
+      target = index2 + target;
+    }
+    if (target === index2 || target < 0 || target >= count) {
+      return false;
+    }
+    return target;
+  }
+  function _getTargetPixel(fill2, scale) {
+    let pixel = null;
+    if (fill2 === "start") {
+      pixel = scale.bottom;
+    } else if (fill2 === "end") {
+      pixel = scale.top;
+    } else if (isObject(fill2)) {
+      pixel = scale.getPixelForValue(fill2.value);
+    } else if (scale.getBasePixel) {
+      pixel = scale.getBasePixel();
+    }
+    return pixel;
+  }
+  function _getTargetValue(fill2, scale, startValue) {
+    let value;
+    if (fill2 === "start") {
+      value = startValue;
+    } else if (fill2 === "end") {
+      value = scale.options.reverse ? scale.min : scale.max;
+    } else if (isObject(fill2)) {
+      value = fill2.value;
+    } else {
+      value = scale.getBaseValue();
+    }
+    return value;
+  }
+  function parseFillOption(line) {
+    const options = line.options;
+    const fillOption = options.fill;
+    let fill2 = valueOrDefault(fillOption && fillOption.target, fillOption);
+    if (fill2 === void 0) {
+      fill2 = !!options.backgroundColor;
+    }
+    if (fill2 === false || fill2 === null) {
+      return false;
+    }
+    if (fill2 === true) {
+      return "origin";
+    }
+    return fill2;
+  }
+  function _buildStackLine(source) {
+    const { scale, index: index2, line } = source;
+    const points = [];
+    const segments = line.segments;
+    const sourcePoints = line.points;
+    const linesBelow = getLinesBelow(scale, index2);
+    linesBelow.push(_createBoundaryLine({
+      x: null,
+      y: scale.bottom
+    }, line));
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      for (let j = segment.start; j <= segment.end; j++) {
+        addPointsBelow(points, sourcePoints[j], linesBelow);
+      }
+    }
+    return new LineElement({
+      points,
+      options: {}
+    });
+  }
+  function getLinesBelow(scale, index2) {
+    const below = [];
+    const metas = scale.getMatchingVisibleMetas("line");
+    for (let i = 0; i < metas.length; i++) {
+      const meta = metas[i];
+      if (meta.index === index2) {
+        break;
+      }
+      if (!meta.hidden) {
+        below.unshift(meta.dataset);
+      }
+    }
+    return below;
+  }
+  function addPointsBelow(points, sourcePoint, linesBelow) {
+    const postponed = [];
+    for (let j = 0; j < linesBelow.length; j++) {
+      const line = linesBelow[j];
+      const { first, last, point } = findPoint(line, sourcePoint, "x");
+      if (!point || first && last) {
+        continue;
+      }
+      if (first) {
+        postponed.unshift(point);
+      } else {
+        points.push(point);
+        if (!last) {
+          break;
+        }
+      }
+    }
+    points.push(...postponed);
+  }
+  function findPoint(line, sourcePoint, property) {
+    const point = line.interpolate(sourcePoint, property);
+    if (!point) {
+      return {};
+    }
+    const pointValue = point[property];
+    const segments = line.segments;
+    const linePoints = line.points;
+    let first = false;
+    let last = false;
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      const firstValue = linePoints[segment.start][property];
+      const lastValue = linePoints[segment.end][property];
+      if (_isBetween(pointValue, firstValue, lastValue)) {
+        first = pointValue === firstValue;
+        last = pointValue === lastValue;
+        break;
+      }
+    }
+    return {
+      first,
+      last,
+      point
+    };
+  }
+  class simpleArc {
+    constructor(opts) {
+      this.x = opts.x;
+      this.y = opts.y;
+      this.radius = opts.radius;
+    }
+    pathSegment(ctx, bounds, opts) {
+      const { x, y, radius } = this;
+      bounds = bounds || {
+        start: 0,
+        end: TAU
+      };
+      ctx.arc(x, y, radius, bounds.end, bounds.start, true);
+      return !opts.bounds;
+    }
+    interpolate(point) {
+      const { x, y, radius } = this;
+      const angle = point.angle;
+      return {
+        x: x + Math.cos(angle) * radius,
+        y: y + Math.sin(angle) * radius,
+        angle
+      };
+    }
+  }
+  function _getTarget(source) {
+    const { chart, fill: fill2, line } = source;
+    if (isNumberFinite(fill2)) {
+      return getLineByIndex(chart, fill2);
+    }
+    if (fill2 === "stack") {
+      return _buildStackLine(source);
+    }
+    if (fill2 === "shape") {
+      return true;
+    }
+    const boundary = computeBoundary(source);
+    if (boundary instanceof simpleArc) {
+      return boundary;
+    }
+    return _createBoundaryLine(boundary, line);
+  }
+  function getLineByIndex(chart, index2) {
+    const meta = chart.getDatasetMeta(index2);
+    const visible = meta && chart.isDatasetVisible(index2);
+    return visible ? meta.dataset : null;
+  }
+  function computeBoundary(source) {
+    const scale = source.scale || {};
+    if (scale.getPointPositionForValue) {
+      return computeCircularBoundary(source);
+    }
+    return computeLinearBoundary(source);
+  }
+  function computeLinearBoundary(source) {
+    const { scale = {}, fill: fill2 } = source;
+    const pixel = _getTargetPixel(fill2, scale);
+    if (isNumberFinite(pixel)) {
+      const horizontal = scale.isHorizontal();
+      return {
+        x: horizontal ? pixel : null,
+        y: horizontal ? null : pixel
+      };
+    }
+    return null;
+  }
+  function computeCircularBoundary(source) {
+    const { scale, fill: fill2 } = source;
+    const options = scale.options;
+    const length = scale.getLabels().length;
+    const start = options.reverse ? scale.max : scale.min;
+    const value = _getTargetValue(fill2, scale, start);
+    const target = [];
+    if (options.grid.circular) {
+      const center = scale.getPointPositionForValue(0, start);
+      return new simpleArc({
+        x: center.x,
+        y: center.y,
+        radius: scale.getDistanceFromCenterForValue(value)
+      });
+    }
+    for (let i = 0; i < length; ++i) {
+      target.push(scale.getPointPositionForValue(i, value));
+    }
+    return target;
+  }
+  function _drawfill(ctx, source, area) {
+    const target = _getTarget(source);
+    const { chart, index: index2, line, scale, axis } = source;
+    const lineOpts = line.options;
+    const fillOption = lineOpts.fill;
+    const color2 = lineOpts.backgroundColor;
+    const { above = color2, below = color2 } = fillOption || {};
+    const meta = chart.getDatasetMeta(index2);
+    const clip = getDatasetClipArea(chart, meta);
+    if (target && line.points.length) {
+      clipArea(ctx, area);
+      doFill(ctx, {
+        line,
+        target,
+        above,
+        below,
+        area,
+        scale,
+        axis,
+        clip
+      });
+      unclipArea(ctx);
+    }
+  }
+  function doFill(ctx, cfg) {
+    const { line, target, above, below, area, scale, clip } = cfg;
+    const property = line._loop ? "angle" : cfg.axis;
+    ctx.save();
+    if (property === "x" && below !== above) {
+      clipVertical(ctx, target, area.top);
+      fill(ctx, {
+        line,
+        target,
+        color: above,
+        scale,
+        property,
+        clip
+      });
+      ctx.restore();
+      ctx.save();
+      clipVertical(ctx, target, area.bottom);
+    }
+    fill(ctx, {
+      line,
+      target,
+      color: below,
+      scale,
+      property,
+      clip
+    });
+    ctx.restore();
+  }
+  function clipVertical(ctx, target, clipY) {
+    const { segments, points } = target;
+    let first = true;
+    let lineLoop = false;
+    ctx.beginPath();
+    for (const segment of segments) {
+      const { start, end } = segment;
+      const firstPoint = points[start];
+      const lastPoint = points[_findSegmentEnd(start, end, points)];
+      if (first) {
+        ctx.moveTo(firstPoint.x, firstPoint.y);
+        first = false;
+      } else {
+        ctx.lineTo(firstPoint.x, clipY);
+        ctx.lineTo(firstPoint.x, firstPoint.y);
+      }
+      lineLoop = !!target.pathSegment(ctx, segment, {
+        move: lineLoop
+      });
+      if (lineLoop) {
+        ctx.closePath();
+      } else {
+        ctx.lineTo(lastPoint.x, clipY);
+      }
+    }
+    ctx.lineTo(target.first().x, clipY);
+    ctx.closePath();
+    ctx.clip();
+  }
+  function fill(ctx, cfg) {
+    const { line, target, property, color: color2, scale, clip } = cfg;
+    const segments = _segments(line, target, property);
+    for (const { source: src, target: tgt, start, end } of segments) {
+      const { style: { backgroundColor = color2 } = {} } = src;
+      const notShape = target !== true;
+      ctx.save();
+      ctx.fillStyle = backgroundColor;
+      clipBounds(ctx, scale, clip, notShape && _getBounds(property, start, end));
+      ctx.beginPath();
+      const lineLoop = !!line.pathSegment(ctx, src);
+      let loop;
+      if (notShape) {
+        if (lineLoop) {
+          ctx.closePath();
+        } else {
+          interpolatedLineTo(ctx, target, end, property);
+        }
+        const targetLoop = !!target.pathSegment(ctx, tgt, {
+          move: lineLoop,
+          reverse: true
+        });
+        loop = lineLoop && targetLoop;
+        if (!loop) {
+          interpolatedLineTo(ctx, target, start, property);
+        }
+      }
+      ctx.closePath();
+      ctx.fill(loop ? "evenodd" : "nonzero");
+      ctx.restore();
+    }
+  }
+  function clipBounds(ctx, scale, clip, bounds) {
+    const chartArea = scale.chart.chartArea;
+    const { property, start, end } = bounds || {};
+    if (property === "x" || property === "y") {
+      let left, top, right, bottom;
+      if (property === "x") {
+        left = start;
+        top = chartArea.top;
+        right = end;
+        bottom = chartArea.bottom;
+      } else {
+        left = chartArea.left;
+        top = start;
+        right = chartArea.right;
+        bottom = end;
+      }
+      ctx.beginPath();
+      if (clip) {
+        left = Math.max(left, clip.left);
+        right = Math.min(right, clip.right);
+        top = Math.max(top, clip.top);
+        bottom = Math.min(bottom, clip.bottom);
+      }
+      ctx.rect(left, top, right - left, bottom - top);
+      ctx.clip();
+    }
+  }
+  function interpolatedLineTo(ctx, target, point, property) {
+    const interpolatedPoint = target.interpolate(point, property);
+    if (interpolatedPoint) {
+      ctx.lineTo(interpolatedPoint.x, interpolatedPoint.y);
+    }
+  }
+  var index = {
+    id: "filler",
+    afterDatasetsUpdate(chart, _args, options) {
+      const count = (chart.data.datasets || []).length;
+      const sources = [];
+      let meta, i, line, source;
+      for (i = 0; i < count; ++i) {
+        meta = chart.getDatasetMeta(i);
+        line = meta.dataset;
+        source = null;
+        if (line && line.options && line instanceof LineElement) {
+          source = {
+            visible: chart.isDatasetVisible(i),
+            index: i,
+            fill: _decodeFill(line, i, count),
+            chart,
+            axis: meta.controller.options.indexAxis,
+            scale: meta.vScale,
+            line
+          };
+        }
+        meta.$filler = source;
+        sources.push(source);
+      }
+      for (i = 0; i < count; ++i) {
+        source = sources[i];
+        if (!source || source.fill === false) {
+          continue;
+        }
+        source.fill = _resolveTarget(sources, i, options.propagate);
+      }
+    },
+    beforeDraw(chart, _args, options) {
+      const draw2 = options.drawTime === "beforeDraw";
+      const metasets = chart.getSortedVisibleDatasetMetas();
+      const area = chart.chartArea;
+      for (let i = metasets.length - 1; i >= 0; --i) {
+        const source = metasets[i].$filler;
+        if (!source) {
+          continue;
+        }
+        source.line.updateControlPoints(area, source.axis);
+        if (draw2 && source.fill) {
+          _drawfill(chart.ctx, source, area);
+        }
+      }
+    },
+    beforeDatasetsDraw(chart, _args, options) {
+      if (options.drawTime !== "beforeDatasetsDraw") {
+        return;
+      }
+      const metasets = chart.getSortedVisibleDatasetMetas();
+      for (let i = metasets.length - 1; i >= 0; --i) {
+        const source = metasets[i].$filler;
+        if (_shouldApplyFill(source)) {
+          _drawfill(chart.ctx, source, chart.chartArea);
+        }
+      }
+    },
+    beforeDatasetDraw(chart, args, options) {
+      const source = args.meta.$filler;
+      if (!_shouldApplyFill(source) || options.drawTime !== "beforeDatasetDraw") {
+        return;
+      }
+      _drawfill(chart.ctx, source, chart.chartArea);
+    },
+    defaults: {
+      propagate: true,
+      drawTime: "beforeDatasetDraw"
+    }
+  };
   const getBoxSize = (labelOpts, fontSize) => {
     let { boxHeight = fontSize, boxWidth = fontSize } = labelOpts;
     if (labelOpts.usePointStyle) {
@@ -8870,13 +11465,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       reverse: false,
       weight: 1e3,
       onClick(e, legendItem, legend) {
-        const index = legendItem.datasetIndex;
+        const index2 = legendItem.datasetIndex;
         const ci = legend.chart;
-        if (ci.isDatasetVisible(index)) {
-          ci.hide(index);
+        if (ci.isDatasetVisible(index2)) {
+          ci.hide(index2);
           legendItem.hidden = true;
         } else {
-          ci.show(index);
+          ci.show(index2);
           legendItem.hidden = false;
         }
       },
@@ -9067,6 +11662,48 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       _indexable: false
     }
   };
+  const map = /* @__PURE__ */ new WeakMap();
+  var plugin_subtitle = {
+    id: "subtitle",
+    start(chart, _args, options) {
+      const title = new Title({
+        ctx: chart.ctx,
+        options,
+        chart
+      });
+      layouts.configure(chart, title, options);
+      layouts.addBox(chart, title);
+      map.set(chart, title);
+    },
+    stop(chart) {
+      layouts.removeBox(chart, map.get(chart));
+      map.delete(chart);
+    },
+    beforeUpdate(chart, _args, options) {
+      const title = map.get(chart);
+      layouts.configure(chart, title, options);
+      title.options = options;
+    },
+    defaults: {
+      align: "center",
+      display: false,
+      font: {
+        weight: "normal"
+      },
+      fullSize: true,
+      padding: 0,
+      position: "top",
+      text: "",
+      weight: 1500
+    },
+    defaultRoutes: {
+      color: "color"
+    },
+    descriptors: {
+      _scriptable: true,
+      _indexable: false
+    }
+  };
   const positioners$1 = {
     average(items) {
       if (!items.length) {
@@ -9143,17 +11780,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     return str;
   }
   function createTooltipItem(chart, item) {
-    const { element, datasetIndex, index } = item;
+    const { element, datasetIndex, index: index2 } = item;
     const controller = chart.getDatasetMeta(datasetIndex).controller;
-    const { label, value } = controller.getLabelAndValue(index);
+    const { label, value } = controller.getLabelAndValue(index2);
     return {
       chart,
       label,
-      parsed: controller.getParsed(index),
-      raw: chart.data.datasets[datasetIndex].data[index],
+      parsed: controller.getParsed(index2),
+      raw: chart.data.datasets[datasetIndex].data[index2],
       formattedValue: value,
       dataset: controller.getDataset(),
-      dataIndex: index,
+      dataIndex: index2,
       datasetIndex,
       element
     };
@@ -9491,7 +12128,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         tooltipItems.push(createTooltipItem(this.chart, active[i]));
       }
       if (options.filter) {
-        tooltipItems = tooltipItems.filter((element, index, array) => options.filter(element, index, array, data));
+        tooltipItems = tooltipItems.filter((element, index2, array) => options.filter(element, index2, array, data));
       }
       if (options.itemSort) {
         tooltipItems = tooltipItems.sort((a, b) => options.itemSort(a, b, data));
@@ -9859,15 +12496,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setActiveElements(activeElements, eventPosition) {
       const lastActive = this._active;
-      const active = activeElements.map(({ datasetIndex, index }) => {
+      const active = activeElements.map(({ datasetIndex, index: index2 }) => {
         const meta = this.chart.getDatasetMeta(datasetIndex);
         if (!meta) {
           throw new Error("Cannot find a dataset at index " + datasetIndex);
         }
         return {
           datasetIndex,
-          element: meta.data[index],
-          index
+          element: meta.data[index2],
+          index: index2
         };
       });
       const changed = !_elementsEqual(lastActive, active);
@@ -10048,27 +12685,27 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       "interaction"
     ]
   };
-  const addIfString = (labels, raw, index, addedLabels) => {
+  const addIfString = (labels, raw, index2, addedLabels) => {
     if (typeof raw === "string") {
-      index = labels.push(raw) - 1;
+      index2 = labels.push(raw) - 1;
       addedLabels.unshift({
-        index,
+        index: index2,
         label: raw
       });
     } else if (isNaN(raw)) {
-      index = null;
+      index2 = null;
     }
-    return index;
+    return index2;
   };
-  function findOrAddLabel(labels, raw, index, addedLabels) {
+  function findOrAddLabel(labels, raw, index2, addedLabels) {
     const first = labels.indexOf(raw);
     if (first === -1) {
-      return addIfString(labels, raw, index, addedLabels);
+      return addIfString(labels, raw, index2, addedLabels);
     }
     const last = labels.lastIndexOf(raw);
-    return first !== last ? index : first;
+    return first !== last ? index2 : first;
   }
-  const validIndex = (index, max) => index === null ? null : _limitValue(Math.round(index), 0, max);
+  const validIndex = (index2, max) => index2 === null ? null : _limitValue(Math.round(index2), 0, max);
   function _getLabelForValue(value) {
     const labels = this.getLabels();
     if (value >= 0 && value < labels.length) {
@@ -10087,22 +12724,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const added = this._addedLabels;
       if (added.length) {
         const labels = this.getLabels();
-        for (const { index, label } of added) {
-          if (labels[index] === label) {
-            labels.splice(index, 1);
+        for (const { index: index2, label } of added) {
+          if (labels[index2] === label) {
+            labels.splice(index2, 1);
           }
         }
         this._addedLabels = [];
       }
       super.init(scaleOptions);
     }
-    parse(raw, index) {
+    parse(raw, index2) {
       if (isNullOrUndef(raw)) {
         return null;
       }
       const labels = this.getLabels();
-      index = isFinite(index) && labels[index] === raw ? index : findOrAddLabel(labels, raw, valueOrDefault(index, raw), this._addedLabels);
-      return validIndex(index, labels.length - 1);
+      index2 = isFinite(index2) && labels[index2] === raw ? index2 : findOrAddLabel(labels, raw, valueOrDefault(index2, raw), this._addedLabels);
+      return validIndex(index2, labels.length - 1);
     }
     determineDataLimits() {
       const { minDefined, maxDefined } = this.getUserBounds();
@@ -10149,12 +12786,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       return value === null ? NaN : this.getPixelForDecimal((value - this._startValue) / this._valueRange);
     }
-    getPixelForTick(index) {
+    getPixelForTick(index2) {
       const ticks = this.ticks;
-      if (index < 0 || index > ticks.length - 1) {
+      if (index2 < 0 || index2 > ticks.length - 1) {
         return null;
       }
-      return this.getPixelForValue(ticks[index].value);
+      return this.getPixelForValue(ticks[index2].value);
     }
     getValueForPixel(pixel) {
       return Math.round(this._startValue + this.getDecimalForPixel(pixel) * this._valueRange);
@@ -10284,7 +12921,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._endValue = void 0;
       this._valueRange = 0;
     }
-    parse(raw, index) {
+    parse(raw, index2) {
       if (isNullOrUndef(raw)) {
         return null;
       }
@@ -10488,10 +13125,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._startValue = void 0;
       this._valueRange = 0;
     }
-    parse(raw, index) {
+    parse(raw, index2) {
       const value = LinearScaleBase.prototype.parse.apply(this, [
         raw,
-        index
+        index2
       ]);
       if (value === 0) {
         this._zero = true;
@@ -10585,6 +13222,498 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       major: {
         enabled: true
       }
+    }
+  });
+  function getTickBackdropHeight(opts) {
+    const tickOpts = opts.ticks;
+    if (tickOpts.display && opts.display) {
+      const padding = toPadding(tickOpts.backdropPadding);
+      return valueOrDefault(tickOpts.font && tickOpts.font.size, defaults$1.font.size) + padding.height;
+    }
+    return 0;
+  }
+  function measureLabelSize$1(ctx, font, label) {
+    label = isArray(label) ? label : [
+      label
+    ];
+    return {
+      w: _longestText(ctx, font.string, label),
+      h: label.length * font.lineHeight
+    };
+  }
+  function determineLimits(angle, pos, size, min, max) {
+    if (angle === min || angle === max) {
+      return {
+        start: pos - size / 2,
+        end: pos + size / 2
+      };
+    } else if (angle < min || angle > max) {
+      return {
+        start: pos - size,
+        end: pos
+      };
+    }
+    return {
+      start: pos,
+      end: pos + size
+    };
+  }
+  function fitWithPointLabels(scale) {
+    const orig = {
+      l: scale.left + scale._padding.left,
+      r: scale.right - scale._padding.right,
+      t: scale.top + scale._padding.top,
+      b: scale.bottom - scale._padding.bottom
+    };
+    const limits = Object.assign({}, orig);
+    const labelSizes = [];
+    const padding = [];
+    const valueCount = scale._pointLabels.length;
+    const pointLabelOpts = scale.options.pointLabels;
+    const additionalAngle = pointLabelOpts.centerPointLabels ? PI / valueCount : 0;
+    for (let i = 0; i < valueCount; i++) {
+      const opts = pointLabelOpts.setContext(scale.getPointLabelContext(i));
+      padding[i] = opts.padding;
+      const pointPosition = scale.getPointPosition(i, scale.drawingArea + padding[i], additionalAngle);
+      const plFont = toFont(opts.font);
+      const textSize = measureLabelSize$1(scale.ctx, plFont, scale._pointLabels[i]);
+      labelSizes[i] = textSize;
+      const angleRadians = _normalizeAngle(scale.getIndexAngle(i) + additionalAngle);
+      const angle = Math.round(toDegrees(angleRadians));
+      const hLimits = determineLimits(angle, pointPosition.x, textSize.w, 0, 180);
+      const vLimits = determineLimits(angle, pointPosition.y, textSize.h, 90, 270);
+      updateLimits$1(limits, orig, angleRadians, hLimits, vLimits);
+    }
+    scale.setCenterPoint(orig.l - limits.l, limits.r - orig.r, orig.t - limits.t, limits.b - orig.b);
+    scale._pointLabelItems = buildPointLabelItems(scale, labelSizes, padding);
+  }
+  function updateLimits$1(limits, orig, angle, hLimits, vLimits) {
+    const sin = Math.abs(Math.sin(angle));
+    const cos = Math.abs(Math.cos(angle));
+    let x = 0;
+    let y = 0;
+    if (hLimits.start < orig.l) {
+      x = (orig.l - hLimits.start) / sin;
+      limits.l = Math.min(limits.l, orig.l - x);
+    } else if (hLimits.end > orig.r) {
+      x = (hLimits.end - orig.r) / sin;
+      limits.r = Math.max(limits.r, orig.r + x);
+    }
+    if (vLimits.start < orig.t) {
+      y = (orig.t - vLimits.start) / cos;
+      limits.t = Math.min(limits.t, orig.t - y);
+    } else if (vLimits.end > orig.b) {
+      y = (vLimits.end - orig.b) / cos;
+      limits.b = Math.max(limits.b, orig.b + y);
+    }
+  }
+  function createPointLabelItem(scale, index2, itemOpts) {
+    const outerDistance = scale.drawingArea;
+    const { extra, additionalAngle, padding, size } = itemOpts;
+    const pointLabelPosition = scale.getPointPosition(index2, outerDistance + extra + padding, additionalAngle);
+    const angle = Math.round(toDegrees(_normalizeAngle(pointLabelPosition.angle + HALF_PI)));
+    const y = yForAngle(pointLabelPosition.y, size.h, angle);
+    const textAlign = getTextAlignForAngle(angle);
+    const left = leftForTextAlign(pointLabelPosition.x, size.w, textAlign);
+    return {
+      visible: true,
+      x: pointLabelPosition.x,
+      y,
+      textAlign,
+      left,
+      top: y,
+      right: left + size.w,
+      bottom: y + size.h
+    };
+  }
+  function isNotOverlapped(item, area) {
+    if (!area) {
+      return true;
+    }
+    const { left, top, right, bottom } = item;
+    const apexesInArea = _isPointInArea({
+      x: left,
+      y: top
+    }, area) || _isPointInArea({
+      x: left,
+      y: bottom
+    }, area) || _isPointInArea({
+      x: right,
+      y: top
+    }, area) || _isPointInArea({
+      x: right,
+      y: bottom
+    }, area);
+    return !apexesInArea;
+  }
+  function buildPointLabelItems(scale, labelSizes, padding) {
+    const items = [];
+    const valueCount = scale._pointLabels.length;
+    const opts = scale.options;
+    const { centerPointLabels, display } = opts.pointLabels;
+    const itemOpts = {
+      extra: getTickBackdropHeight(opts) / 2,
+      additionalAngle: centerPointLabels ? PI / valueCount : 0
+    };
+    let area;
+    for (let i = 0; i < valueCount; i++) {
+      itemOpts.padding = padding[i];
+      itemOpts.size = labelSizes[i];
+      const item = createPointLabelItem(scale, i, itemOpts);
+      items.push(item);
+      if (display === "auto") {
+        item.visible = isNotOverlapped(item, area);
+        if (item.visible) {
+          area = item;
+        }
+      }
+    }
+    return items;
+  }
+  function getTextAlignForAngle(angle) {
+    if (angle === 0 || angle === 180) {
+      return "center";
+    } else if (angle < 180) {
+      return "left";
+    }
+    return "right";
+  }
+  function leftForTextAlign(x, w, align) {
+    if (align === "right") {
+      x -= w;
+    } else if (align === "center") {
+      x -= w / 2;
+    }
+    return x;
+  }
+  function yForAngle(y, h, angle) {
+    if (angle === 90 || angle === 270) {
+      y -= h / 2;
+    } else if (angle > 270 || angle < 90) {
+      y -= h;
+    }
+    return y;
+  }
+  function drawPointLabelBox(ctx, opts, item) {
+    const { left, top, right, bottom } = item;
+    const { backdropColor } = opts;
+    if (!isNullOrUndef(backdropColor)) {
+      const borderRadius = toTRBLCorners(opts.borderRadius);
+      const padding = toPadding(opts.backdropPadding);
+      ctx.fillStyle = backdropColor;
+      const backdropLeft = left - padding.left;
+      const backdropTop = top - padding.top;
+      const backdropWidth = right - left + padding.width;
+      const backdropHeight = bottom - top + padding.height;
+      if (Object.values(borderRadius).some((v) => v !== 0)) {
+        ctx.beginPath();
+        addRoundedRectPath(ctx, {
+          x: backdropLeft,
+          y: backdropTop,
+          w: backdropWidth,
+          h: backdropHeight,
+          radius: borderRadius
+        });
+        ctx.fill();
+      } else {
+        ctx.fillRect(backdropLeft, backdropTop, backdropWidth, backdropHeight);
+      }
+    }
+  }
+  function drawPointLabels(scale, labelCount) {
+    const { ctx, options: { pointLabels } } = scale;
+    for (let i = labelCount - 1; i >= 0; i--) {
+      const item = scale._pointLabelItems[i];
+      if (!item.visible) {
+        continue;
+      }
+      const optsAtIndex = pointLabels.setContext(scale.getPointLabelContext(i));
+      drawPointLabelBox(ctx, optsAtIndex, item);
+      const plFont = toFont(optsAtIndex.font);
+      const { x, y, textAlign } = item;
+      renderText(ctx, scale._pointLabels[i], x, y + plFont.lineHeight / 2, plFont, {
+        color: optsAtIndex.color,
+        textAlign,
+        textBaseline: "middle"
+      });
+    }
+  }
+  function pathRadiusLine(scale, radius, circular, labelCount) {
+    const { ctx } = scale;
+    if (circular) {
+      ctx.arc(scale.xCenter, scale.yCenter, radius, 0, TAU);
+    } else {
+      let pointPosition = scale.getPointPosition(0, radius);
+      ctx.moveTo(pointPosition.x, pointPosition.y);
+      for (let i = 1; i < labelCount; i++) {
+        pointPosition = scale.getPointPosition(i, radius);
+        ctx.lineTo(pointPosition.x, pointPosition.y);
+      }
+    }
+  }
+  function drawRadiusLine(scale, gridLineOpts, radius, labelCount, borderOpts) {
+    const ctx = scale.ctx;
+    const circular = gridLineOpts.circular;
+    const { color: color2, lineWidth } = gridLineOpts;
+    if (!circular && !labelCount || !color2 || !lineWidth || radius < 0) {
+      return;
+    }
+    ctx.save();
+    ctx.strokeStyle = color2;
+    ctx.lineWidth = lineWidth;
+    ctx.setLineDash(borderOpts.dash || []);
+    ctx.lineDashOffset = borderOpts.dashOffset;
+    ctx.beginPath();
+    pathRadiusLine(scale, radius, circular, labelCount);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+  function createPointLabelContext(parent, index2, label) {
+    return createContext(parent, {
+      label,
+      index: index2,
+      type: "pointLabel"
+    });
+  }
+  class RadialLinearScale extends LinearScaleBase {
+    constructor(cfg) {
+      super(cfg);
+      this.xCenter = void 0;
+      this.yCenter = void 0;
+      this.drawingArea = void 0;
+      this._pointLabels = [];
+      this._pointLabelItems = [];
+    }
+    setDimensions() {
+      const padding = this._padding = toPadding(getTickBackdropHeight(this.options) / 2);
+      const w = this.width = this.maxWidth - padding.width;
+      const h = this.height = this.maxHeight - padding.height;
+      this.xCenter = Math.floor(this.left + w / 2 + padding.left);
+      this.yCenter = Math.floor(this.top + h / 2 + padding.top);
+      this.drawingArea = Math.floor(Math.min(w, h) / 2);
+    }
+    determineDataLimits() {
+      const { min, max } = this.getMinMax(false);
+      this.min = isNumberFinite(min) && !isNaN(min) ? min : 0;
+      this.max = isNumberFinite(max) && !isNaN(max) ? max : 0;
+      this.handleTickRangeOptions();
+    }
+    computeTickLimit() {
+      return Math.ceil(this.drawingArea / getTickBackdropHeight(this.options));
+    }
+    generateTickLabels(ticks) {
+      LinearScaleBase.prototype.generateTickLabels.call(this, ticks);
+      this._pointLabels = this.getLabels().map((value, index2) => {
+        const label = callback(this.options.pointLabels.callback, [
+          value,
+          index2
+        ], this);
+        return label || label === 0 ? label : "";
+      }).filter((v, i) => this.chart.getDataVisibility(i));
+    }
+    fit() {
+      const opts = this.options;
+      if (opts.display && opts.pointLabels.display) {
+        fitWithPointLabels(this);
+      } else {
+        this.setCenterPoint(0, 0, 0, 0);
+      }
+    }
+    setCenterPoint(leftMovement, rightMovement, topMovement, bottomMovement) {
+      this.xCenter += Math.floor((leftMovement - rightMovement) / 2);
+      this.yCenter += Math.floor((topMovement - bottomMovement) / 2);
+      this.drawingArea -= Math.min(this.drawingArea / 2, Math.max(leftMovement, rightMovement, topMovement, bottomMovement));
+    }
+    getIndexAngle(index2) {
+      const angleMultiplier = TAU / (this._pointLabels.length || 1);
+      const startAngle = this.options.startAngle || 0;
+      return _normalizeAngle(index2 * angleMultiplier + toRadians(startAngle));
+    }
+    getDistanceFromCenterForValue(value) {
+      if (isNullOrUndef(value)) {
+        return NaN;
+      }
+      const scalingFactor = this.drawingArea / (this.max - this.min);
+      if (this.options.reverse) {
+        return (this.max - value) * scalingFactor;
+      }
+      return (value - this.min) * scalingFactor;
+    }
+    getValueForDistanceFromCenter(distance) {
+      if (isNullOrUndef(distance)) {
+        return NaN;
+      }
+      const scaledDistance = distance / (this.drawingArea / (this.max - this.min));
+      return this.options.reverse ? this.max - scaledDistance : this.min + scaledDistance;
+    }
+    getPointLabelContext(index2) {
+      const pointLabels = this._pointLabels || [];
+      if (index2 >= 0 && index2 < pointLabels.length) {
+        const pointLabel = pointLabels[index2];
+        return createPointLabelContext(this.getContext(), index2, pointLabel);
+      }
+    }
+    getPointPosition(index2, distanceFromCenter, additionalAngle = 0) {
+      const angle = this.getIndexAngle(index2) - HALF_PI + additionalAngle;
+      return {
+        x: Math.cos(angle) * distanceFromCenter + this.xCenter,
+        y: Math.sin(angle) * distanceFromCenter + this.yCenter,
+        angle
+      };
+    }
+    getPointPositionForValue(index2, value) {
+      return this.getPointPosition(index2, this.getDistanceFromCenterForValue(value));
+    }
+    getBasePosition(index2) {
+      return this.getPointPositionForValue(index2 || 0, this.getBaseValue());
+    }
+    getPointLabelPosition(index2) {
+      const { left, top, right, bottom } = this._pointLabelItems[index2];
+      return {
+        left,
+        top,
+        right,
+        bottom
+      };
+    }
+    drawBackground() {
+      const { backgroundColor, grid: { circular } } = this.options;
+      if (backgroundColor) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.beginPath();
+        pathRadiusLine(this, this.getDistanceFromCenterForValue(this._endValue), circular, this._pointLabels.length);
+        ctx.closePath();
+        ctx.fillStyle = backgroundColor;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    drawGrid() {
+      const ctx = this.ctx;
+      const opts = this.options;
+      const { angleLines, grid, border } = opts;
+      const labelCount = this._pointLabels.length;
+      let i, offset, position;
+      if (opts.pointLabels.display) {
+        drawPointLabels(this, labelCount);
+      }
+      if (grid.display) {
+        this.ticks.forEach((tick, index2) => {
+          if (index2 !== 0 || index2 === 0 && this.min < 0) {
+            offset = this.getDistanceFromCenterForValue(tick.value);
+            const context = this.getContext(index2);
+            const optsAtIndex = grid.setContext(context);
+            const optsAtIndexBorder = border.setContext(context);
+            drawRadiusLine(this, optsAtIndex, offset, labelCount, optsAtIndexBorder);
+          }
+        });
+      }
+      if (angleLines.display) {
+        ctx.save();
+        for (i = labelCount - 1; i >= 0; i--) {
+          const optsAtIndex = angleLines.setContext(this.getPointLabelContext(i));
+          const { color: color2, lineWidth } = optsAtIndex;
+          if (!lineWidth || !color2) {
+            continue;
+          }
+          ctx.lineWidth = lineWidth;
+          ctx.strokeStyle = color2;
+          ctx.setLineDash(optsAtIndex.borderDash);
+          ctx.lineDashOffset = optsAtIndex.borderDashOffset;
+          offset = this.getDistanceFromCenterForValue(opts.reverse ? this.min : this.max);
+          position = this.getPointPosition(i, offset);
+          ctx.beginPath();
+          ctx.moveTo(this.xCenter, this.yCenter);
+          ctx.lineTo(position.x, position.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+    drawBorder() {
+    }
+    drawLabels() {
+      const ctx = this.ctx;
+      const opts = this.options;
+      const tickOpts = opts.ticks;
+      if (!tickOpts.display) {
+        return;
+      }
+      const startAngle = this.getIndexAngle(0);
+      let offset, width;
+      ctx.save();
+      ctx.translate(this.xCenter, this.yCenter);
+      ctx.rotate(startAngle);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      this.ticks.forEach((tick, index2) => {
+        if (index2 === 0 && this.min >= 0 && !opts.reverse) {
+          return;
+        }
+        const optsAtIndex = tickOpts.setContext(this.getContext(index2));
+        const tickFont = toFont(optsAtIndex.font);
+        offset = this.getDistanceFromCenterForValue(this.ticks[index2].value);
+        if (optsAtIndex.showLabelBackdrop) {
+          ctx.font = tickFont.string;
+          width = ctx.measureText(tick.label).width;
+          ctx.fillStyle = optsAtIndex.backdropColor;
+          const padding = toPadding(optsAtIndex.backdropPadding);
+          ctx.fillRect(-width / 2 - padding.left, -offset - tickFont.size / 2 - padding.top, width + padding.width, tickFont.size + padding.height);
+        }
+        renderText(ctx, tick.label, 0, -offset, tickFont, {
+          color: optsAtIndex.color,
+          strokeColor: optsAtIndex.textStrokeColor,
+          strokeWidth: optsAtIndex.textStrokeWidth
+        });
+      });
+      ctx.restore();
+    }
+    drawTitle() {
+    }
+  }
+  __publicField(RadialLinearScale, "id", "radialLinear");
+  __publicField(RadialLinearScale, "defaults", {
+    display: true,
+    animate: true,
+    position: "chartArea",
+    angleLines: {
+      display: true,
+      lineWidth: 1,
+      borderDash: [],
+      borderDashOffset: 0
+    },
+    grid: {
+      circular: false
+    },
+    startAngle: 0,
+    ticks: {
+      showLabelBackdrop: true,
+      callback: Ticks.formatters.numeric
+    },
+    pointLabels: {
+      backdropColor: void 0,
+      backdropPadding: 2,
+      display: true,
+      font: {
+        size: 10
+      },
+      callback(label) {
+        return label;
+      },
+      padding: 5,
+      centerPointLabels: false
+    }
+  });
+  __publicField(RadialLinearScale, "defaultRoutes", {
+    "angleLines.color": "borderColor",
+    "pointLabels.color": "color",
+    "ticks.color": "color"
+  });
+  __publicField(RadialLinearScale, "descriptors", {
+    angleLines: {
+      _fallback: "grid"
     }
   });
   const INTERVALS = {
@@ -10698,11 +13827,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const adapter = scale._adapter;
     const first = +adapter.startOf(ticks[0].value, majorUnit);
     const last = ticks[ticks.length - 1].value;
-    let major, index;
+    let major, index2;
     for (major = first; major <= last; major = +adapter.add(major, 1, majorUnit)) {
-      index = map2[major];
-      if (index >= 0) {
-        ticks[index].major = true;
+      index2 = map2[major];
+      if (index2 >= 0) {
+        ticks[index2].major = true;
       }
     }
     return ticks;
@@ -10749,7 +13878,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       super.init(scaleOpts);
       this._normalized = opts.normalized;
     }
-    parse(raw, index) {
+    parse(raw, index2) {
       if (raw === void 0) {
         return null;
       }
@@ -10896,13 +14025,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const fmt = format || formats[unit];
       return this._adapter.format(value, fmt);
     }
-    _tickFormatFunction(time, index, ticks, format) {
+    _tickFormatFunction(time, index2, ticks, format) {
       const options = this.options;
       const formatter2 = options.ticks.callback;
       if (formatter2) {
         return callback(formatter2, [
           time,
-          index,
+          index2,
           ticks
         ], this);
       }
@@ -10911,7 +14040,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const majorUnit = this._majorUnit;
       const minorFormat = unit && formats[unit];
       const majorFormat = majorUnit && formats[majorUnit];
-      const tick = ticks[index];
+      const tick = ticks[index2];
       const major = majorUnit && majorFormat && tick && tick.major;
       return this._adapter.format(time, format || (major ? majorFormat : minorFormat));
     }
@@ -11587,10 +14716,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       });
     }
   }
-  var Label = function(config, ctx, el, index) {
+  var Label = function(config, ctx, el, index2) {
     var me = this;
     me._config = config;
-    me._index = index;
+    me._index = index2;
     me._model = null;
     me._rects = null;
     me._ctx = ctx;
@@ -11602,47 +14731,47 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     _modelize: function(display, lines, config, context) {
       var me = this;
-      var index = me._index;
-      var font = toFont(resolve$1([config.font, {}], context, index));
-      var color2 = resolve$1([config.color, defaults$1.color], context, index);
+      var index2 = me._index;
+      var font = toFont(resolve$1([config.font, {}], context, index2));
+      var color2 = resolve$1([config.color, defaults$1.color], context, index2);
       return {
-        align: resolve$1([config.align, "center"], context, index),
-        anchor: resolve$1([config.anchor, "center"], context, index),
+        align: resolve$1([config.align, "center"], context, index2),
+        anchor: resolve$1([config.anchor, "center"], context, index2),
         area: context.chart.chartArea,
-        backgroundColor: resolve$1([config.backgroundColor, null], context, index),
-        borderColor: resolve$1([config.borderColor, null], context, index),
-        borderRadius: resolve$1([config.borderRadius, 0], context, index),
-        borderWidth: resolve$1([config.borderWidth, 0], context, index),
-        clamp: resolve$1([config.clamp, false], context, index),
-        clip: resolve$1([config.clip, false], context, index),
+        backgroundColor: resolve$1([config.backgroundColor, null], context, index2),
+        borderColor: resolve$1([config.borderColor, null], context, index2),
+        borderRadius: resolve$1([config.borderRadius, 0], context, index2),
+        borderWidth: resolve$1([config.borderWidth, 0], context, index2),
+        clamp: resolve$1([config.clamp, false], context, index2),
+        clip: resolve$1([config.clip, false], context, index2),
         color: color2,
         display,
         font,
         lines,
-        offset: resolve$1([config.offset, 4], context, index),
-        opacity: resolve$1([config.opacity, 1], context, index),
+        offset: resolve$1([config.offset, 4], context, index2),
+        opacity: resolve$1([config.opacity, 1], context, index2),
         origin: getScaleOrigin(me._el, context),
-        padding: toPadding(resolve$1([config.padding, 4], context, index)),
+        padding: toPadding(resolve$1([config.padding, 4], context, index2)),
         positioner: getPositioner(me._el),
-        rotation: resolve$1([config.rotation, 0], context, index) * (Math.PI / 180),
+        rotation: resolve$1([config.rotation, 0], context, index2) * (Math.PI / 180),
         size: utils.textSize(me._ctx, lines, font),
-        textAlign: resolve$1([config.textAlign, "start"], context, index),
-        textShadowBlur: resolve$1([config.textShadowBlur, 0], context, index),
-        textShadowColor: resolve$1([config.textShadowColor, color2], context, index),
-        textStrokeColor: resolve$1([config.textStrokeColor, color2], context, index),
-        textStrokeWidth: resolve$1([config.textStrokeWidth, 0], context, index)
+        textAlign: resolve$1([config.textAlign, "start"], context, index2),
+        textShadowBlur: resolve$1([config.textShadowBlur, 0], context, index2),
+        textShadowColor: resolve$1([config.textShadowColor, color2], context, index2),
+        textStrokeColor: resolve$1([config.textStrokeColor, color2], context, index2),
+        textStrokeWidth: resolve$1([config.textStrokeWidth, 0], context, index2)
       };
     },
     update: function(context) {
       var me = this;
       var model = null;
       var rects = null;
-      var index = me._index;
+      var index2 = me._index;
       var config = me._config;
       var value, label, lines;
-      var display = resolve$1([config.display, true], context, index);
+      var display = resolve$1([config.display, true], context, index2);
       if (display) {
-        value = context.dataset.data[index];
+        value = context.dataset.data[index2];
         label = valueOrDefault(callback(config.formatter, [value, context]), value);
         lines = isNullOrUndef(label) ? [] : utils.toTextLines(label);
         if (lines.length) {
@@ -13352,10 +16481,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const xPoints = [x, x + xAdjust, x + xAdjust, x2];
     const yPoints = [y + yAdjust, y2, y, y2];
     const result = [];
-    for (let index = 0; index < 4; index++) {
-      const rotatedPoint = rotated({ x: xPoints[index], y: yPoints[index] }, center, toRadians(rotation));
+    for (let index2 = 0; index2 < 4; index2++) {
+      const rotatedPoint = rotated({ x: xPoints[index2], y: yPoints[index2] }, center, toRadians(rotation));
       result.push({
-        position: positions[index],
+        position: positions[index2],
         distance: distanceBetweenPoints(rotatedPoint, { x: pointX, y: pointY })
       });
     }
@@ -13749,7 +16878,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     if (!arrowOpts || !arrowOpts.display) {
       return;
     }
-    const { length, width, fill, backgroundColor, borderColor } = arrowOpts;
+    const { length, width, fill: fill2, backgroundColor, borderColor } = arrowOpts;
     const arrowOffsetX = Math.abs(offset - length) + adjust;
     ctx.beginPath();
     setShadowStyle(ctx, arrowOpts);
@@ -13757,7 +16886,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     ctx.moveTo(arrowOffsetX, -width);
     ctx.lineTo(offset + adjust, 0);
     ctx.lineTo(arrowOffsetX, width);
-    if (fill === true) {
+    if (fill2 === true) {
       ctx.fillStyle = backgroundColor || borderColor;
       ctx.closePath();
       ctx.fill();
@@ -14152,11 +17281,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       animations.update(subElement, properties);
     }
   }
-  function getOrCreateElement(elements, index, type, initProperties) {
+  function getOrCreateElement(elements, index2, type, initProperties) {
     const elementClass = annotationTypes[resolveType(type)];
-    let element = elements[index];
+    let element = elements[index2];
     if (!element || !(element instanceof elementClass)) {
-      element = elements[index] = new elementClass();
+      element = elements[index2] = new elementClass();
       Object.assign(element, initProperties);
     }
     return element;
@@ -14368,14 +17497,35 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
   }
   Chart.register(
+    // Controllers
     BarController,
+    BubbleController,
+    DoughnutController,
+    LineController,
+    PieController,
+    PolarAreaController,
+    RadarController,
+    ScatterController,
+    // Elements
+    ArcElement,
     BarElement,
+    LineElement,
+    PointElement,
+    // Scales
     CategoryScale,
     LinearScale,
     LogarithmicScale,
-    plugin_title,
+    RadialLinearScale,
+    TimeScale,
+    TimeSeriesScale,
+    // Plugins
+    plugin_decimation,
+    index,
     plugin_legend,
+    plugin_subtitle,
+    plugin_title,
     plugin_tooltip,
+    // additional plugins
     plugin,
     annotation
   );
@@ -14433,11 +17583,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const points = chart.getElementsAtEventForMode(event, selection, { intersect: true }, false);
       if (points.length) {
         const firstPoint = points[0];
-        const index = firstPoint.index;
+        const index2 = firstPoint.index;
         const datasetIndex = firstPoint.datasetIndex;
-        const label = (_b = (_a = chart.data.labels) == null ? void 0 : _a[index]) != null ? _b : null;
+        const label = (_b = (_a = chart.data.labels) == null ? void 0 : _a[index2]) != null ? _b : null;
         const value = chart.data.datasets[datasetIndex].data[firstPoint.index];
-        callback2({ action, index, label, value, datasetIndex });
+        callback2({ action, index: index2, label, value, datasetIndex });
       }
     });
   }
