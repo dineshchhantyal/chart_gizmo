@@ -37,9 +37,28 @@ export function createSimpleBarChart(
   });
 };
 
-export function gizmo_click (canvas: HTMLCanvasElement, chart: Chart, callback: (arg0: any) => void) {
-  canvas.addEventListener('click', (event) => {
-    const points = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+/**
+* This function is used to add a click event listener to a canvas element
+* that contains a Chart.js chart. When the canvas is clicked, it retrieves
+* the data point closest to the click position and calls the provided callback
+* function with the index, label, value, and datasetIndex of that data point.
+*
+* @param {HTMLCanvasElement} canvas - The canvas element containing the chart.
+* @param {Chart} chart - The Chart.js chart instance.
+* @param {function} callback - The callback function to be called with the data point information.
+* @param {string} [action='click'] - The event action to listen for (default is 'click').
+* @param {string} [selection='nearest'] - The selection mode for the chart (default is 'nearest').
+* @returns {void}
+*/
+export function gizmo_click (
+  canvas: HTMLCanvasElement, 
+  chart: Chart, 
+  callback: (arg0: any) => void,
+  action = 'click',
+  selection = 'nearest'
+) {
+  canvas.addEventListener(action, (event) => {
+    const points = chart.getElementsAtEventForMode(event, selection, { intersect: true }, false);
     if (points.length) {
       const firstPoint = points[0];
       const index = firstPoint.index;
