@@ -5,7 +5,7 @@ import importlib.resources
 
 class RawChart(jQueryComponent):
 
-    def __init__(self, configuration, width=400, height=400):
+    def __init__(self, configuration=None, width=400, height=400):
         # canvas tag with width and height
         tag = f'<canvas id="myChart" width="{width}" height="{height}"></canvas>'
         super().__init__(tag)
@@ -13,6 +13,11 @@ class RawChart(jQueryComponent):
         # load the js file from the package
         js_path = package_root / "js" / "chart_gizmo.umd.js"
         self.js_file(str(js_path))
+        self.configuration = configuration
+
+    def get_configuration(self):
+        # override this method to get the configuration in subclasses
+        return self.configuration
 
     def configure_jQuery_element(self, element):
         super().configure_jQuery_element(element)
@@ -23,6 +28,7 @@ class RawChart(jQueryComponent):
         #do(console.log("chart_gizmo_js loaded", self.window.chart_gizmo_js))
         #do(console.log("Chart loaded", Chart))
         #do(console.log("dom_canvas", dom_canvas))
+        configuration = self.get_configuration()
         my_chart = self.cache("my_chart", self.new(Chart, dom_canvas, configuration))
         self.chart = my_chart
 
