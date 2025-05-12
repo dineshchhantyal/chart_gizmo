@@ -14,6 +14,15 @@ class RawChart(jQueryComponent):
         js_path = package_root / "js" / "chart_gizmo.umd.js"
         self.js_file(str(js_path))
         self.configuration = configuration
+        self.logarithmic_axes = {}
+        self.callbacks = {}
+
+    def logarithmic(self, axis="y", value=True):
+        """
+        Set the axis to be logarithmic.
+        """
+        self.logarithmic_axes[axis] = value
+        return self
 
     def get_configuration(self):
         # override this method to get the configuration in subclasses
@@ -22,6 +31,7 @@ class RawChart(jQueryComponent):
     def configure_jQuery_element(self, element):
         super().configure_jQuery_element(element)
         dom_canvas = element[0].querySelector('*')
+        self.canvas = dom_canvas
         Chart = self.window.chart_gizmo_js.Chart
         console = self.window.console
         #do(console.log("test log", self.window))
@@ -29,8 +39,30 @@ class RawChart(jQueryComponent):
         #do(console.log("Chart loaded", Chart))
         #do(console.log("dom_canvas", dom_canvas))
         configuration = self.get_configuration()
-        my_chart = self.cache("my_chart", self.new(Chart, dom_canvas, configuration))
+        # transfer configuration 
+        config_js_ref = self.cache("config_js_ref", configuration)
+        # configure logarithmic axes
+        # xxxx
+        my_chart = self.cache("my_chart", self.new(Chart, dom_canvas, config_js_ref))
         self.chart = my_chart
+        # attach callbacks
+        for action, (callback, selection) in self.callbacks.items():
+            self.on_click_call(callback, action, selection)
+
+    def on_click_call(self, callback, action='click', selection='nearest'):
+        """
+        Set the click callback for the chart.
+        """
+        self.callbacks[action] = (callback, selection)
+        # check if the chart is created
+        if not hasattr(self, 'chart'):
+            return self
+        # get the chart object
+        my_chart = self.chart
+        # set the click callback
+        gizmo_click = self.window.chart_gizmo_js.gizmo_click
+        do(gizmo_click(self.canvas, my_chart, callback, action, selection))
+        return self
 
     async def getBase64URL(self, type=None, quality=1):
         if type is not None:

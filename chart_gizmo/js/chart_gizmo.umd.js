@@ -14223,10 +14223,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     });
   }
-  function gizmo_click(canvas, chart, callback2) {
-    canvas.addEventListener("click", (event) => {
+  function gizmo_click(canvas, chart, callback2, action = "click", selection = "nearest") {
+    canvas.addEventListener(action, (event) => {
       var _a, _b;
-      const points = chart.getElementsAtEventForMode(event, "nearest", { intersect: true }, false);
+      const points = chart.getElementsAtEventForMode(event, selection, { intersect: true }, false);
       if (points.length) {
         const firstPoint = points[0];
         const index = firstPoint.index;
