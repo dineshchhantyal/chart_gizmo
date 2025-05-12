@@ -37,6 +37,30 @@ export function createSimpleBarChart(
   });
 };
 
+/** 
+ * Configure chart.js options to use a logarithmic scale for the y-axis.
+ * @param {config} - The chart configuration object, modified in place.
+ * @param {axis} - The axis to configure (default is 'y').
+ */
+export function configureLogarithmicScale(config: any, axis: string = 'y') {
+  const scales = config.options.scales || {};
+  const yAxis = scales[axis] || {};
+  yAxis.type = 'logarithmic';
+  yAxis.ticks = {
+    callback: function (value: number) {
+      if (value === 0) {
+        return '0';
+      } else if (value < 0) {
+        return '';
+      } else {
+        return Number.isInteger(Math.log10(value)) ? value : '';
+      };
+    }
+  };
+  config.options.scales = scales
+  return config;
+};
+
 /**
 * This function is used to add a click event listener to a canvas element
 * that contains a Chart.js chart. When the canvas is clicked, it retrieves
@@ -65,7 +89,7 @@ export function gizmo_click (
       const datasetIndex = firstPoint.datasetIndex;
       const label = chart.data.labels?.[index] ?? null;
       const value = chart.data.datasets[datasetIndex].data[firstPoint.index];
-      callback({ index, label, value, datasetIndex });
+      callback({ action, index, label, value, datasetIndex });
     }
   });
 }

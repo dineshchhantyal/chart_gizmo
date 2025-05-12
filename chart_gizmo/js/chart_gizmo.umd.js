@@ -1229,6 +1229,23 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       };
       Object.assign(options, this.options.ticks.format);
       return formatNumber(tickValue, locale, options);
+    },
+    logarithmic(tickValue, index, ticks) {
+      if (tickValue === 0) {
+        return "0";
+      }
+      const remain = ticks[index].significand || tickValue / Math.pow(10, Math.floor(log10(tickValue)));
+      if ([
+        1,
+        2,
+        3,
+        5,
+        10,
+        15
+      ].includes(remain) || index > 0.8 * ticks.length) {
+        return formatters.numeric.call(this, tickValue, index, ticks);
+      }
+      return "";
     }
   };
   function calculateDelta(tickValue, ticks) {
@@ -10402,6 +10419,174 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       callback: Ticks.formatters.numeric
     }
   });
+  const log10Floor = (v) => Math.floor(log10(v));
+  const changeExponent = (v, m) => Math.pow(10, log10Floor(v) + m);
+  function isMajor(tickVal) {
+    const remain = tickVal / Math.pow(10, log10Floor(tickVal));
+    return remain === 1;
+  }
+  function steps(min, max, rangeExp) {
+    const rangeStep = Math.pow(10, rangeExp);
+    const start = Math.floor(min / rangeStep);
+    const end = Math.ceil(max / rangeStep);
+    return end - start;
+  }
+  function startExp(min, max) {
+    const range = max - min;
+    let rangeExp = log10Floor(range);
+    while (steps(min, max, rangeExp) > 10) {
+      rangeExp++;
+    }
+    while (steps(min, max, rangeExp) < 10) {
+      rangeExp--;
+    }
+    return Math.min(rangeExp, log10Floor(min));
+  }
+  function generateTicks(generationOptions, { min, max }) {
+    min = finiteOrDefault(generationOptions.min, min);
+    const ticks = [];
+    const minExp = log10Floor(min);
+    let exp = startExp(min, max);
+    let precision = exp < 0 ? Math.pow(10, Math.abs(exp)) : 1;
+    const stepSize = Math.pow(10, exp);
+    const base = minExp > exp ? Math.pow(10, minExp) : 0;
+    const start = Math.round((min - base) * precision) / precision;
+    const offset = Math.floor((min - base) / stepSize / 10) * stepSize * 10;
+    let significand = Math.floor((start - offset) / Math.pow(10, exp));
+    let value = finiteOrDefault(generationOptions.min, Math.round((base + offset + significand * Math.pow(10, exp)) * precision) / precision);
+    while (value < max) {
+      ticks.push({
+        value,
+        major: isMajor(value),
+        significand
+      });
+      if (significand >= 10) {
+        significand = significand < 15 ? 15 : 20;
+      } else {
+        significand++;
+      }
+      if (significand >= 20) {
+        exp++;
+        significand = 2;
+        precision = exp >= 0 ? 1 : precision;
+      }
+      value = Math.round((base + offset + significand * Math.pow(10, exp)) * precision) / precision;
+    }
+    const lastTick = finiteOrDefault(generationOptions.max, value);
+    ticks.push({
+      value: lastTick,
+      major: isMajor(lastTick),
+      significand
+    });
+    return ticks;
+  }
+  class LogarithmicScale extends Scale {
+    constructor(cfg) {
+      super(cfg);
+      this.start = void 0;
+      this.end = void 0;
+      this._startValue = void 0;
+      this._valueRange = 0;
+    }
+    parse(raw, index) {
+      const value = LinearScaleBase.prototype.parse.apply(this, [
+        raw,
+        index
+      ]);
+      if (value === 0) {
+        this._zero = true;
+        return void 0;
+      }
+      return isNumberFinite(value) && value > 0 ? value : null;
+    }
+    determineDataLimits() {
+      const { min, max } = this.getMinMax(true);
+      this.min = isNumberFinite(min) ? Math.max(0, min) : null;
+      this.max = isNumberFinite(max) ? Math.max(0, max) : null;
+      if (this.options.beginAtZero) {
+        this._zero = true;
+      }
+      if (this._zero && this.min !== this._suggestedMin && !isNumberFinite(this._userMin)) {
+        this.min = min === changeExponent(this.min, 0) ? changeExponent(this.min, -1) : changeExponent(this.min, 0);
+      }
+      this.handleTickRangeOptions();
+    }
+    handleTickRangeOptions() {
+      const { minDefined, maxDefined } = this.getUserBounds();
+      let min = this.min;
+      let max = this.max;
+      const setMin = (v) => min = minDefined ? min : v;
+      const setMax = (v) => max = maxDefined ? max : v;
+      if (min === max) {
+        if (min <= 0) {
+          setMin(1);
+          setMax(10);
+        } else {
+          setMin(changeExponent(min, -1));
+          setMax(changeExponent(max, 1));
+        }
+      }
+      if (min <= 0) {
+        setMin(changeExponent(max, -1));
+      }
+      if (max <= 0) {
+        setMax(changeExponent(min, 1));
+      }
+      this.min = min;
+      this.max = max;
+    }
+    buildTicks() {
+      const opts = this.options;
+      const generationOptions = {
+        min: this._userMin,
+        max: this._userMax
+      };
+      const ticks = generateTicks(generationOptions, this);
+      if (opts.bounds === "ticks") {
+        _setMinAndMaxByKey(ticks, this, "value");
+      }
+      if (opts.reverse) {
+        ticks.reverse();
+        this.start = this.max;
+        this.end = this.min;
+      } else {
+        this.start = this.min;
+        this.end = this.max;
+      }
+      return ticks;
+    }
+    getLabelForValue(value) {
+      return value === void 0 ? "0" : formatNumber(value, this.chart.options.locale, this.options.ticks.format);
+    }
+    configure() {
+      const start = this.min;
+      super.configure();
+      this._startValue = log10(start);
+      this._valueRange = log10(this.max) - log10(start);
+    }
+    getPixelForValue(value) {
+      if (value === void 0 || value === 0) {
+        value = this.min;
+      }
+      if (value === null || isNaN(value)) {
+        return NaN;
+      }
+      return this.getPixelForDecimal(value === this.min ? 0 : (log10(value) - this._startValue) / this._valueRange);
+    }
+    getValueForPixel(pixel) {
+      const decimal = this.getDecimalForPixel(pixel);
+      return Math.pow(10, this._startValue + decimal * this._valueRange);
+    }
+  }
+  __publicField(LogarithmicScale, "id", "logarithmic");
+  __publicField(LogarithmicScale, "defaults", {
+    ticks: {
+      callback: Ticks.formatters.logarithmic,
+      major: {
+        enabled: true
+      }
+    }
+  });
   const INTERVALS = {
     millisecond: {
       common: true,
@@ -14187,6 +14372,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     BarElement,
     CategoryScale,
     LinearScale,
+    LogarithmicScale,
     plugin_title,
     plugin_legend,
     plugin_tooltip,
@@ -14223,6 +14409,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     });
   }
+  function configureLogarithmicScale(config, axis = "y") {
+    const scales = config.options.scales || {};
+    const yAxis = scales[axis] || {};
+    yAxis.type = "logarithmic";
+    yAxis.ticks = {
+      callback: function(value) {
+        if (value === 0) {
+          return "0";
+        } else if (value < 0) {
+          return "";
+        } else {
+          return Number.isInteger(Math.log10(value)) ? value : "";
+        }
+      }
+    };
+    config.options.scales = scales;
+    return config;
+  }
   function gizmo_click(canvas, chart, callback2, action = "click", selection = "nearest") {
     canvas.addEventListener(action, (event) => {
       var _a, _b;
@@ -14233,11 +14437,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         const datasetIndex = firstPoint.datasetIndex;
         const label = (_b = (_a = chart.data.labels) == null ? void 0 : _a[index]) != null ? _b : null;
         const value = chart.data.datasets[datasetIndex].data[firstPoint.index];
-        callback2({ index, label, value, datasetIndex });
+        callback2({ action, index, label, value, datasetIndex });
       }
     });
   }
   exports2.Chart = Chart;
+  exports2.configureLogarithmicScale = configureLogarithmicScale;
   exports2.createSimpleBarChart = createSimpleBarChart;
   exports2.gizmo_click = gizmo_click;
   exports2.name = name;

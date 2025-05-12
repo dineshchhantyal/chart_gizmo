@@ -32,22 +32,27 @@ class RawChart(jQueryComponent):
         super().configure_jQuery_element(element)
         dom_canvas = element[0].querySelector('*')
         self.canvas = dom_canvas
-        Chart = self.window.chart_gizmo_js.Chart
+        chart_gizmo_js = self.window.chart_gizmo_js
+        Chart = chart_gizmo_js.Chart
         console = self.window.console
         #do(console.log("test log", self.window))
-        #do(console.log("chart_gizmo_js loaded", self.window.chart_gizmo_js))
+        do(console.log("chart_gizmo_js loaded", self.window.chart_gizmo_js))
         #do(console.log("Chart loaded", Chart))
         #do(console.log("dom_canvas", dom_canvas))
         configuration = self.get_configuration()
         # transfer configuration 
         config_js_ref = self.cache("config_js_ref", configuration)
         # configure logarithmic axes
-        # xxxx
+        configureLogarithmicScale = chart_gizmo_js.configureLogarithmicScale
+        for axis, value in self.logarithmic_axes.items():
+            if value:
+                do(configureLogarithmicScale(config_js_ref, axis))
         my_chart = self.cache("my_chart", self.new(Chart, dom_canvas, config_js_ref))
         self.chart = my_chart
         # attach callbacks
         for action, (callback, selection) in self.callbacks.items():
             self.on_click_call(callback, action, selection)
+        do(console.log("config", config_js_ref))
 
     def on_click_call(self, callback, action='click', selection='nearest'):
         """

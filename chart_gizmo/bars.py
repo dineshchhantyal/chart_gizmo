@@ -37,7 +37,6 @@ class BarChart(raw_chart.RawChart):
         if configuration is None:
             self.data = data_config.ChartData()
         self.options = options
-        self.logarithmic = False
 
     def add_label(self, label, values=()):
         """
@@ -133,6 +132,7 @@ def serve_example_bar_chart():
     # create a BarChart object
     from H5Gizmos import serve
     chart = BarChart()
+    chart.logarithmic()
     def click_callback(event):
         print("Click event:", event)
         chart.add("click: " + repr(event))
