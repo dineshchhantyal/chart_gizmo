@@ -17577,6 +17577,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     config.options.scales = scales;
     return config;
   }
+  function replaceData(chart, data) {
+    chart.data = data;
+    chart.update();
+  }
   function gizmo_click(canvas, chart, callback2, action = "click", selection = "nearest") {
     canvas.addEventListener(action, (event) => {
       var _a, _b;
@@ -17596,5 +17600,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   exports2.createSimpleBarChart = createSimpleBarChart;
   exports2.gizmo_click = gizmo_click;
   exports2.name = name;
+  exports2.replaceData = replaceData;
   Object.defineProperty(exports2, Symbol.toStringTag, { value: "Module" });
 });
