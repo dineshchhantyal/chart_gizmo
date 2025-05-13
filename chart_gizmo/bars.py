@@ -16,6 +16,11 @@ default_options = dict(
             stacked=True,
         ),
     ),
+    plugins= dict(
+        datalabels= dict(
+            display= False,
+        ),
+    ),
 )
 
 class BarChart(raw_chart.RawChart):
