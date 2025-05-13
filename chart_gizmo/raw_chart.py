@@ -36,7 +36,7 @@ class RawChart(jQueryComponent):
         Chart = chart_gizmo_js.Chart
         console = self.window.console
         #do(console.log("test log", self.window))
-        do(console.log("chart_gizmo_js loaded", self.window.chart_gizmo_js))
+        do(console.log("chart_gizmo_js loaded", chart_gizmo_js))
         #do(console.log("Chart loaded", Chart))
         #do(console.log("dom_canvas", dom_canvas))
         configuration = self.get_configuration()
@@ -54,13 +54,32 @@ class RawChart(jQueryComponent):
             self.on_click_call(callback, action, selection)
         do(console.log("config", config_js_ref))
 
+    def update_data(self, newdata):
+        """
+        Update the data for the chart.
+        """
+        assert self.is_displayed(), "Chart is not displayed -- cannot update."
+        # get the chart object
+        my_chart = self.chart
+        # update the data
+        chart_gizmo_js = self.window.chart_gizmo_js
+        do(chart_gizmo_js.replaceData(my_chart, newdata))
+        # update the chart is automatic.
+        return self
+    
+    def is_displayed(self):
+        """
+        Check if the chart is displayed.
+        """
+        # check if the chart is created
+        return hasattr(self, 'chart') and self.chart is not None
+
     def on_click_call(self, callback, action='click', selection='nearest'):
         """
         Set the click callback for the chart.
         """
         self.callbacks[action] = (callback, selection)
-        # check if the chart is created
-        if not hasattr(self, 'chart'):
+        if not self.is_displayed():
             return self
         # get the chart object
         my_chart = self.chart
@@ -135,17 +154,36 @@ configuration = dict(
     ),
 )
 
+new_data= dict(
+        labels= ['Red', 'Purple', 'Orange'],
+        datasets= [dict(
+            label= '# of Votes',
+            data= [5, 2, 3],
+            backgroundColor= [
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor= [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth= 1
+        )]
+    )
+
 def example_bar_chart():
-    # create a RawChart object
     chart = RawChart(configuration)
-    # return the chart object
     return chart
 
 def serve_example():
     from H5Gizmos import serve, Button, Stack, Html, schedule_task, Text
-    # create a button to get the base64 image
     def button_clicked(*arguments):
         schedule_task(snapshot())
+    def update_chart(*arguments):
+        chart.update_data(new_data)
+        display.add(Text("Chart updated"))
     async def snapshot():
         # get the base64 image
         base64_image = await chart.getBase64URL()
@@ -159,8 +197,13 @@ def serve_example():
         await chart.saveImage("chart.png")
         display.add(Text("Image saved as chart.png"))
     button = Button("Get Base64 Image", on_click=button_clicked)
+    button2 = Button("Update Chart", on_click=update_chart)
     chart = example_bar_chart()
-    display = Stack([button, chart])
+    def click_callback(event):
+        print("Click event:", event)
+        display.add("click: " + repr(event))
+    chart.on_click_call(click_callback)
+    display = Stack([[button, button2], chart])
     serve(display.show())
 
 if __name__ == "__main__":
