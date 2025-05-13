@@ -61,6 +61,16 @@ export function configureLogarithmicScale(config: any, axis: string = 'y') {
   return config;
 };
 
+/** 
+ * Replace the data in a chart.
+ * @param {Chart} chart - The chart instance to update.
+ * @param {any} data - The new data to set.
+ */
+export function replaceData(chart: Chart, data: any) {
+  chart.data = data;
+  chart.update();
+};
+
 /**
 * This function is used to add a click event listener to a canvas element
 * that contains a Chart.js chart. When the canvas is clicked, it retrieves
