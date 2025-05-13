@@ -43,6 +43,21 @@ class BarChart(raw_chart.RawChart):
             self.data = data_config.ChartData()
         self.options = options
 
+    def clear(self):
+        """
+        Clear the chart data.
+        """
+        self.data = data_config.ChartData()
+        return self
+    
+    def update(self):
+        """
+        Update the chart data.
+        """
+        # update the chart data
+        self.update_data(self.data.as_dict())
+        return self
+
     def add_label(self, label, values=()):
         """
         Add a label to the chart.
