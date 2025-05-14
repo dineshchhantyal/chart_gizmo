@@ -67,6 +67,7 @@ class BarChart(raw_chart.RawChart):
         # add a label to the chart
         self.data.add_label(label, values)
         return self
+    
     def add_dataset(self, dataset):
         """
         Add a dataset to the chart.
@@ -76,6 +77,7 @@ class BarChart(raw_chart.RawChart):
         # add a dataset to the chart
         self.data.add_dataset(dataset)
         return self
+    
     def add_data_values(self, label, values=(), background_color=None, border_color=None, border_width=1):
         """
         Add data values to the chart.
@@ -85,12 +87,14 @@ class BarChart(raw_chart.RawChart):
         # add data values to the chart
         self.data.add_data_values(label, values, background_color, border_color, border_width)
         return self
+    
     def get_configuration(self):
         configuration = self.configuration
         options = self.options or default_options
-        if self.stacked:
-            options["scales"]["x"]["stacked"] = True
-            options["scales"]["y"]["stacked"] = True
+        if self.stacked is not None:
+            # set the stacked option
+            options["scales"]["x"]["stacked"] = self.stacked
+            options["scales"]["y"]["stacked"] = self.stacked
         if configuration is None:
             configuration = dict(
                 type=self.type,
@@ -111,6 +115,7 @@ class CSVBarChart(BarChart):
         self.stacked = stacked
         self.options = options
         self.load_csv(filename)
+        
     def load_csv(self, filename):
         """
         Load a CSV file and create a bar chart.
