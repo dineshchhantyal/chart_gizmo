@@ -103,52 +103,166 @@ class BarChart(raw_chart.RawChart):
             )
         return configuration
  
-class CSVBarChart(BarChart):
+
+class TabularBarChart(BarChart):
+    """
+    Create a bar chart from a tabular data source.
+    """
+    def __init__(
+            self, 
+            dictionaries,
+            label_column,
+            value_column,
+            group_column=None,
+            width=400,
+            height=400,
+            stacked=False,
+            configuration=None,
+            options=None
+        ):
+        """
+        Create a bar chart from a tabular data source represented as a list of dictionaries.
+        """
+        super().__init__(configuration, width, height, stacked, options)
+        self.dictionaries = dictionaries
+        self.label_column = label_column
+        self.value_columns = value_column
+        self.group_column = group_column
+        labels = []
+        group_names = []
+        name_to_values = {}
+        for dictionary in dictionaries:
+            # get the label
+            label = dictionary[label_column]
+            group = "value" # default group
+            if group_column is not None:
+                group = dictionary[group_column]
+            value = dictionary[value_column]
+            # add the label to the list of labels
+            if label not in labels:
+                labels.append(label)
+            # add the group name to the list of group names
+            if group not in group_names:
+                group_names.append(group)
+                name_to_values[group] = []
+            # add the value to the list of values
+            name_to_values[group].append(value)
+        # add the labels
+        for label in labels:
+            self.add_label(label)
+        # add the values
+        for name in group_names:
+            # add the values to the chart
+            self.add_data_values(name, name_to_values[name])
+
+class CSVBarChart(TabularBarChart):
+
     """
     Create a bar chart from a CSV file.
     """
-    def __init__(self, filename, width=400, height=400, stacked=False, options=None):
-        super().__init__(width=width, height=height, stacked=stacked, options=options)
-        self.filename = filename
-        self.configuration = None
-        self.data = None
-        self.stacked = stacked
-        self.options = options
-        self.load_csv(filename)
-        
-    def load_csv(self, filename):
+    def __init__(
+            self, 
+            csv_file,
+            label_column,
+            value_column,
+            group_column=None,
+            width=400,
+            height=400,
+            stacked=False,
+            configuration=None,
+            options=None
+        ):
         """
-        Load a CSV file and create a bar chart.
+        Create a bar chart from a CSV file.
         """
         import csv
-        with open(filename, "r") as f:
-            reader = csv.reader(f)
-            # read the header
-            header = next(reader)
-            # read the data
-            data = []
-            for row in reader:
-                data.append(row)
-            # create a bar chart
-            self.data = data_config.ChartData()
-            # Assume the first column is the dataset name.
-            # Assume the rest of the columns are the data values.
-            # Only use the columns that are strictly numeric.
-            # The first row is the header.
-            dataset_name_header = header[0]
-            value_names = header[1:]
-            is_numeric_column = {name: True for name in value_names}
-            name_to_values = {name: [] for name in value_names}
-            for row in data:
-                for i, value in enumerate(row[1:]):
-                    name = value_names[i]
-                    name_to_values[name].append(value)
-                    try:
-                        float(value)
-                    except ValueError:
-                        is_numeric_column[name] = False
-            # create the labels for numeric columns
-            not finished
+        dictionaries = []
+        with open(csv_file, "r") as f:
+            reader = csv.DictReader(f)
+            dictionaries = list(reader)
+        super().__init__(dictionaries, label_column, value_column, group_column, width, height, stacked, configuration, options)
+
+def CSVBarChartScript():
+    "Command line script to create a CSV bar chart."
+    import argparse
+    import sys
+    import os
+    from H5Gizmos import serve
+    import csv
+    parser = argparse.ArgumentParser(description="Create a bar chart from a CSV file.")
+    parser.add_argument("csv_file", help="CSV file to read.")
+    # other arguments are optional with None as default and abbreviations
+    parser.add_argument("-l", "--label_column", help="Label column name.")
+    parser.add_argument("-v", "--value_column", help="Value column name.")
+    parser.add_argument("-g", "--group_column", help="Group column name.")
+    parser.add_argument("-w", "--width", type=int, default=400, help="Width of the chart.")
+    #parser.add_argument("-h", "--height", type=int, default=400, help="Height of the chart.")
+    # get the arguments
+    args = parser.parse_args()
+    # check if the file exists
+    csv_file = args.csv_file
+    if not os.path.exists(csv_file):
+        print(f"File {csv_file} does not exist.")
+        sys.exit(1)
+    label_column = args.label_column
+    value_column = args.value_column
+    group_column = args.group_column
+    width = args.width
+    #height = args.height
+    # use the first 3 columns if not specified
+    with open(csv_file, "r") as f:
+        reader = csv.DictReader(f)
+        headers = reader.fieldnames
+        if label_column is None:
+            label_column = headers[0]
+        if value_column is None:
+            value_column = headers[1]
+        if group_column is None:
+            group_column = headers[2]
+    # create the chart
+    chart = CSVBarChart(
+        csv_file,
+        label_column=label_column,
+        value_column=value_column,
+        group_column=group_column,
+        width=width,
+        #height=height,
+    )
+    # serve the chart
+    serve(chart.show())
+
+# Example usages below are for testing purposes only.
+
+
+def serve_example_tabular_barchart():
+    """
+    Serve an example tabular bar chart.
+    """
+    # create a TabularBarChart object
+    from H5Gizmos import serve
+    data = [
+        {"label": "A", "group": "Red", "value": 12},
+        {"label": "B", "group": "Red", "value": 1},
+        {"label": "C", "group": "Red", "value": 23},
+        {"label": "D", "group": "Red", "value": 5},
+        {"label": "E", "group": "Red", "value": 2},
+        {"label": "F", "group": "Red", "value": 3},
+        {"label": "A", "group": "Blue", "value": 1},
+        {"label": "B", "group": "Blue", "value": 19},
+        {"label": "C", "group": "Blue", "value": 13},
+        {"label": "D", "group": "Blue", "value": 15},
+        {"label": "E", "group": "Blue", "value": 2},
+        {"label": "F", "group": "Blue", "value": 13},
+    ]
+    # create a TabularBarChart object
+    chart = TabularBarChart(
+        dictionaries=data,
+        label_column="label",
+        group_column="group",
+        value_column="value",
+        stacked=True,
+    )
+    serve(chart.show())
 
 def serve_example_bar_chart():
     """
