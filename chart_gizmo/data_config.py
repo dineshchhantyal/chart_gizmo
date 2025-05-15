@@ -11,10 +11,12 @@ class Datum:
     """
     A class to represent a data value in a dataset.
     """
+
     def __init__(self, value, background_color=None, border_color=None):
         self.value = value
         self.backgroundColor = background_color
         self.borderColor = border_color
+
     def configure_colors(self, background_color, border_color):
         """
         Configure the colors for the datum.
@@ -26,9 +28,11 @@ class Datum:
         return self
 
 class DataSet:
+
     """
     A class to represent a dataset for a chart.
     """
+
     def __init__(
             self, 
             label, values=(), 
@@ -46,6 +50,7 @@ class DataSet:
         self.borderWidth = border_width
         # other configuration options
         self.options = kwargs
+
     def append_value(self, value, background_color=None, border_color=None):
         """
         Append a value to the dataset.
@@ -53,6 +58,7 @@ class DataSet:
         datum = Datum(value, background_color, border_color)
         self.data.append(datum)
         return self
+    
     def configure_color_index(self, index, background_alpha=0.2, border_alpha=1.0):
         """
         Configure the color index for the dataset.
@@ -62,6 +68,7 @@ class DataSet:
         if self.borderColor is None:
             self.borderColor = color_list.indexed_rgbahtml(index, border_alpha)
         return self
+    
     def as_dict(self, index=0):
         """
         Convert the dataset to a JSON compatible dictionary.
@@ -89,6 +96,7 @@ class ChartData:
     def __init__(self, labels=(), datasets=()):
         self.labels = list(labels)
         self.datasets = list(datasets)
+
     def add_label(self, label, values=()):
         """
         Add a label to the chart data.
@@ -102,6 +110,7 @@ class ChartData:
         # add the values to each dataset
         for i, dataset in enumerate(self.datasets):
             dataset.append_value(values[i])
+
     def add_dataset(self, dataset):
         """
         Add a dataset to the chart data.
@@ -111,6 +120,7 @@ class ChartData:
             raise ValueError(f"Dataset size {len(dataset.data)} does not match number of labels {len(self.labels)}")
         # add the dataset
         self.datasets.append(dataset)
+
     def add_data_values(self, label, values, background_color=None, border_color=None, border_width=1):
         """
         Add data values to the chart data.
@@ -122,6 +132,7 @@ class ChartData:
         dataset = DataSet(label, values, background_color, border_color, border_width)
         # add the dataset
         self.add_dataset(dataset)
+        
     def as_dict(self):
         """
         Convert the chart data to a JSON compatible dictionary.
