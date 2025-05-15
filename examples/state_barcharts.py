@@ -70,6 +70,7 @@ class PopulationData:
         [title, values] = data
         chart.add_data_values(title, values)
         chart.update()
+
     def serve_year_barchart(self, year=None):
         """
         Serve a bar chart for a specific year.
@@ -77,6 +78,7 @@ class PopulationData:
         from H5Gizmos import serve
         chart = self.year_barchart(year)
         serve(chart.show())
+
     def data_by_state(self, state):
         """
         Get population data for a specific state.
@@ -87,6 +89,7 @@ class PopulationData:
             [datum["population"] for datum in self.data if datum["abbrev"] == state]
         ]
         return labels, data
+    
     def state_barchart(self, state=None):
         """
         Create a bar chart for a specific state.
@@ -104,6 +107,7 @@ class PopulationData:
         chart.logarithmic()
         self.state_chart = chart
         return chart
+    
     def change_state(self, state):
         """
         Change the state for the bar chart.
@@ -116,6 +120,7 @@ class PopulationData:
         [title, values] = data
         chart.add_data_values(title, values)
         chart.update()
+
     def serve_state_barchart(self, state=None):
         """
         Serve a bar chart for a specific state.
@@ -123,6 +128,7 @@ class PopulationData:
         from H5Gizmos import serve
         chart = self.state_barchart(state)
         serve(chart.show())
+        
     def serve_combined_charts(self):
         """
         Serve a combined bar chart for all states.
