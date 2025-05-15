@@ -172,9 +172,6 @@ class CSVBarChart(TabularBarChart):
             configuration=None,
             options=None
         ):
-        """
-        Create a bar chart from a CSV file.
-        """
         import csv
         dictionaries = []
         with open(csv_file, "r") as f:
