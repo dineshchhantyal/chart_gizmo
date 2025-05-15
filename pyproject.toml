@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chart_gizmo"
+version = "0.1.0"
+description = "H5Gizmos Library wrapper for Chart.js"
+authors = [{ name = "Aaron Watters", email = "awatters@flatironinstitute.org" }]
+requires-python = ">=3.7"
+dependencies = [
+    "h5gizmos"
+]
+
+[tool.setuptools]
+packages = ["chart_gizmo"]
+
+[tool.setuptools.package-data]
+chart_gizmo = ["js/*.js"]
+include = ["README.md", "LICENSE"]
+
+[project.scripts]
+csv-bar-gizmo = "chart_gizmo.bars:CSVBarChartScript"
