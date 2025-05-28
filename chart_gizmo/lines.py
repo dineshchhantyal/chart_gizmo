@@ -12,17 +12,20 @@ class LineChart(BarChart):
     """
     LineChart class for creating line charts.
     """
-    def __init__(self, configuration=None, width=400, height=400, options=None):
-        super().__init__(configuration, width, height)
-        self.configuration = configuration
+    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None):
+        super().__init__(configuration, width, height, stacked, options)
         self.type = "line"
-        self.data = None
-        # only allow data configuration if configuration is None
-        if configuration is None:
-            self.data = data_config.ChartData()
-        self.options = options
-        self.stacked = False
-        self.logarithmic_axes = {}
+
+    def get_default_options(self):
+        """
+        Get the default options for the line chart.
+        """
+        default_options = super().get_default_options()
+
+        # any update to the default options goes here
+        # default_options.update({})
+
+        return default_options
 
 
 class CSVLineChart(CSVBarChart):
