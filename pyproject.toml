@@ -21,3 +21,4 @@ include = ["README.md", "LICENSE"]
 
 [project.scripts]
 csv-bar-gizmo = "chart_gizmo.bars:CSVBarChartScript"
+csv-line-gizmo = "chart_gizmo.lines:CSVLineChartScript"
