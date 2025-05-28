@@ -2,10 +2,8 @@
 LineChart class for creating line charts.
 """
 
-import csv
-from . import data_config
 from .bars import BarChart, CSVBarChart
-from .cli import csv_chart_cli
+from .cli import CSVChartCLI
 
 
 class LineChart(BarChart):
@@ -75,4 +73,5 @@ def serve_example_line_chart():
 
 def CSVLineChartScript():
     """Command‐line entrypoint for CSVLineChart"""
-    csv_chart_cli(CSVLineChart)
+    cli = CSVChartCLI(CSVLineChart)
+    cli.run()
