@@ -6,7 +6,6 @@ import argparse
 import csv
 import os
 import sys
-from typing import Type, List, Dict, Any, Optional
 
 from H5Gizmos import serve
 
