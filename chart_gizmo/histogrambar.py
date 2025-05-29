@@ -1,0 +1,235 @@
+"""
+HistogramBarChart for creating histograms from numerical data.
+"""
+
+import numpy as np
+from chart_gizmo.bars import BarChart
+from chart_gizmo.cli import ChartCLI
+from H5Gizmos import serve
+import argparse
+import os
+import sys
+
+class HistogramBarChart(BarChart):
+    """
+    Creates a histogram bar chart from numerical data using numpy's histogram functionality.
+    """
+
+    def __init__(self, data=None, bins=10, range=None, density=False, weights=None,
+                 width=600, height=400, configuration=None, options=None,
+                 x_label=None, y_label=None):
+        """
+        Initialize a histogram bar chart.
+
+        Parameters
+        ----------
+        data : array-like, optional
+            Input data to be binned
+        bins : int or sequence, default=10
+            Number of bins or bin edges
+        range : tuple, optional
+            Lower and upper range of bins
+        density : bool, default=False
+            If True, the result is the value of the probability density function at the bin
+        weights : array-like, optional
+            Weights for each data point
+        width : int, default=600
+            Width of the chart in pixels
+        height : int, default=400
+            Height of the chart in pixels
+        configuration : dict, optional
+            Custom chart.js configuration
+        options : dict, optional
+            Custom chart.js options
+        x_label : str, optional
+            Custom X-axis label (defaults to "Value")
+        y_label : str, optional
+            Custom Y-axis label (defaults to "Frequency" or "Density")
+        """
+        super().__init__(configuration, width, height, stacked=False, options=options)
+
+        # Store histogram parameters
+        self.bins = bins
+        self.range = range
+        self.density = density
+        self.weights = weights
+        self.x_label = x_label
+        self.y_label = y_label
+
+        # Create histogram if data is provided
+        if data is not None:
+            self.create_histogram(data)
+
+    def create_histogram(self, data):
+        """
+        Create a histogram from the given data.
+
+        Parameters
+        ----------
+        data : array-like
+            Input data to be binned
+
+        Returns
+        -------
+        self : HistogramBarChart
+            The histogram chart instance
+        """
+        # Convert data to numpy array if it's not already
+        if not isinstance(data, np.ndarray):
+            data = np.array(data, dtype=float)
+
+        # Compute histogram
+        hist_values, bin_edges = np.histogram(
+            data,
+            bins=self.bins,
+            range=self.range,
+            density=self.density,
+            weights=self.weights
+        )
+
+        # Clear existing data
+        self.clear()
+
+        # Create labels from bin edges with appropriate format
+        if max(bin_edges) > 100:
+            # Use integer format for large numbers
+            labels = [f"{int(bin_edges[i])}-{int(bin_edges[i+1])}" for i in range(len(bin_edges)-1)]
+        elif max(bin_edges) > 10:
+            # Use 1 decimal place for medium numbers
+            labels = [f"{bin_edges[i]:.1f}-{bin_edges[i+1]:.1f}" for i in range(len(bin_edges)-1)]
+        else:
+            # Use 2 decimal places for small numbers
+            labels = [f"{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}" for i in range(len(bin_edges)-1)]
+
+        # Add labels
+        for label in labels:
+            self.add_label(label)
+
+        # Add histogram data with specific styling for a proper histogram
+        self.add_data_values(
+            "Frequency",
+            hist_values,
+            background_color="rgba(100, 130, 255, 0.7)",  # Semi-transparent blue
+            border_color="rgba(100, 130, 255, 1.0)",      # Matching border color
+            border_width=1                                # Minimal border
+        )
+
+        # Configure for true histogram appearance
+        title_text = "Histogram" + (" (Density)" if self.density else "")
+
+        # Use custom labels or defaults
+        x_label = self.x_label or "Value"
+        y_label = self.y_label or ("Density" if self.density else "Frequency")
+
+        self.options = {
+            "responsive": True,
+            "maintainAspectRatio": False,
+            "indexAxis": "x",
+            "scales": {
+                "x": {
+                    "title": {"display": True, "text": x_label},
+                    "barPercentage": 1.0,
+                    "categoryPercentage": 1.0,
+                },
+                "y": {
+                    "title": {"display": True, "text": y_label},
+                    "beginAtZero": True
+                }
+            },
+            "plugins": {
+                "title": {
+                    "display": True,
+                    "text": title_text,
+                    "font": {"size": 16}
+                },
+                "legend": {"display": False},
+                "datalabels": {
+                    "display": False  # Disable data labels
+                }
+            }
+        }
+
+        return self
+
+    @classmethod
+    def from_file(cls, filename, **kwargs):
+        """
+        Create a histogram from a file.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the file. Can be either a .npy file or a text file with whitespace-separated numbers.
+        **kwargs : dict
+            Additional arguments to pass to the histogram constructor
+
+        Returns
+        -------
+        HistogramBarChart
+            The histogram chart instance
+        """
+        try:
+            # First try to load as numpy binary
+            data = np.load(filename)
+        except:
+            # If that fails, try loading as text
+            try:
+                data = np.loadtxt(filename)
+            except:
+                raise ValueError(f"Could not load data from file: {filename}")
+
+        # Create and return the histogram
+        return cls(data=data, **kwargs)
+
+
+def HistogramGizmoScript():
+    """Command-line script to create histogram from file"""
+    parser = argparse.ArgumentParser(description="Create a histogram from a file of numbers.")
+    parser.add_argument("file", help="File to read (.npy or text file with whitespace-separated numbers)")
+    parser.add_argument("-b", "--bins", type=int, default=10, help="Number of bins")
+    parser.add_argument("-r", "--range", type=float, nargs=2, help="Range for binning (min max)")
+    parser.add_argument("-d", "--density", action="store_true", help="Normalize to create a probability density")
+    parser.add_argument("-w", "--width", type=int, default=800, help="Width of the chart")
+    parser.add_argument("--height", type=int, default=500, help="Height of the chart")
+    parser.add_argument("--title", type=str, help="Chart title")
+    parser.add_argument("--x-label", type=str, help="Custom X-axis label")
+    parser.add_argument("--y-label", type=str, help="Custom Y-axis label")
+
+    args = parser.parse_args()
+
+    # Check if file exists
+    if not os.path.exists(args.file):
+        print(f"Error: file not found: {args.file}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        # Create histogram
+        histogram = HistogramBarChart.from_file(
+            args.file,
+            bins=args.bins,
+            range=tuple(args.range) if args.range else None,
+            density=args.density,
+            width=args.width,
+            height=args.height,
+            x_label=args.x_label,
+            y_label=args.y_label
+        )
+
+        # Set custom title if provided
+        if args.title:
+            histogram.options["plugins"]["title"]["text"] = args.title
+
+        # Serve the histogram
+        serve(histogram.show())
+
+    except Exception as e:
+        print(f"Error creating histogram: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    # Example usage
+    import numpy as np
+    data = np.random.randn(1000)  # 1000 points from standard normal distribution
+    histogram = HistogramBarChart(data, bins=30)
+    serve(histogram.show())
