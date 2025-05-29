@@ -2,11 +2,12 @@
 LineChart class for creating line charts.
 """
 
-from .bars import BarChart, CSVBarChart
+from .bars import CSVBarChart
 from .cli import CSVChartCLI
+from .abstract_chart import AbstractChart
 
 
-class LineChart(BarChart):
+class LineChart(AbstractChart):
     """
     LineChart class for creating line charts.
     """

@@ -122,29 +122,65 @@ class CSVChartCLI(ChartCLI):
     """
     CLI for creating charts from CSV files.
     """
+    def __init__(self, chart_cls, custom_args=None, description=None):
+        """
+        Initialize a CLI for the given chart class.
+
+        Parameters
+        ----------
+        chart_cls : class
+            The chart class to create (e.g., CSVBarChart, CSVLineChart)
+        custom_args : dict, optional
+            Custom arguments configuration e.g. {
+                "custom_commands_args": [
+                    {"name": "custom_arg", "flags": ["-x", "--custom-arg"], "help": "Custom argument", "required": False}
+                ]
+            }
+        description : str, optional
+            Custom description for the CLI
+        """
+        self.custom_args = custom_args or {}
+        super().__init__(chart_cls, description)
 
     def _add_common_arguments(self, parser):
-        """Add CSV-specific and common chart arguments."""
+        """Add CSV-specific, custom, and common chart arguments."""
         super()._add_common_arguments(parser)
         parser.add_argument("csv_file", help="Path to CSV file")
         parser.add_argument("-l", "--label_column", help="Column for labels (x-axis)")
         parser.add_argument("-v", "--value_column", help="Column for values (y-axis)")
         parser.add_argument("-g", "--group_column", help="Column for grouping data series")
 
+
+        # Add any custom command arguments
+        self._add_custom_arguments(parser)
+
+    def _has_custom_arg(self, arg_name):
+        """Check if there's a custom argument with a given name"""
+        if not self.custom_args or "custom_commands_args" not in self.custom_args:
+            return False
+
+        for arg in self.custom_args.get("custom_commands_args", []):
+            flags = arg.get("flags", [])
+            if any(flag.replace("-", "") == arg_name.replace("-", "") for flag in flags):
+                return True
+        return False
+
+    def _add_custom_arguments(self, parser):
+        """Add custom arguments from configuration"""
+        if not self.custom_args or "custom_commands_args" not in self.custom_args:
+            return
+
+        for arg in self.custom_args.get("custom_commands_args", []):
+            name = arg.get("name")
+            flags = arg.get("flags", [])
+            help_text = arg.get("help", "")
+            required = arg.get("required", False)
+
+            if flags and name:
+                parser.add_argument(*flags, dest=name, help=help_text, required=required)
+
     def create_chart(self, args):
-        """
-        Create a chart from a CSV file based on parsed arguments.
-
-        Parameters
-        ----------
-        args : argparse.Namespace
-            Parsed arguments with csv_file and column information
-
-        Returns
-        -------
-        Chart
-            The created chart object
-        """
+        """Create a chart from a CSV file based on parsed arguments."""
         # Validate CSV file exists
         if not os.path.exists(args.csv_file):
             print(f"Error: file not found: {args.csv_file}", file=sys.stderr)
@@ -164,14 +200,21 @@ class CSVChartCLI(ChartCLI):
         value_col = args.value_column or (headers[1] if len(headers) > 1 else None)
         group_col = args.group_column or (headers[2] if len(headers) > 2 else None)
 
-        # Create the chart
-        return self.chart_cls(
-            args.csv_file,
-            label_column=label_col,
-            value_column=value_col,
-            group_column=group_col,
-            width=args.width,
-            height=args.height,
-            stacked=args.stacked
-        )
+        # Extract all args as kwargs for the chart constructor
+        kwargs = {
+            "csv_file": args.csv_file,
+            # "label_column": label_col,
+            # "value_column": value_col,
+            # "group_column": group_col,
+            "width": args.width,
+            "height": args.height,
+            "stacked": args.stacked
+        }
+
+        # Add custom args and other specific args (like r_column) if present
+        for key, value in vars(args).items():
+            if key not in kwargs and value is not None and key != "log":
+                kwargs[key] = value
+
+        return self.chart_cls(**kwargs)
 

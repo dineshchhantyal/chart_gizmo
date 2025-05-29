@@ -34,10 +34,10 @@ class DataSet:
     """
 
     def __init__(
-            self, 
-            label, values=(), 
-            background_color=None, 
-            border_color=None, 
+            self,
+            label, values=(),
+            background_color=None,
+            border_color=None,
             border_width=1,
             **kwargs,
             ):
@@ -58,7 +58,7 @@ class DataSet:
         datum = Datum(value, background_color, border_color)
         self.data.append(datum)
         return self
-    
+
     def configure_color_index(self, index, background_alpha=0.2, border_alpha=1.0):
         """
         Configure the color index for the dataset.
@@ -68,7 +68,7 @@ class DataSet:
         if self.borderColor is None:
             self.borderColor = color_list.indexed_rgbahtml(index, border_alpha)
         return self
-    
+
     def as_dict(self, index=0):
         """
         Convert the dataset to a JSON compatible dictionary.
@@ -88,7 +88,7 @@ class DataSet:
         # add other options
         result.update(self.options)
         return result
-    
+
 class ChartData:
     """
     A class to represent the data for a chart.js Chart.
@@ -132,7 +132,7 @@ class ChartData:
         dataset = DataSet(label, values, background_color, border_color, border_width)
         # add the dataset
         self.add_dataset(dataset)
-        
+
     def as_dict(self):
         """
         Convert the chart data to a JSON compatible dictionary.
