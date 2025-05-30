@@ -1,15 +1,111 @@
-# chart_gizmo
+# Chart Gizmo
 
-H5Gizmos Library wrapper for Chart.js for creating applications including interactive charts.
+## Interactive Charts for Python with Chart.js and H5Gizmos
 
-# Development install
+Chart Gizmo is a Python library that provides an wrapper around Chart.js using the H5Gizmos framework. It enables you to create interactive, browser-based visualizations directly from your Python code or command line.
+
+### Features
+
+- **Multiple Chart Types**: Create bar charts, line charts, bubble charts, and histograms
+- **Simple API**: Clean, Pythonic interface for chart creation and manipulation
+- **Command-line Tools**: Quickly visualize data from CSV files and other sources
+- **Interactive**: Browser-based rendering with dynamic updates
+- **Customizable**: Extensive options for styling and configuring charts
+
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="/examples/screenshots/barchart.png" alt="Bar Chart Example"></td>
+    <td><img src="/examples/screenshots/linechart.png" alt="Line Chart Example"></td>
+  </tr>
+  <tr>
+    <td><img src="/examples/screenshots/bubblechart.png" alt="Bubble Chart Example"></td>
+    <td><img src="/examples/screenshots/histogram.png" alt="Histogram Example"></td>
+  </tr>
+</table>
+
+## Installation
+
+<!-- ### Standard Installation
 
 ```bash
+pip install chart-gizmo
+``` -->
+
+### Development Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/dineshchhantyal/chart_gizmo.git
+cd chart_gizmo
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install development dependencies
 pip install --upgrade pip setuptools build
 pip install -e .
 ```
 
-# Examples
+## Quick Start
+
+```python
+from H5Gizmos import serve
+import chart_gizmo.bars as bars
+
+# Create a bar chart
+chart = bars.BarChart()
+
+# Add labels
+chart.add_label("Category A")
+chart.add_label("Category B")
+chart.add_label("Category C")
+
+# Add data
+chart.add_data_values("Series 1", [45, 32, 28], background_color="#3366CC")
+chart.add_data_values("Series 2", [52, 38, 31], background_color="#DC3912")
+
+# Display the chart
+serve(chart.show())
+```
+
+## Documentation
+
+Chart Gizmo uses Material for MkDocs for its documentation. You can access the documentation online or run it locally.
+
+### Online Documentation
+
+Visit our [documentation site](https://dineshchhantyal.github.io/chart_gizmo/) for comprehensive guides, API references, and examples.
+
+### Local Documentation
+
+To build and view the documentation locally:
+
+1. Install MkDocs and the Material theme:
+
+```bash
+pip install mkdocs mkdocs-material
+```
+
+2. Preview the documentation:
+
+```bash
+mkdocs serve
+```
+
+This will start a local server at `http://127.0.0.1:8000/` where you can view the documentation.
+
+3. Build the documentation as static files:
+
+```bash
+mkdocs build
+```
+
+This will generate the static site in the `site/` directory.
+
+## Examples
 
 Each of the following examples launches a browser frame.
 The application will terminate when you close the frame.
@@ -25,14 +121,31 @@ python example_bubblechart.py
 python gapimder_bubblecharts.py
 ```
 
-# Scripts
+## Command-Line Tools
+
+Chart Gizmo provides several command-line tools for quick data visualization:
+
+### Bar Chart from CSV
 
 ```bash
-cd (repository)/examples
 csv-bar-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation"
-csv-line-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation"
-csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --min_radius 3 --max_radius 20
+```
 
+### Line Chart from CSV
+
+```bash
+csv-line-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation"
+```
+
+### Bubble Chart from CSV
+
+```bash
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --min_radius 3 --max_radius 20
+```
+
+### Histogram
+
+```bash
 # Basic histogram with default settings
 histogram-gizmo data/sample_10000.txt
 
@@ -61,3 +174,10 @@ histogram-gizmo data/sample_10000.txt -b 50 -d -r 20 80 --title "Sample Data Dis
 # Read numpy file
 histogram-gizmo data/perfect_normal.npy
 ```
+
+## Credits
+
+Chart Gizmo is built on top of the following libraries:
+
+- [Chart.js](https://www.chartjs.org/) - Simple yet flexible JavaScript charting library
+- [H5Gizmos](https://github.com/AaronWatters/H5Gizmos) - HTML5 components for Python

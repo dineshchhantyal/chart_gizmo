@@ -106,12 +106,13 @@ class HistogramBarChart(BarChart):
             self.add_label(label)
 
         # Add histogram data with specific styling for a proper histogram
+        # Use border_width=0 to eliminate gaps between bars
         self.add_data_values(
             "Frequency",
             hist_values,
             background_color="rgba(100, 130, 255, 0.7)",  # Semi-transparent blue
             border_color="rgba(100, 130, 255, 1.0)",      # Matching border color
-            border_width=1                                # Minimal border
+            border_width=0                                # No border to avoid gaps
         )
 
         # Configure for true histogram appearance
@@ -128,8 +129,11 @@ class HistogramBarChart(BarChart):
             "scales": {
                 "x": {
                     "title": {"display": True, "text": x_label},
-                    "barPercentage": 1.0,
-                    "categoryPercentage": 1.0,
+                    "barPercentage": 1.0,         # Full width bars
+                    "categoryPercentage": 1.0,    # No gap between categories
+                    "grid": {
+                        "offset": False           # Ensure grid lines align with bar edges
+                    }
                 },
                 "y": {
                     "title": {"display": True, "text": y_label},
@@ -145,6 +149,13 @@ class HistogramBarChart(BarChart):
                 "legend": {"display": False},
                 "datalabels": {
                     "display": False  # Disable data labels
+                }
+            },
+            "datasets": {
+                "bar": {
+                    "barPercentage": 1.0,
+                    "categoryPercentage": 1.0,
+                    "borderWidth": 0
                 }
             }
         }
