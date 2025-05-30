@@ -11,4 +11,4 @@ explain the API, and demonstrate the command-line tools.
 - [Installation](installation.md)
 - [Examples](examples.md)
 - [API Reference](api/index.md)
-- [Command Line Scripts](cli.md)
+- [Command Line Tools](cli/index.md)
