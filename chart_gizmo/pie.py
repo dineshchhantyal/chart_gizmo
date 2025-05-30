@@ -9,7 +9,7 @@ from chart_gizmo.data_config import DataSet, Datum
 
 class PieDataSet(DataSet):
     """
-A specialized DataSet class for pie charts that handles
+    A specialized DataSet class for pie charts that handles
     multiple background colors for a single dataset.
     """
 
@@ -98,8 +98,10 @@ class PieChart(AbstractChart):
         if self.options is None:
             self.options = {}
 
-        # Set the cutout percentage for the donut chart
-        self.options["cutoutPercentage"] = int(ratio * 100)
+        # Chart.js v3+ uses 'cutout' (as percent string or number)
+        self.options["cutout"] = f"{int(ratio * 100)}%"
+        # Remove legacy key if present
+        self.options.pop("cutoutPercentage", None)
 
         return self
 
@@ -275,15 +277,10 @@ class CSVPieChart(PieChart):
             "text": f"Distribution of {self.value_column} by {self.label_column}"
         }
 
-        # Add tooltip configuration for better display
-        self.options["plugins"]["tooltip"] = {
-            "callbacks": {
-                "label": "function(context) { return context.label + ': ' + context.raw.toLocaleString(); }"
-            }
-        }
-
+        # Chart.js v3+ uses 'cutout' (as percent string or number)
         if self.donut:
-            self.options["cutoutPercentage"] = int(self.donut_ratio * 100)
+            self.options["cutout"] = f"{int(self.donut_ratio * 100)}%"
+            self.options.pop("cutoutPercentage", None)
 
         print(f"Pie chart created with {len(values)} segments from CSV file: {self.csv_file}")
 
@@ -374,7 +371,8 @@ def CSVPieChartScript():
                                   "type": float
                               }
                           ]
-                      })
+                      }
+                    )
     cli.run()
 
 
