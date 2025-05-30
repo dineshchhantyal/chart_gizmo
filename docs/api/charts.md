@@ -7,6 +7,7 @@ The `AbstractChart` class is the base for all chart types in Chart Gizmo. It pro
 **Location:** `chart_gizmo/abstract_chart.py`
 
 ### Key Methods
+
 - `clear()`: Clear the chart data.
 - `update()`: Update the chart data.
 - `add_label(label, values=())`: Add a label to the chart.
