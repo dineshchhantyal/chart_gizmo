@@ -2,11 +2,11 @@
 
 ## Interactive Charts for Python with Chart.js and H5Gizmos
 
-Chart Gizmo is a Python library that provides an wrapper around Chart.js using the H5Gizmos framework. It enables you to create interactive, browser-based visualizations directly from your Python code or command line.
+Chart Gizmo is a Python library that provides a wrapper around Chart.js using the H5Gizmos framework. It enables you to create interactive, browser-based visualizations directly from your Python code or command line.
 
-### Features
+## Features
 
-- **Multiple Chart Types**: Create bar charts, line charts, bubble charts, and histograms
+- **Multiple Chart Types**: Create bar charts, line charts, bubble charts, histograms, and pie/donut charts
 - **Simple API**: Clean, Pythonic interface for chart creation and manipulation
 - **Command-line Tools**: Quickly visualize data from CSV files and other sources
 - **Interactive**: Browser-based rendering with dynamic updates
@@ -26,12 +26,6 @@ Chart Gizmo is a Python library that provides an wrapper around Chart.js using t
 </table>
 
 ## Installation
-
-<!-- ### Standard Installation
-
-```bash
-pip install chart-gizmo
-``` -->
 
 ### Development Installation
 
@@ -85,30 +79,29 @@ To build and view the documentation locally:
 
 1. Install MkDocs and the Material theme:
 
-```bash
-pip install mkdocs mkdocs-material
-```
+   ```bash
+   pip install mkdocs mkdocs-material
+   ```
 
 2. Preview the documentation:
 
-```bash
-mkdocs serve
-```
+   ```bash
+   mkdocs serve
+   ```
 
-This will start a local server at `http://127.0.0.1:8000/` where you can view the documentation.
+   This will start a local server at `http://127.0.0.1:8000/` where you can view the documentation.
 
 3. Build the documentation as static files:
 
-```bash
-mkdocs build
-```
+   ```bash
+   mkdocs build
+   ```
 
-This will generate the static site in the `site/` directory.
+   This will generate the static site in the `site/` directory.
 
 ## Examples
 
-Each of the following examples launches a browser frame.
-The application will terminate when you close the frame.
+Each of the following examples launches a browser frame. The application will terminate when you close the frame.
 
 ```bash
 cd (repository)/examples
@@ -178,8 +171,9 @@ histogram-gizmo data/perfect_normal.npy
 ### Pie Chart and Doughnut Chart from CSV
 
 ```bash
-csv-pie-gizmo examples/life1999.csv -l "Disaggregation" -v "Value" --width 800 --height 600
-csv-pie-gizmo examples/life1999.csv -l "Disaggregation" -v "Value" --width 800 --height 600 --donut
+csv-pie-gizmo life1999.csv -l "Disaggregation" -v "Value" --width 800 --height 600
+csv-pie-gizmo life1999.csv -l "Disaggregation" -v "Value" --width 800 --height 600 --donut
+csv-pie-gizmo data/data.csv -l "Category" -v "Amount" -g "Year" --donut --donut-ratio .9
 ```
 
 ## Credits
