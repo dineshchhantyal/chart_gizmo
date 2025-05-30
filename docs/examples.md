@@ -4,7 +4,7 @@ Each of the following examples launches a browser frame. The application will te
 
 ## Running the Examples
 
-> **Note:** All example commands below assume you are running them from the `/examples` directory of your Chart Gizmo installation.
+> **Note:** All example commands below assume you are running them from the `/examples` directory of your Chart Gizmo installation. Syntactic data are used in these examples.
 
 Navigate to the examples directory in the repository:
 
@@ -428,6 +428,28 @@ chart = CSVPieChart(
     height=600,
     donut=True,
     donut_ratio=0.5
+)
+
+# Serve the chart
+serve(chart.show())
+```
+
+### CSV Pie Chart with Grouping
+
+```python
+from H5Gizmos import serve
+from chart_gizmo.pie import CSVPieChart
+
+# Create chart from CSV file with grouping by year
+chart = CSVPieChart(
+    csv_file="data/data.csv",
+    label_column="Category",
+    value_column="Amount",
+    group_column="Year",
+    width=800,
+    height=600,
+    donut=True,
+    donut_ratio=0.6
 )
 
 # Serve the chart

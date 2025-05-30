@@ -98,7 +98,10 @@ csv-pie-gizmo data/data.csv -l "Category" -v "Amount" --width 800 --height 600
 csv-pie-gizmo data/data.csv -l "Category" -v "Amount" --donut --donut-ratio 0.7
 
 # Example with Gapminder dataset - Population by continent
-csv-pie-gizmo examples/gapminderDataFiveYear.csv -l "continent" -v "pop" --width 800 --height 600 --donut
+csv-pie-gizmo gapminderDataFiveYear.csv -l "continent" -v "pop" --width 800 --height 600 --donut
+
+# Example with grouping
+csv-pie-gizmo data/data.csv -l "Category" -v "Amount" -g "Year" --donut --donut-ratio 0.7
 ```
 
 ## API Reference

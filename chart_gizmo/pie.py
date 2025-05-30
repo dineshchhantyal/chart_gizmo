@@ -178,12 +178,11 @@ class CSVPieChart(PieChart):
 
     A pie chart shows distribution as slices of a circle, with each slice proportional
     to the value. Each row in the CSV with the same label will be aggregated into
-    a single slice.
+    a single slice. Optionally, group_column can be used to create multiple datasets.
     """
     def __init__(self, csv_file, label_column=None, value_column=None,
                  width=400, height=400, donut=False,
-                 donut_ratio=0.5, configuration=None, stacked=False, options=None):
-        # Initialize with parent's constructor
+                 donut_ratio=0.5, group_column=None, configuration=None, stacked=False, options=None):
         super().__init__(
             configuration,
             width,
@@ -192,21 +191,19 @@ class CSVPieChart(PieChart):
             donut_ratio,
             options
         )
-
         self.csv_file = csv_file
         self.label_column = label_column
         self.value_column = value_column
-        # Remove group_column - not applicable for pie charts
+        self.group_column = group_column
 
         # Load data from CSV
         self._load_csv_data()
 
     def _load_csv_data(self):
-        """Load data from the CSV file and format for pie chart"""
+        """Load data from the CSV file and format for pie chart, supporting group_column."""
         import csv
         import random
 
-        # Generate some default colors
         def generate_colors(count):
             colors = []
             for i in range(count):
@@ -216,7 +213,6 @@ class CSVPieChart(PieChart):
                 colors.append(f"rgba({r}, {g}, {b}, 0.7)")
             return colors
 
-        # Read CSV file
         with open(self.csv_file, "r") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
@@ -224,60 +220,76 @@ class CSVPieChart(PieChart):
         if not rows:
             raise ValueError(f"CSV file is empty or invalid: {self.csv_file}")
 
-        # If columns not specified, use the first columns
         headers = list(rows[0].keys())
-
         self.label_column = self.label_column or headers[0]
         self.value_column = self.value_column or (headers[1] if len(headers) > 1 else None)
-
         if not self.value_column:
             raise ValueError("No value column specified or available")
 
-        # Clear any existing data
+
         self.clear()
 
-        # Aggregate data by label
-        data = {}
-        for row in rows:
-            label = row[self.label_column]
-            try:
-                value = float(row[self.value_column])
-                if label not in data:
-                    data[label] = 0
-                data[label] += value
-            except (ValueError, KeyError):
-                # Skip invalid rows
-                continue
+        if self.group_column and self.group_column in headers:
+            # Grouped pie: multiple datasets, one per group
+            group_data = {}
+            label_set = set()
+            for row in rows:
+                group = row[self.group_column]
+                label = row[self.label_column]
+                try:
+                    value = float(row[self.value_column])
+                except (ValueError, KeyError):
+                    continue
+                label_set.add(label)
+                if group not in group_data:
+                    group_data[group] = {}
+                if label not in group_data[group]:
+                    group_data[group][label] = 0
+                group_data[group][label] += value
+            labels = sorted(label_set)
+            for label in labels:
+                super().add_label(label)
+            for group, label_values in group_data.items():
+                values = [label_values.get(label, 0) for label in labels]
+                colors = generate_colors(len(values))
+                self.add_data_values(
+                    group,
+                    values,
+                    background_color=colors,
+                    border_color="rgba(255,255,255,0.8)",
+                    border_width=2
+                )
+        else:
+            # Standard pie: single dataset
+            data = {}
+            for row in rows:
+                label = row[self.label_column]
+                try:
+                    value = float(row[self.value_column])
+                    if label not in data:
+                        data[label] = 0
+                    data[label] += value
+                except (ValueError, KeyError):
+                    continue
+            labels = list(data.keys())
+            values = list(data.values())
+            for label in labels:
+                super().add_label(label)
+            colors = generate_colors(len(values))
+            self.add_data_values(
+                self.value_column,
+                values,
+                background_color=colors,
+                border_color="rgba(255,255,255,0.8)",
+                border_width=2
+            )
 
-        # Add labels and values
-        labels = list(data.keys())
-        values = list(data.values())
-
-        # First add all labels to the chart
-        for label in labels:
-            super().add_label(label)
-
-        # Generate colors for each pie segment
-        colors = generate_colors(len(values))
-
-        # Create the dataset
-        self.add_data_values(
-            self.value_column,  # Use the value column name as the dataset label
-            values,
-            background_color=colors,
-            border_color="rgba(255,255,255,0.8)",
-            border_width=2
-        )
-
-        # Configure chart title
         self.options = self.options or {}
         self.options["plugins"] = self.options.get("plugins", {})
         self.options["plugins"]["title"] = {
             "display": True,
-            "text": f"Distribution of {self.value_column} by {self.label_column}"
+            "text": f"Distribution of {self.value_column} by {self.label_column}" + (f" (grouped by {self.group_column})" if self.group_column else "")
         }
-
-        # Chart.js v3+ uses 'cutout' (as percent string or number)
         if self.donut:
             self.options["cutout"] = f"{int(self.donut_ratio * 100)}%"
             self.options.pop("cutoutPercentage", None)
