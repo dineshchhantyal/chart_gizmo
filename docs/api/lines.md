@@ -2,6 +2,35 @@
 
 The `LineChart` and related classes provide line chart functionality.
 
+## Basic Usage
+
+```python
+from chart_gizmo.lines import LineChart
+from H5Gizmos import serve
+
+# Create a line chart for monthly temperature data
+chart = LineChart()
+
+# Add month labels
+chart.add_label("Jan")
+chart.add_label("Feb")
+chart.add_label("Mar")
+chart.add_label("Apr")
+chart.add_label("May")
+chart.add_label("Jun")
+
+# Add temperature data for two cities
+chart.add_data_values("New York", [3, 4, 8, 15, 21, 26],
+                      background_color="rgba(54, 162, 235, 0.2)",
+                      border_color="rgba(54, 162, 235, 1)")
+chart.add_data_values("San Francisco", [12, 13, 14, 15, 16, 17],
+                      background_color="rgba(255, 99, 132, 0.2)",
+                      border_color="rgba(255, 99, 132, 1)")
+
+# Display the chart
+serve(chart.show())
+```
+
 ## Class: LineChart
 
 **Location:** `chart_gizmo/lines.py`

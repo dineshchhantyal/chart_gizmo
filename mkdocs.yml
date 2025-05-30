@@ -40,4 +40,6 @@ nav:
       - Lines: api/lines.md
       - Bubbles: api/bubbles.md
       - Histogram: api/histogram.md
+      - Pie: api/pie.md
+
   - Command Line Scripts: cli.md

@@ -175,6 +175,13 @@ histogram-gizmo data/sample_10000.txt -b 50 -d -r 20 80 --title "Sample Data Dis
 histogram-gizmo data/perfect_normal.npy
 ```
 
+### Pie Chart and Doughnut Chart from CSV
+
+```bash
+csv-pie-gizmo examples/life1999.csv -l "Disaggregation" -v "Value" --width 800 --height 600
+csv-pie-gizmo examples/life1999.csv -l "Disaggregation" -v "Value" --width 800 --height 600 --donut
+```
+
 ## Credits
 
 Chart Gizmo is built on top of the following libraries:

@@ -2,6 +2,31 @@
 
 The `BubbleChart` and related classes provide bubble chart functionality.
 
+## Basic Usage
+
+```python
+from chart_gizmo.bubbles import BubbleChart
+from H5Gizmos import serve
+
+# Create a simple bubble chart for city data
+chart = BubbleChart()
+
+# Add bubble data values (list of dicts with x, y, r)
+chart.add_data_values("West Coast", [
+    {"x": 10, "y": 20, "r": 8},   # City A
+    {"x": 25, "y": 15, "r": 12},  # City B
+    {"x": 40, "y": 30, "r": 6}    # City C
+], background_color="rgba(54, 162, 235, 0.5)")
+
+chart.add_data_values("East Coast", [
+    {"x": 15, "y": 25, "r": 10},   # City D
+    {"x": 30, "y": 18, "r": 7},    # City E
+], background_color="rgba(255, 99, 132, 0.5)")
+
+# Display the chart
+serve(chart.show())
+```
+
 ## Class: BubbleChart
 
 **Location:** `chart_gizmo/bubbles.py`

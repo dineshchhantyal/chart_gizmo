@@ -175,9 +175,26 @@ class CSVChartCLI(ChartCLI):
             flags = arg.get("flags", [])
             help_text = arg.get("help", "")
             required = arg.get("required", False)
+            action = arg.get("action", None)
+            arg_type = arg.get("type", None)
+            default = arg.get("default", None)
 
-            if flags and name:
-                parser.add_argument(*flags, dest=name, help=help_text, required=required)
+            if not flags or not name:
+                continue
+
+            kwargs = {"help": help_text}
+
+            # Handle action arguments differently (like store_true for boolean flags)
+            if action:
+                kwargs["action"] = action
+            else:
+                kwargs["required"] = required
+                if arg_type is not None:
+                    kwargs["type"] = arg_type
+                if default is not None:
+                    kwargs["default"] = default
+
+            parser.add_argument(*flags, dest=name, **kwargs)
 
     def create_chart(self, args):
         """Create a chart from a CSV file based on parsed arguments."""

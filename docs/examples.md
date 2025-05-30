@@ -333,3 +333,103 @@ print(config)
 stack = Stack(["API Methods Demonstration", chart])
 serve(stack.show())
 ```
+
+## Pie Chart Examples
+
+### Basic Pie Chart
+
+```python
+from H5Gizmos import serve
+from chart_gizmo.pie import PieChart
+
+# Create a new pie chart
+chart = PieChart(width=600, height=400)
+
+# Add labels for each slice
+for fruit in ["Apples", "Oranges", "Bananas", "Grapes", "Kiwi"]:
+    chart.add_label(fruit)
+
+# Add data with colors
+chart.add_data_values(
+    "Fruits",
+    [45, 25, 15, 10, 5],
+    background_color=[
+        "rgba(255, 99, 132, 0.7)",
+        "rgba(54, 162, 235, 0.7)",
+        "rgba(255, 206, 86, 0.7)",
+        "rgba(75, 192, 192, 0.7)",
+        "rgba(153, 102, 255, 0.7)"
+    ],
+    border_color="rgba(255, 255, 255, 0.8)",
+    border_width=2
+)
+
+# Add click handler
+def on_click(event):
+    print(f"Clicked on: {event}")
+
+chart.on_click_call(on_click)
+
+# Serve the chart
+serve(chart.show())
+```
+
+### Donut Chart
+
+```python
+from H5Gizmos import serve
+from chart_gizmo.pie import PieChart
+
+# Create a new chart and convert to donut
+chart = PieChart(width=600, height=400)
+chart.as_donut(0.6)  # Hole size is 60% of the radius
+
+# Add labels and data
+for category in ["Housing", "Food", "Transport", "Entertainment", "Savings"]:
+    chart.add_label(category)
+
+chart.add_data_values(
+    "Budget",
+    [35, 25, 15, 10, 15],
+    background_color=[
+        "rgba(255, 99, 132, 0.7)",
+        "rgba(54, 162, 235, 0.7)",
+        "rgba(255, 206, 86, 0.7)",
+        "rgba(75, 192, 192, 0.7)",
+        "rgba(153, 102, 255, 0.7)"
+    ]
+)
+
+# Add custom options
+chart.options = chart.options or {}
+chart.options["plugins"] = chart.options.get("plugins", {})
+chart.options["plugins"]["title"] = {
+    "display": True,
+    "text": "Monthly Budget Breakdown",
+    "font": {"size": 18}
+}
+
+# Serve the chart
+serve(chart.show())
+```
+
+### CSV Pie Chart
+
+```python
+from H5Gizmos import serve
+from chart_gizmo.pie import CSVPieChart
+
+# Create chart from CSV file
+chart = CSVPieChart(
+    csv_file="data/data.csv",
+    label_column="Category",
+    value_column="Amount",
+    width=800,
+    height=600,
+    donut=True,
+    donut_ratio=0.5
+)
+
+# Serve the chart
+serve(chart.show())
+```
