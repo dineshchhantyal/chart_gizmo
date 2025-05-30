@@ -5,11 +5,11 @@
 - Python 3.7 or higher
 - pip (Python package installer)
 
-## Standard Installation
+<!-- ## Standard Installation
 
 ```bash
 pip install chart_gizmo
-```
+``` -->
 
 ## Development Installation
 
@@ -19,6 +19,11 @@ For development or contributing to the project:
 # Clone the repository
 git clone https://github.com/dineshchhantyal/chart_gizmo
 cd chart_gizmo
+
+# Create a virtual environment
+python -m venv venv
+# Activate the virtual environment
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies and development version
 pip install --upgrade pip setuptools build
