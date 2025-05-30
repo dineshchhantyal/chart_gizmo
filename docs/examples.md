@@ -4,6 +4,8 @@ Each of the following examples launches a browser frame. The application will te
 
 ## Running the Examples
 
+> **Note:** All example commands below assume you are running them from the `/examples` directory of your Chart Gizmo installation.
+
 Navigate to the examples directory in the repository:
 
 ```bash

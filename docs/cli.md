@@ -2,6 +2,8 @@
 
 Chart Gizmo provides several command-line scripts for quick visualization of data.
 
+> **Note:** All example commands below assume you are running them from the `/examples` directory of your Chart Gizmo installation. Adjust file paths accordingly if you're running from a different location.
+
 ## Bar Chart Script
 
 ```bash
