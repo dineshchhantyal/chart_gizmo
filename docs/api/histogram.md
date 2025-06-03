@@ -1,6 +1,6 @@
 # Histogram
 
-The `HistogramBarChart` class provides histogram chart functionality.
+The `HistogramBarChart` class provides histogram chart functionality based on [Chart.js Bar Charts](https://www.chartjs.org/docs/latest/charts/bar.html) with histogram-specific configuration. It uses [NumPy's histogram function](https://numpy.org/doc/stable/reference/generated/numpy.histogram.html) for data binning and analysis. Learn more about histograms on [Wikipedia](https://en.wikipedia.org/wiki/Histogram).
 
 ## Basic Usage
 
@@ -37,6 +37,7 @@ Creates a histogram bar chart from numerical data using numpy's histogram functi
 
 - `create_histogram(data)`: Create a histogram from data.
 - `from_file(filename, **kwargs)`: Create a histogram from a file.
+- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`.
 
 ### Command-line Script
 

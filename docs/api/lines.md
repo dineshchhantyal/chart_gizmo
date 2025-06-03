@@ -1,6 +1,6 @@
 # Lines
 
-The `LineChart` and related classes provide line chart functionality.
+The `LineChart` and related classes provide line chart functionality based on [Chart.js Line Charts](https://www.chartjs.org/docs/latest/charts/line.html).
 
 ## Basic Usage
 
@@ -45,6 +45,7 @@ A class to represent a line chart. Inherits from `AbstractChart`.
 - `add_dataset(dataset)`: Add a dataset to the chart.
 - `add_data_values(label, values=(), background_color=None, border_color=None, border_width=1)`: Add data values to the chart.
 - `get_configuration()`: Get the chart configuration.
+- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`.
 
 ## Class: CSVLineChart
 

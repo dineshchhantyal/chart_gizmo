@@ -1,6 +1,6 @@
 # Bars
 
-The `BarChart` and related classes provide bar chart functionality.
+The `BarChart` and related classes provide bar chart functionality based on [Chart.js Bar Charts](https://www.chartjs.org/docs/latest/charts/bar.html).
 
 ## Basic Usage
 
@@ -32,7 +32,7 @@ serve(chart.show())
 
 ### Description
 
-A class to represent a bar chart. Inherits from `RawChart`.
+A class to represent a bar chart. Inherits from `AbstractChart`.
 
 ### Key Methods
 
@@ -40,6 +40,7 @@ A class to represent a bar chart. Inherits from `RawChart`.
 - `add_dataset(dataset)`: Add a dataset to the chart.
 - `add_data_values(label, values=(), background_color=None, border_color=None, border_width=1)`: Add data values to the chart.
 - `get_configuration()`: Get the chart configuration.
+- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`.
 
 ## Class: TabularBarChart
 

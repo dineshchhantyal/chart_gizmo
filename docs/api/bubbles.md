@@ -1,6 +1,6 @@
 # Bubbles
 
-The `BubbleChart` and related classes provide bubble chart functionality.
+The `BubbleChart` and related classes provide bubble chart functionality based on [Chart.js Bubble Charts](https://www.chartjs.org/docs/latest/charts/bubble.html).
 
 ## Basic Usage
 
@@ -39,6 +39,7 @@ A class to represent a bubble chart. Inherits from `AbstractChart`.
 
 - `add_data_values(label, values=(), background_color=None, border_color=None, border_width=1)`: Add data values to the chart.
 - `get_default_options()`: Get the default options for the bubble chart.
+- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`.
 
 ## Class: CSVBubbleChart
 

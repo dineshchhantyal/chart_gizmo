@@ -1,6 +1,6 @@
 # Examples
 
-Each of the following examples launches a browser frame. The application will terminate when you close the frame.
+Each of the following examples launches a browser frame using [H5Gizmos](https://github.com/AaronWatters/H5Gizmos) to render [Chart.js](https://www.chartjs.org/) visualizations. The application will terminate when you close the frame. All examples use these libraries, so we'll only reference them here instead of repeating in each example.
 
 ## Running the Examples
 
@@ -272,6 +272,7 @@ serve(histogram.show())
 ### Bar Chart: API Methods Demonstration
 
 ```python
+# Demonstration of multiple ways to work with the Chart Gizmo API
 from H5Gizmos import serve, Stack
 from chart_gizmo.bars import BarChart
 from chart_gizmo.data_config import DataSet

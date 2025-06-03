@@ -1,6 +1,6 @@
 # Pie Charts
 
-Pie charts are useful for showing proportional parts of a whole. They display data as slices of a circle with sizes proportional to their values.
+Pie charts are useful for showing proportional parts of a whole. They display data as slices of a circle with sizes proportional to their values. Chart Gizmo's pie charts are built on [Chart.js Pie and Doughnut Charts](https://www.chartjs.org/docs/latest/charts/doughnut.html).
 
 ## Basic Usage
 
@@ -127,6 +127,7 @@ PieChart(configuration=None, width=400, height=400, donut=False, donut_ratio=0.5
 - `add_data_values(label, values, background_color, border_color, border_width)`: Add data values with colors
 - `as_donut(ratio)`: Convert to a donut chart with the specified hole ratio
 - `show()`: Returns a gizmo for display
+- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`
 
 ### CSVPieChart
 

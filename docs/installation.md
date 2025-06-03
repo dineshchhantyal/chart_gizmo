@@ -4,6 +4,8 @@
 
 - Python 3.7 or higher
 - pip (Python package installer)
+- [H5Gizmos](https://github.com/AaronWatters/H5Gizmos) (installed automatically as dependency)
+- [Chart.js](https://www.chartjs.org/) (included in the package)
 
 ## Development Installation
 
