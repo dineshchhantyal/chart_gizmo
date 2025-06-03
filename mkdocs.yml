@@ -1,5 +1,7 @@
 site_name: Chart Gizmo
 site_url: https://dineshchhantyal.github.io/chart_gizmo/
+repo_url: https://github.com/dineshchhantyal/chart_gizmo
+repo_name: dineshchhantyal/chart_gizmo
 site_author: Dinesh Chhantyal
 site_description: H5Gizmos Library wrapper for Chart.js
 copyright: Copyright &copy; 2023 Dinesh Chhantyal
@@ -13,6 +15,8 @@ theme:
     - navigation.tracking
     - navigation.expand
     - navigation.indexes
+  icon:
+    repo: fontawesome/brands/github
 
 plugins:
   - search
@@ -48,3 +52,7 @@ markdown_extensions:
 extra:
   version:
     provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/dineshchhantyal
+      name: Dinesh Chhantyal on GitHub
