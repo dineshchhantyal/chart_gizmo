@@ -455,3 +455,50 @@ chart = CSVPieChart(
 # Serve the chart
 serve(chart.show())
 ```
+
+### Chart Image Export
+
+```python
+from H5Gizmos import serve, Button, Stack, Text, schedule_task
+import chart_gizmo.bars as bars
+import os
+
+# Create a simple bar chart for demonstration
+chart = bars.BarChart()
+
+# Add simple data
+chart.add_label("Category A")
+chart.add_label("Category B")
+chart.add_data_values("Series 1", [80, 120], background_color="#3366CC")
+
+# Create status text element
+status = Text("Ready to save chart image")
+
+# Define the save function
+async def save_chart_image(*args):
+    status.text("Saving chart image...")
+
+    # Save the chart as PNG image
+    filename = "chart_export.png"
+    filepath = os.path.join(os.getcwd(), "examples", filename)
+
+    try:
+        await chart.saveImage(filepath)
+        status.text(f"Chart saved successfully as {filepath}")
+    except Exception as e:
+        status.text(f"Error saving chart: {str(e)}")
+
+# Create save button
+save_button = Button("Save Chart as PNG", on_click= lambda *args: schedule_task(save_chart_image(*args)))
+
+# Create the interface
+interface = Stack([
+    "Chart Image Export Example",
+    chart,
+    [save_button,
+    status]
+])
+
+# Serve the application
+serve(interface.show())
+```
