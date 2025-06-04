@@ -7,18 +7,12 @@ The `csv-bubble-gizmo` command-line tool allows you to quickly create bubble cha
 ## Basic Usage
 
 ```bash
-csv-bubble-gizmo data.csv -x "GDP" -y "Life_Expectancy" -r "Population"
+csv-bubble-gizmo data/data.csv -x "GDP" -y "Life_Expectancy" -r "Population"
 ```
 
 This will create a bubble chart from the CSV file, using the "GDP" column for x-axis, "Life_Expectancy" column for y-axis, and "Population" for the bubble size.
 
 ## Examples
-
-### Simple Bubble Chart
-
-```bash
-csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop"
-```
 
 ### Bubble Chart with Color Grouping
 
