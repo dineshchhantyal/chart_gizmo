@@ -17,13 +17,54 @@ class BubbleChart(AbstractChart):
     - y position
     - bubble size (radius)
     """
-    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None, title=None):
+    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None,
+                 title=None, r_column=None, x_column=None, y_column=None, group_column=None,
+                 min_radius=None, max_radius=None):
         """
         Initialize the BubbleChart.
+
+        Args:
+            configuration: Chart data configuration
+            width: Chart width in pixels
+            height: Chart height in pixels
+            stacked: Whether the chart is stacked (not used for bubble charts)
+            options: Additional chart options
+            title: Chart title
+            r_column: Column for radius values
+            x_column: Column for x-axis values
+            y_column: Column for y-axis values
+            group_column: Column for grouping data
+            min_radius: Minimum radius for bubbles
+            max_radius: Maximum radius for bubbles
+            bubble_label_column: Column for bubble labels
+            tooltip_column: Column for tooltip content
         """
         super().__init__(configuration, width, height, stacked, options, title)
+        self.title = title
         self.type = "bubble"
 
+        self.r_column = r_column
+        self.x_column = x_column
+        self.y_column = y_column
+        self.group_column = group_column
+        self.min_radius = int(min_radius) if min_radius is not None else 5
+        self.max_radius = int(max_radius) if max_radius is not None else 20
+
+        # Initialize options properly
+        if self.options is None:
+            self.options = {}
+
+        # Ensure plugins section exists
+        if "plugins" not in self.options:
+            self.options["plugins"] = {}
+
+        # Configure datalabels based on bubble_label_column
+        self.options["plugins"]["datalabels"] = self.options.get("plugins", {}).get("datalabels", {})
+        self.options["plugins"]["datalabels"]["display"] = False
+
+        # Configure tooltip
+        self.options["plugins"]["tooltip"] = self.options.get("plugins", {}).get("tooltip", {})
+        self.options["plugins"]["tooltip"]["enabled"] = True
 
     def add_data_values(self, label, values=..., background_color=None, border_color=None, border_width=1):
         """
@@ -38,69 +79,45 @@ class BubbleChart(AbstractChart):
         # Add a dataset for the bubble chart, directly using the label as the group name
         self.data.datasets.append(database)
 
-    def get_default_options(self):
-        """
-        Get the default options for the bubble chart.
-        """
-        default_options = super().get_default_options()
 
-
-        return default_options
-
-
-
-class CSVBubbleChart(CSVBarChart):
+class CSVBubbleChart(BubbleChart):
     """
     Loads a CSV and creates a bubble chart.
     """
     def __init__(self, csv_file, x_column, y_column, r_column,
                  group_column=None, width=400, height=400, stacked=False,
-                 configuration=None, options=None, min_radius=5, max_radius=20, title=None):
+                 configuration=None, options=None, min_radius=5, max_radius=20,
+                 title=None, bubble_label_column=None, tooltip_column=None):
 
-        # Initialize with parent's constructor first
+        # Initialize with parent's constructor using proper keyword arguments
         super().__init__(
-            csv_file,
-            x_column,  # Using x_column as label_column
-            y_column,  # Using y_column as value_column
-            group_column,
-            width,
-            height,
-            stacked,
-            configuration,
-            options,
-            title=title
+            configuration=configuration,
+            width=width,
+            height=height,
+            stacked=stacked,
+            options=options,
+            title=title,
+            r_column=r_column,
+            x_column=x_column,
+            y_column=y_column,
+            group_column=group_column,
+            min_radius=min_radius,
+            max_radius=max_radius
         )
 
         self.csv_file = csv_file
-        # After initialization, set the chart type to bubble
-        self.type = "bubble"
-        self.title = title
-
-        # Store additional parameters - ensure they're numeric
-        self.r_column = r_column
-        self.min_radius = int(min_radius) if min_radius is not None else 5
-        self.max_radius = int(max_radius) if max_radius is not None else 20
+        self.bubble_label_column = bubble_label_column
+        self.tooltip_column = tooltip_column
 
         # Transform the data to bubble format
         self._transform_to_bubble_data(x_column, y_column, r_column)
 
-    def add_data_values(self, label, values=..., background_color=None, border_color=None, border_width=1):
-        """
-        Bubble charts has one label per dataset, so we can use the label as the group name.
-        """
-        if self.data is None:
-            raise ValueError("Data configuration is fixed.")
 
-        # create a new dataset
-
-        database = DataSet(label, values, background_color, border_color, border_width)
-        # Add a dataset for the bubble chart, directly using the label as the group name
-        self.data.datasets.append(database)
     def _transform_to_bubble_data(self, x_column, y_column, r_column):
         """Transform bar chart data to bubble chart format"""
         import csv
 
-        # Read CSV file again to process it as bubble data
+        # Read CSV file to process it as bubble data
         with open(self.csv_file, "r") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
@@ -127,29 +144,6 @@ class CSVBubbleChart(CSVBarChart):
             # Linear scaling between min_radius and max_radius
             return self.min_radius + ((r_val - r_min) / (r_max - r_min)) * (self.max_radius - self.min_radius)
 
-        # Configure chart options for bubble visualization
-        self.options = {
-            "responsive": True,
-            "scales": {
-                "x": {
-                    "type": "logarithmic",  # Use log scale for GDP
-                    "title": {"display": True, "text": x_column}
-                },
-                "y": {
-                    "title": {"display": True, "text": y_column}
-                }
-            },
-            "plugins": {
-                "title": {
-                    "display": True,
-                    "text": self.title if self.title else f"Bubble Chart: {y_column} vs {x_column}"
-                },
-                "legend": {"position": "right"},
-                "datalabels": {
-                    "display": False  # Disable data labels for bubbles
-                }
-            }
-        }
 
         # Group by group column if provided
         if self.group_column:
@@ -165,11 +159,22 @@ class CSVBubbleChart(CSVBarChart):
                     y_val = float(row[y_column])
                     r_raw = float(row[r_column])
                     r_val = scale_radius(r_raw)  # Scale the radius
-                    groups[group].append({
+
+                    bubble_data = {
                         'x': x_val,
                         'y': y_val,
                         'r': r_val
-                    })
+                    }
+
+                    # Add label if bubble_label_column is provided
+                    if self.bubble_label_column and self.bubble_label_column in row:
+                        bubble_data['label'] = row[self.bubble_label_column]
+
+                    # Add tooltip if tooltip_column is provided
+                    if self.tooltip_column and self.tooltip_column in row:
+                        bubble_data['tooltip'] = row[self.tooltip_column]
+
+                    groups[group].append(bubble_data)
                 except (ValueError, KeyError):
                     # Skip invalid rows
                     continue
@@ -186,11 +191,22 @@ class CSVBubbleChart(CSVBarChart):
                     y_val = float(row[y_column])
                     r_raw = float(row[r_column])
                     r_val = scale_radius(r_raw)  # Scale the radius
-                    bubble_data.append({
+
+                    data_point = {
                         'x': x_val,
                         'y': y_val,
                         'r': r_val
-                    })
+                    }
+
+                    # Add label if bubble_label_column is provided
+                    if self.bubble_label_column and self.bubble_label_column in row:
+                        data_point['label'] = row[self.bubble_label_column]
+
+                    # Add tooltip if tooltip_column is provided
+                    if self.tooltip_column and self.tooltip_column in row:
+                        data_point['tooltip'] = row[self.tooltip_column]
+
+                    bubble_data.append(data_point)
                 except (ValueError, KeyError):
                     # Skip invalid rows
                     continue
@@ -205,38 +221,30 @@ def serve_example_bubble_chart():
     from H5Gizmos import serve
     import random
 
-    chart = BubbleChart(width=600, height=400)
+    chart = BubbleChart(width=600, height=400, title="Bubble Chart with Tooltips and Labels")
 
-    for i in range(10):
-        # Add labels for the x-axis
-        chart.add_label(f"Label {i}")
-
-    # Add some random bubbles in different colors
+    # Add some random bubbles in different colors with labels and tooltips
     chart.add_data_values(
         "Red Bubbles",
-        [{'x': random.randint(0, 100),
-          'y': random.randint(0, 100),
-          'r': random.randint(5, 20)}
-         for _ in range(8)],
+        [{'x': (x := random.randint(0, 100)),  # Assign x first
+          'y': (y := random.randint(0, 100)),  # Assign y first
+          'r': random.randint(5, 20),
+          'label': f"R{i}",
+          'tooltip': f"Red bubble #{i}: x={x}, y={y}"  # Use the same values
+         }
+         for i in range(8)],
         background_color="rgba(255, 99, 132, 0.5)"
     )
 
     chart.add_data_values(
         "Blue Bubbles",
-        [{'x': random.randint(0, 100),
-          'y': random.randint(0, 100),
-          'r': random.randint(5, 20)}
-         for _ in range(10)],
+        [{'x': (x := random.randint(0, 100)),
+          'y': (y := random.randint(0, 100)),
+          'r': (r := random.randint(5, 20)),
+          'label': f"B{i}",  # Add label for each bubble
+          'tooltip': f"Blue bubble #{i}: x={x}, y={y}, r={r}"}
+         for i in range(10)],
         background_color="rgba(54, 162, 235, 0.5)"
-    )
-
-    chart.add_data_values(
-        "Green Bubbles",
-        [{'x': random.randint(0, 100),
-          'y': random.randint(0, 100),
-          'r': random.randint(5, 20)}
-         for _ in range(10)],
-        background_color="rgba(75, 192, 192, 0.5)"
     )
 
     # Set up click handler
@@ -280,6 +288,18 @@ def CSVBubbleChartScript():
                                     "help": "Maximum radius for bubbles",
                                     "required": False,
                                     "default": 20
+                              }, {
+                                  "name": "bubble_label_column",
+                                  "flags": ["--bubble_label_column"],
+                                  "help": "Column for bubble labels (grouping)",
+                                  "required": False,
+                                  "default": None
+                              }, {
+                                  "name": "tooltip_column",
+                                  "flags": ["--tooltip_column"],
+                                  "help": "Column to use for bubble tooltips on hover",
+                                  "required": False,
+                                  "default": None
                               }
                           ]
                       })

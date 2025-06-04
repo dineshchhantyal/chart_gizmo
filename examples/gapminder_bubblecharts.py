@@ -1,33 +1,17 @@
 import os
-import csv
 from chart_gizmo import bubbles
 from H5Gizmos import serve, Stack
 
 # point at the gapminder file
 data_path = os.path.join(os.path.dirname(__file__), "gapminderDataFiveYear.csv")
 
-def load_gapminder_data(path=data_path):
-    """Load Gapminder CSV into dicts."""
-    with open(path, newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            yield {
-                "country": row["country"],
-                "year": int(row["year"]),
-                "pop": float(row["pop"]),
-                "continent": row["continent"],
-                "lifeExp": float(row["lifeExp"]),
-                "gdpPercap": float(row["gdpPercap"]),
-            }
-
 class GapminderBubbleVisualizer:
     """Bubble chart: X=GDP per Capita, Y=Life Expectancy,
        Size=Population, Color=Continent."""
+
     def __init__(self, path=data_path):
-        self.data = list(load_gapminder_data(path))
-        self.years = sorted({d["year"] for d in self.data})
-        self.continents = sorted({d["continent"] for d in self.data})
-        # simple color palette
+        self.data_path = path
+        # Simple color palette
         self.colors = {
             "Asia":    "#1f77b4",
             "Europe":  "#ff7f0e",
@@ -37,75 +21,48 @@ class GapminderBubbleVisualizer:
         }
 
     def create_bubble_chart(self):
-        # Use the most recent year
-        year = self.years[-1]
+        # Create a bubble chart using CSVBubbleChart
+        chart = bubbles.CSVBubbleChart(
+            csv_file=self.data_path,
+            x_column="gdpPercap",
+            y_column="lifeExp",
+            r_column="pop",
+            group_column="continent",
+            width=900,
+            height=600,
+            min_radius=3,
+            max_radius=20,
+            title="Gapminder: GDP vs Life Expectancy",
+            tooltip_column="country",  # Use country as tooltip
+            bubble_label_column="country",  # Use country as label
 
-        # Create a basic chart with simpler options first
-        chart = bubbles.BubbleChart(width=900, height=600)
+        )
+
+        # Alternative approach
         chart.options = {
-            "responsive": True,
-            "maintainAspectRatio": False,
+            **chart.options,  # Keep existing options
             "scales": {
                 "x": {
-                    "type": "logarithmic",  # Explicitly set logarithmic scale
-                    "min": 200,
-                    "max": 100000,
-                    "title": {"display": True, "text": "GDP per Capita (log scale)"}
+                    "type": "logarithmic",
+                    "title": {"display": True, "text": "GDP per Capita"},
                 },
                 "y": {
-                    "min": 30,
-                    "max": 85,
-                    "title": {"display": True, "text": "Life Expectancy (years)"}
+                    "title": {"display": True, "text": "Life Expectancy"},
                 }
-            },
-            "plugins": {
-                "title": {
-                    "display": True,
-                    "text": f"Gapminder Data ({year})",
-                    "font": {"size": 18}
-                },
-                "datalabels": {
-                    "display": False  # Disable data labels for clarity
-                }
-
             }
         }
 
-        # Make bubbles better sized for visibility
-        buckets = {c: [] for c in self.continents}
-        for d in self.data:
-            if d["year"] != year:
-                continue
-
-            # Better bubble scaling
-            r = max(3, min(20, round((d["pop"]**0.4)/120, 1)))  # Better scaling with min/max bounds
-
-            buckets[d["continent"]].append({
-                "x": d["gdpPercap"],
-                "y": d["lifeExp"],
-                "r": r,
-                "country": d["country"],
-                "pop": d["pop"]
-            })
-
-        # Add each continent as a series
-        for cont, pts in buckets.items():
-            if not pts:
-                continue
-
-            base = self.colors.get(cont, "#888")
-            chart.add_data_values(
-                cont,
-                pts,
-                background_color=base+"80",
-                border_color=base
-            )
-
+        # Customize datasets with colors
+        for dataset in chart.data.datasets:
+            continent = dataset.label
+            color = self.colors.get(continent, "#888")
+            dataset.backgroundColor = color + "80"
+            dataset.borderColor = color
 
         return chart
 
     def serve_visualization(self):
-        # Create a simple visualization
+        # Create and serve the visualization
         chart = self.create_bubble_chart()
         display = Stack([
             "Gapminder Bubble Chart - GDP vs Life Expectancy",
