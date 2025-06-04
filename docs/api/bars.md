@@ -46,11 +46,86 @@ A class to represent a bar chart. Inherits from `AbstractChart`.
 
 ## Class: TabularBarChart
 
-Create a bar chart from a tabular data source.
+**Location:** `chart_gizmo/bars.py`
+
+### Description
+
+Create a bar chart from a tabular data source (a list of dictionaries).
+
+### Constructor Parameters
+
+- `dictionaries`: List of dictionaries containing the data
+- `label_column`: Name of the column to use for x-axis labels
+- `value_column`: Name of the column to use for y-axis values
+- `group_column`: Name of the column to use for grouping (optional)
+- `width`: Chart width in pixels (default: 400)
+- `height`: Chart height in pixels (default: 400)
+- `stacked`: Whether to use stacked bars (default: False)
+- `configuration`: Chart.js configuration (optional)
+- `options`: Additional chart options (optional)
+- `title`: Chart title (optional)
+
+### Example
+
+```python
+from chart_gizmo.bars import TabularBarChart
+from H5Gizmos import serve
+
+data = [
+    {"label": "A", "group": "Red", "value": 12},
+    {"label": "B", "group": "Red", "value": 1},
+    {"label": "A", "group": "Blue", "value": 1},
+    {"label": "B", "group": "Blue", "value": 19},
+]
+chart = TabularBarChart(
+    dictionaries=data,
+    label_column="label",
+    group_column="group",
+    value_column="value",
+    stacked=True,
+)
+serve(chart.show())
+```
 
 ## Class: CSVBarChart
 
-Create a bar chart from a CSV file.
+**Location:** `chart_gizmo/bars.py`
+
+### Description
+
+Create a bar chart from a CSV file. Inherits from `TabularBarChart`.
+
+### Constructor Parameters
+
+- `csv_file`: Path to the CSV file
+- `label_column`: Name of the column to use for x-axis labels
+- `value_column`: Name of the column to use for y-axis values
+- `group_column`: Name of the column to use for grouping (optional)
+- `width`: Chart width in pixels (default: 400)
+- `height`: Chart height in pixels (default: 400)
+- `stacked`: Whether to use stacked bars (default: False)
+- `configuration`: Chart.js configuration (optional)
+- `options`: Additional chart options (optional)
+- `title`: Chart title (optional)
+
+### Example
+
+```python
+from chart_gizmo.bars import CSVBarChart
+from H5Gizmos import serve
+
+chart = CSVBarChart(
+    csv_file="data.csv",
+    label_column="Category",
+    value_column="Amount",
+    group_column="Year",
+    width=800,
+    height=600,
+    stacked=True,
+    title="Sales by Category and Year"
+)
+serve(chart.show())
+```
 
 ### Command-line Script
 

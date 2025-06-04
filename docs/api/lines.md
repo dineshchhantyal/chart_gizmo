@@ -51,7 +51,43 @@ A class to represent a line chart. Inherits from `AbstractChart`.
 
 ## Class: CSVLineChart
 
-Create a line chart from a CSV file.
+**Location:** `chart_gizmo/lines.py`
+
+### Description
+
+Create a line chart from a CSV file. Inherits from `CSVBarChart`.
+
+### Constructor Parameters
+
+- `csv_file`: Path to the CSV file
+- `label_column`: Name of the column to use for x-axis labels
+- `value_column`: Name of the column to use for y-axis values
+- `group_column`: Name of the column to use for grouping (optional)
+- `width`: Chart width in pixels (default: 400)
+- `height`: Chart height in pixels (default: 400)
+- `stacked`: Whether to use stacked lines (default: False)
+- `configuration`: Chart.js configuration (optional)
+- `options`: Additional chart options (optional)
+- `title`: Chart title (optional)
+
+### Example
+
+```python
+from chart_gizmo.lines import CSVLineChart
+from H5Gizmos import serve
+
+chart = CSVLineChart(
+    csv_file="data.csv",
+    label_column="Month",
+    value_column="Temperature",
+    group_column="City",
+    width=800,
+    height=400,
+    stacked=False,
+    title="Monthly Temperatures"
+)
+serve(chart.show())
+```
 
 ### Command-line Script
 
