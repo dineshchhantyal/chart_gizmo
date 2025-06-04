@@ -42,3 +42,5 @@ Creates a histogram bar chart from numerical data using numpy's histogram functi
 ### Command-line Script
 
 - `HistogramGizmoScript()`: Command-line script to create histogram from file.
+
+See the [Histogram CLI documentation](../cli/histogram.md) for detailed usage instructions on the command-line tool.

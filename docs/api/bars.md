@@ -53,3 +53,5 @@ Create a bar chart from a CSV file.
 ### Command-line Script
 
 - `CSVBarChartScript()`: Command-line entrypoint for CSVBarChart.
+
+See the [Bar Chart CLI documentation](../cli/bar.md) for detailed usage instructions on the command-line tool.

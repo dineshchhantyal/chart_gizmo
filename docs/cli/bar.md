@@ -1,11 +1,11 @@
 # Bar Chart CLI
 
-The `csv-bar-gizmo` command-line tool allows you to quickly create bar charts from CSV data files.
+The `csv-bar-gizmo` command-line tool allows you to quickly create bar charts from CSV data files. It's based on the [BarChart API](../api/bars.md).
 
 ## Basic Usage
 
 ```bash
-csv-bar-gizmo data.csv -l "Category" -v "Amount"
+csv-bar-gizmo data/data.csv -l "Category" -v "Amount" -g "Year"
 ```
 
 This will create a bar chart from the CSV file, using the "Category" column for labels and the "Amount" column for values.

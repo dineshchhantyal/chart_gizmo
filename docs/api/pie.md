@@ -146,3 +146,9 @@ CSVPieChart(csv_file, label_column=None, value_column=None, width=400, height=40
 - `donut_ratio`: The size of the hole in a donut chart (0-1)
 - `configuration`: Optional chart configuration
 - `options`: Additional Chart.js options
+
+### Command-line Script
+
+- `CSVPieChartScript()`: Command-line entrypoint for CSVPieChart.
+
+See the [Pie Chart CLI documentation](../cli/pie.md) for detailed usage instructions on the command-line tool.

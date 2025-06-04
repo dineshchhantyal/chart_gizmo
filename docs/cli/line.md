@@ -1,6 +1,6 @@
 # Line Chart CLI
 
-The `csv-line-gizmo` command-line tool allows you to quickly create line charts from CSV data files.
+The `csv-line-gizmo` command-line tool allows you to quickly create line charts from CSV data files. It's based on the [LineChart API](../api/lines.md).
 
 ## Basic Usage
 

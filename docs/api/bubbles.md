@@ -48,3 +48,5 @@ Loads a CSV and creates a bubble chart.
 ### Command-line Script
 
 - `CSVBubbleChartScript()`: Command-line entrypoint for CSVBubbleChart.
+
+See the [Bubble Chart CLI documentation](../cli/bubble.md) for detailed usage instructions on the command-line tool.

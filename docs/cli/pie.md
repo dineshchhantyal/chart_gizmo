@@ -1,6 +1,6 @@
 # Pie Chart CLI
 
-The `csv-pie-gizmo` command-line tool allows you to quickly create pie and donut charts from CSV data files.
+The `csv-pie-gizmo` command-line tool allows you to quickly create pie and donut charts from CSV data files. It's based on the [PieChart API](../api/pie.md).
 
 ## Basic Usage
 

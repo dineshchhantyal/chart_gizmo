@@ -54,3 +54,5 @@ Create a line chart from a CSV file.
 ### Command-line Script
 
 - `CSVLineChartScript()`: Command-line entrypoint for CSVLineChart.
+
+See the [Line Chart CLI documentation](../cli/line.md) for detailed usage instructions on the command-line tool.
