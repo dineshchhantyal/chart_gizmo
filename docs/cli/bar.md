@@ -2,6 +2,8 @@
 
 The `csv-bar-gizmo` command-line tool allows you to quickly create bar charts from CSV data files. It's based on the [BarChart API](../api/bars.md).
 
+![Sample Bar Chart](../screenshots/barchart.png)
+
 ## Basic Usage
 
 ```bash

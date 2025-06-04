@@ -2,6 +2,11 @@
 
 Pie charts are useful for showing proportional parts of a whole. They display data as slices of a circle with sizes proportional to their values. Chart Gizmo's pie charts are built on [Chart.js Pie and Doughnut Charts](https://www.chartjs.org/docs/latest/charts/doughnut.html).
 
+<div style="display: flex; justify-content: center; gap: 20px;">
+    <img src="../../screenshots/pie.png" alt="Sample Pie Chart" width="45%">
+    <img src="../../screenshots/donut.png" alt="Sample Donut Chart" width="45%">
+</div>
+
 ## Basic Usage
 
 ```python

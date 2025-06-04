@@ -2,6 +2,8 @@
 
 The `LineChart` and related classes provide line chart functionality based on [Chart.js Line Charts](https://www.chartjs.org/docs/latest/charts/line.html).
 
+![Sample Line Chart](../screenshots/linechart.png)
+
 ## Basic Usage
 
 ```python

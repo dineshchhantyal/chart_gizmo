@@ -2,6 +2,8 @@
 
 The `csv-line-gizmo` command-line tool allows you to quickly create line charts from CSV data files. It's based on the [LineChart API](../api/lines.md).
 
+![Sample Line Chart](../screenshots/linechart.png)
+
 ## Basic Usage
 
 ```bash

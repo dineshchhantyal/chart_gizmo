@@ -2,6 +2,11 @@
 
 The `csv-pie-gizmo` command-line tool allows you to quickly create pie and donut charts from CSV data files. It's based on the [PieChart API](../api/pie.md).
 
+<div style="display: flex; justify-content: center; gap: 20px;">
+    <img src="../../screenshots/pie.png" alt="Sample Pie Chart" width="45%">
+    <img src="../../screenshots/donut.png" alt="Sample Donut Chart" width="45%">
+</div>
+
 ## Basic Usage
 
 ```bash

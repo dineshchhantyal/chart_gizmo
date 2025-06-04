@@ -2,6 +2,8 @@
 
 The `HistogramBarChart` class provides histogram chart functionality based on [Chart.js Bar Charts](https://www.chartjs.org/docs/latest/charts/bar.html) with histogram-specific configuration. It uses [NumPy's histogram function](https://numpy.org/doc/stable/reference/generated/numpy.histogram.html) for data binning and analysis. Learn more about histograms on [Wikipedia](https://en.wikipedia.org/wiki/Histogram).
 
+![Sample Histogram Chart](../screenshots/histogram.png)
+
 ## Basic Usage
 
 ```python

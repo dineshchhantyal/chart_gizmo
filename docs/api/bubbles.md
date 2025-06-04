@@ -2,6 +2,8 @@
 
 The `BubbleChart` and related classes provide bubble chart functionality based on [Chart.js Bubble Charts](https://www.chartjs.org/docs/latest/charts/bubble.html).
 
+![Sample Bubble Chart](../screenshots/bubblechart.png)
+
 ## Basic Usage
 
 ```python

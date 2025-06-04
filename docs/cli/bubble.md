@@ -2,6 +2,8 @@
 
 The `csv-bubble-gizmo` command-line tool allows you to quickly create bubble charts from CSV data files. It's based on the [BubbleChart API](../api/bubbles.md).
 
+![Sample Bubble Chart](../screenshots/bubblechart.png)
+
 ## Basic Usage
 
 ```bash

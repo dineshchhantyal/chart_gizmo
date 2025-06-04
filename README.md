@@ -16,12 +16,16 @@ Chart Gizmo is a Python library that provides a wrapper around Chart.js using th
 
 <table>
   <tr>
-    <td><img src="/examples/screenshots/barchart.png" alt="Bar Chart Example"></td>
-    <td><img src="/examples/screenshots/linechart.png" alt="Line Chart Example"></td>
+    <td><img src="/docs/screenshots/barchart.png" alt="Bar Chart Example"></td>
+    <td><img src="/docs/screenshots/linechart.png" alt="Line Chart Example"></td>
   </tr>
   <tr>
-    <td><img src="/examples/screenshots/bubblechart.png" alt="Bubble Chart Example"></td>
-    <td><img src="/examples/screenshots/histogram.png" alt="Histogram Example"></td>
+    <td><img src="/docs/screenshots/bubblechart.png" alt="Bubble Chart Example"></td>
+    <td><img src="/docs/screenshots/histogram.png" alt="Histogram Example"></td>
+  </tr>
+  <tr>
+    <td><img src="/docs/screenshots/pie.png" alt="Pie Chart Example"></td>
+    <td><img src="/docs/screenshots/donut.png" alt="Donut Chart Example"></td>
   </tr>
 </table>
 

@@ -2,6 +2,8 @@
 
 The `histogram-gizmo` command-line tool allows you to create histograms from data files containing numerical values. It's based on the [HistogramBarChart API](../api/histogram.md).
 
+![Sample Histogram](../screenshots/histogram.png)
+
 ## Basic Usage
 
 ```bash

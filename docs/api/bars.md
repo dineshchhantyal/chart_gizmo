@@ -2,6 +2,8 @@
 
 The `BarChart` and related classes provide bar chart functionality based on [Chart.js Bar Charts](https://www.chartjs.org/docs/latest/charts/bar.html).
 
+![Sample Bar Chart](../screenshots/barchart.png)
+
 ## Basic Usage
 
 ```python
