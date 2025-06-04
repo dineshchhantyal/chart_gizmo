@@ -12,13 +12,7 @@ This will create a bar chart from the CSV file, using the "Category" column for 
 
 ## Examples
 
-### Simple Bar Chart
-
-```bash
-csv-bar-gizmo life1999.csv -l "Country Name" -v "Value"
-```
-
-### Grouped Bar Chart
+### Simple Grouped Bar Chart
 
 ```bash
 csv-bar-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation"
@@ -39,4 +33,3 @@ csv-bar-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation" --wi
 - `--height`: Height of chart in pixels
 - `--title`: Chart title
 - `--stacked`: Use stacked bar chart (default: False)
-- `--horizontal`: Use horizontal bar chart (default: False)

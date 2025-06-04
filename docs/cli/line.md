@@ -38,5 +38,3 @@ csv-line-gizmo life1999.csv -l "Country Name" -v "Value" --width 800 --height 60
 - `-w`, `--width`: Width of chart in pixels
 - `--height`: Height of chart in pixels
 - `--title`: Chart title
-- `--fill`: Fill area under the line (default: False)
-- `--tension`: Line curve tension (0-1, default: 0 for straight lines)

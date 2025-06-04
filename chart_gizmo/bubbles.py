@@ -17,8 +17,11 @@ class BubbleChart(AbstractChart):
     - y position
     - bubble size (radius)
     """
-    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None):
-        super().__init__(configuration, width, height, stacked, options)
+    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None, title=None):
+        """
+        Initialize the BubbleChart.
+        """
+        super().__init__(configuration, width, height, stacked, options, title)
         self.type = "bubble"
 
 
@@ -52,7 +55,7 @@ class CSVBubbleChart(CSVBarChart):
     """
     def __init__(self, csv_file, x_column, y_column, r_column,
                  group_column=None, width=400, height=400, stacked=False,
-                 configuration=None, options=None, min_radius=5, max_radius=20):
+                 configuration=None, options=None, min_radius=5, max_radius=20, title=None):
 
         # Initialize with parent's constructor first
         super().__init__(
@@ -64,12 +67,14 @@ class CSVBubbleChart(CSVBarChart):
             height,
             stacked,
             configuration,
-            options
+            options,
+            title=title
         )
 
         self.csv_file = csv_file
         # After initialization, set the chart type to bubble
         self.type = "bubble"
+        self.title = title
 
         # Store additional parameters - ensure they're numeric
         self.r_column = r_column
@@ -137,7 +142,7 @@ class CSVBubbleChart(CSVBarChart):
             "plugins": {
                 "title": {
                     "display": True,
-                    "text": f"Bubble Chart: {y_column} vs {x_column}"
+                    "text": self.title if self.title else f"Bubble Chart: {y_column} vs {x_column}"
                 },
                 "legend": {"position": "right"},
                 "datalabels": {

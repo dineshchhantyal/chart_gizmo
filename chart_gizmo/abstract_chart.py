@@ -16,7 +16,7 @@ class AbstractChart(raw_chart.RawChart):
             width=400,
             height=400,
             stacked=False,
-            options=None):
+            options=None, title=None,):
         super().__init__(configuration, width, height)
         self.configuration = configuration
         # Chart type should be set by subclasses
@@ -27,6 +27,16 @@ class AbstractChart(raw_chart.RawChart):
         if configuration is None:
             self.data = data_config.ChartData()
         self.options = options
+
+        if title is not None:
+            if self.options is None:
+                self.options = {}
+            if "plugins" not in self.options:
+                self.options["plugins"] = {}
+            if "title" not in self.options["plugins"]:
+                self.options["plugins"]["title"] = {}
+            self.options["plugins"]["title"]["display"] = True
+            self.options["plugins"]["title"]["text"] = title
 
     def clear(self):
         """

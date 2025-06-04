@@ -47,8 +47,3 @@ csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" 
 - `-w`, `--width`: Width of chart in pixels
 - `--height`: Height of chart in pixels
 - `--title`: Chart title
-- `--log_scale`: Use logarithmic scale for x-axis (useful for GDP/income data)
-- `--x_min`: Minimum x-axis value
-- `--x_max`: Maximum x-axis value
-- `--y_min`: Minimum y-axis value
-- `--y_max`: Maximum y-axis value

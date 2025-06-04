@@ -149,6 +149,7 @@ class CSVChartCLI(ChartCLI):
         parser.add_argument("-l", "--label_column", help="Column for labels (x-axis)")
         parser.add_argument("-v", "--value_column", help="Column for values (y-axis)")
         parser.add_argument("-g", "--group_column", help="Column for grouping data series")
+        parser.add_argument("-t", "--title", help="Chart title")
 
 
         # Add any custom command arguments

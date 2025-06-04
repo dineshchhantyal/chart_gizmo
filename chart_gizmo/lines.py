@@ -32,7 +32,7 @@ class CSVLineChart(CSVBarChart):
     Loads a CSV and then calls super().__init__(...) exactly
     like CSVBarChart does.
     """
-    def __init__(self, csv_file, label_column, value_column, group_column=None, width=400, height=400, stacked=False, configuration=None, options=None):
+    def __init__(self, csv_file, label_column, value_column, group_column=None, width=400, height=400, stacked=False, configuration=None, options=None, title=None):
         super().__init__(
             csv_file,
             label_column,
@@ -42,7 +42,8 @@ class CSVLineChart(CSVBarChart):
             height,
             stacked,
             configuration,
-            options
+            options,
+            title
         )
         # After initialization, set the chart type to line
         self.type = "line"

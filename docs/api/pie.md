@@ -86,24 +86,6 @@ chart = CSVPieChart(
 serve(chart.show())
 ```
 
-## Command Line Usage
-
-Chart Gizmo provides a command-line tool for quick visualization of CSV data:
-
-```bash
-# Basic pie chart
-csv-pie-gizmo data/data.csv -l "Category" -v "Amount" --width 800 --height 600
-
-# Donut chart
-csv-pie-gizmo data/data.csv -l "Category" -v "Amount" --donut --donut-ratio 0.7
-
-# Example with Gapminder dataset - Population by continent
-csv-pie-gizmo gapminderDataFiveYear.csv -l "continent" -v "pop" --width 800 --height 600 --donut
-
-# Example with grouping
-csv-pie-gizmo data/data.csv -l "Category" -v "Amount" -g "Year" --donut --donut-ratio 0.7
-```
-
 ## API Reference
 
 ### PieChart

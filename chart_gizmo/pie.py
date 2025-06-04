@@ -75,11 +75,19 @@ class PieChart(AbstractChart):
     Pie charts display data as slices of a circle with sizes proportional to their values.
     Donut charts are pie charts with a hole in the center.
     """
-    def __init__(self, configuration=None, width=400, height=400, donut=False, donut_ratio=0.5, options=None):
-        super().__init__(configuration, width, height, False, options)  # Pie charts don't use 'stacked' parameter
+    def __init__(self, configuration=None, width=400, height=400, donut=False, donut_ratio=0.5, options=None, title=None):
+        super().__init__(configuration, width, height, False, options, title)  # Pie charts don't use 'stacked' parameter
         self.type = "pie" if not donut else "doughnut"
         self.donut = donut
         self.donut_ratio = donut_ratio
+        # Initialize options if None
+        if self.options is None:
+            self.options = {}
+
+        # Ensure responsive is set to False to respect width and height,
+        # this is !fix to avoid chart rendered as a massive element
+        self.options["responsive"] = self.options.get("responsive", False)
+
 
     def as_donut(self, ratio=0.5):
         """
@@ -182,14 +190,15 @@ class CSVPieChart(PieChart):
     """
     def __init__(self, csv_file, label_column=None, value_column=None,
                  width=400, height=400, donut=False,
-                 donut_ratio=0.5, group_column=None, configuration=None, stacked=False, options=None):
+                 donut_ratio=0.5, group_column=None, configuration=None, stacked=False, options=None, title=None):
         super().__init__(
             configuration,
             width,
             height,
             donut,
             donut_ratio,
-            options
+            options,
+            title
         )
         self.csv_file = csv_file
         self.label_column = label_column

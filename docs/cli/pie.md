@@ -27,7 +27,7 @@ csv-pie-gizmo data/data.csv -l "Category" -v "Amount" --donut
 ### Donut Chart with Custom Ratio
 
 ```bash
-csv-pie-gizmo data/data.csv -l "Category" -v "Amount" --donut --donut-ratio 0.7
+csv-pie-gizmo data/data.csv -l "Category" -v "Amount" --donut --donut-ratio 0.7 --width 800 --height 600
 ```
 
 ### Grouped Pie Chart by Year
@@ -39,7 +39,7 @@ csv-pie-gizmo data/data.csv -l "Category" -v "Amount" -g "Year"
 ### Complex Example
 
 ```bash
-csv-pie-gizmo examples/life1999.csv -l "Disaggregation" -v "Value" --width 900 --height 700 --donut --donut-ratio 0.6 --title "Life Expectancy Distribution"
+csv-pie-gizmo life1999.csv -l "Disaggregation" -v "Value" --width 900 --height 700 --donut --donut-ratio 0.6 --title "Life Expectancy Distribution"
 ```
 
 ## All Options

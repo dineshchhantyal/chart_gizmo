@@ -33,8 +33,8 @@ class BarChart(AbstractChart):
             configuration=None,
             width=400,
             height=400,
-            stacked=False, options=None):
-        super().__init__(configuration, width, height)
+            stacked=False, options=None, title=None):
+        super().__init__(configuration, width, height, stacked, options, title)
         self.configuration = configuration
         self.type = "bar"
         self.data = None
@@ -42,7 +42,6 @@ class BarChart(AbstractChart):
         # only allow data configuration if configuration is None
         if configuration is None:
             self.data = data_config.ChartData()
-        self.options = options
 
 
 
@@ -60,12 +59,13 @@ class TabularBarChart(BarChart):
             height=400,
             stacked=False,
             configuration=None,
-            options=None
+            options=None,
+            title=None
         ):
         """
         Create a bar chart from a tabular data source represented as a list of dictionaries.
         """
-        super().__init__(configuration, width, height, stacked, options)
+        super().__init__(configuration, width, height, stacked, options, title)
         self.dictionaries = dictionaries
         self.label_column = label_column
         self.value_columns = value_column
@@ -112,14 +112,15 @@ class CSVBarChart(TabularBarChart):
             height=400,
             stacked=False,
             configuration=None,
-            options=None
+            options=None,
+            title=None
         ):
         import csv
         dictionaries = []
         with open(csv_file, "r") as f:
             reader = csv.DictReader(f)
             dictionaries = list(reader)
-        super().__init__(dictionaries, label_column, value_column, group_column, width, height, stacked, configuration, options)
+        super().__init__(dictionaries, label_column, value_column, group_column, width, height, stacked, configuration, options, title)
 
 def CSVBarChartScript():
     "Command line script to create a CSV bar chart."

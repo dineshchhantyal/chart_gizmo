@@ -71,4 +71,3 @@ histogram-gizmo data/perfect_normal.npy
 - `--title`: Chart title
 - `--x-label`: Label for x-axis
 - `--y-label`: Label for y-axis
-- `--log_scale`: Use logarithmic scale for y-axis (useful for skewed distributions)
