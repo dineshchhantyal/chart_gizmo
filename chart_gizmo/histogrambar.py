@@ -59,6 +59,22 @@ class HistogramBarChart(BarChart):
         # Create histogram if data is provided
         if data is not None:
             self.create_histogram(data)
+            
+    def set_data(self, data):
+        """
+        Set the data for the histogram and create the histogram.
+
+        Parameters
+        ----------
+        data : array-like
+            Input data to be binned
+
+        Returns
+        -------
+        self : HistogramBarChart
+            The histogram chart instance
+        """
+        return self.create_histogram(data)
 
     def create_histogram(self, data):
         """
@@ -236,6 +252,17 @@ def HistogramGizmoScript():
     except Exception as e:
         print(f"Error creating histogram: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+def serve_example_histogram():
+    """
+    Serve an example histogram.
+    """
+    import numpy as np
+    data = np.random.randn(1000)  # 1000 points from standard normal distribution
+    histogram = HistogramBarChart(data, bins=30)
+    serve(histogram.show())
+
 
 
 if __name__ == "__main__":
