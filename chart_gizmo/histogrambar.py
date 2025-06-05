@@ -59,7 +59,7 @@ class HistogramBarChart(BarChart):
         # Create histogram if data is provided
         if data is not None:
             self.create_histogram(data)
-            
+
     def set_data(self, data):
         """
         Set the data for the histogram and create the histogram.
@@ -186,7 +186,7 @@ class HistogramBarChart(BarChart):
         Parameters
         ----------
         filename : str
-            Path to the file. Can be either a .npy file or a text file with whitespace-separated numbers.
+            Path to the file. Can be either a .npy, .npz, or a text file with whitespace-separated numbers.
         **kwargs : dict
             Additional arguments to pass to the histogram constructor
 
@@ -196,13 +196,21 @@ class HistogramBarChart(BarChart):
             The histogram chart instance
         """
         try:
-            # First try to load as numpy binary
-            data = np.load(filename)
-        except:
+            if filename.endswith(".npz"):
+                # Load npz and extract the first array
+                npz = np.load(filename)
+                keys = list(npz.keys())
+                if not keys:
+                    raise ValueError(f"No arrays found in npz file: {filename}")
+                data = npz[keys[0]]
+            else:
+                # Try numpy binary
+                data = np.load(filename)
+        except Exception:
             # If that fails, try loading as text
             try:
                 data = np.loadtxt(filename)
-            except:
+            except Exception:
                 raise ValueError(f"Could not load data from file: {filename}")
 
         # Create and return the histogram
