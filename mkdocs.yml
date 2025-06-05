@@ -34,6 +34,7 @@ nav:
       - Bubbles: api/bubbles.md
       - Histogram: api/histogram.md
       - Pie: api/pie.md
+      - Box Plot: api/boxplot.md
   - Command Line Tools:
       - Overview: cli/index.md
       - Bar Charts: cli/bar.md
@@ -41,6 +42,7 @@ nav:
       - Bubble Charts: cli/bubble.md
       - Histograms: cli/histogram.md
       - Pie Charts: cli/pie.md
+      - Box Plots: cli/boxplot.md
 
 markdown_extensions:
   - pymdownx.highlight:

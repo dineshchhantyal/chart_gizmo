@@ -85,11 +85,11 @@ class CSVBoxPlotChart(BoxPlotChart):
             raise ValueError(f"CSV file is empty or invalid: {csv_file}")
 
         # If no columns specified, use all columns except group_column
-        columns = self.columns
-        if columns is None:
+        if self.columns is None:
             columns = [col for col in rows[0].keys() if col != self.group_column]
+        else:
+            columns = [col for col in self.columns if col != self.group_column and col in rows[0].keys()]
 
-        # If no group_column, treat each column as a box (classic boxplot)
         if not self.group_column:
             file_labels = columns
             data = []
@@ -114,7 +114,6 @@ class CSVBoxPlotChart(BoxPlotChart):
         for group in group_values:
             group_arr = []
             for col in columns:
-                # For each group, collect all values in this column
                 col_values = [
                     float(row[col])
                     for row in rows
@@ -130,8 +129,8 @@ class CSVBoxPlotChart(BoxPlotChart):
             self.data["labels"] = self.labels
         else:
             self.data["labels"] = group_values
-        self.add_data_values("Boxplot", data)
 
+        self.add_data_values("Boxplot", data)
 def BoxPlotChartScript():
     """
     Command-line entrypoint for BoxPlotChart using CSVChartCLI.
@@ -202,6 +201,6 @@ def serve_example_boxplot_chart():
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1 and sys.argv[1].endswith(".csv"):
-        CSVBoxPlotChartScript()
+        BoxPlotChartScript()
     else:
         serve_example_boxplot_chart()
