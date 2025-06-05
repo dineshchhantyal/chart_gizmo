@@ -27,6 +27,9 @@ Chart Gizmo is a Python library that provides a wrapper around Chart.js using th
     <td><img src="/docs/screenshots/pie.png" alt="Pie Chart Example"></td>
     <td><img src="/docs/screenshots/donut.png" alt="Donut Chart Example"></td>
   </tr>
+  <tr>
+    <td><img src="/docs/screenshots/boxplot.png" alt="Box Plot Example"></td>
+  </tr>
 </table>
 
 ## Installation
@@ -116,6 +119,9 @@ python example_linechart.py
 python state_linecharts.py
 python example_bubblechart.py
 python gapimder_bubblecharts.py
+python example_histogram.py
+python example_boxplot.py
+python state_population_boxplot.py
 ```
 
 ## Command-Line Tools
@@ -180,9 +186,16 @@ csv-pie-gizmo life1999.csv -l "Disaggregation" -v "Value" --width 800 --height 6
 csv-pie-gizmo data/data.csv -l "Category" -v "Amount" -g "Year" --donut --donut-ratio .9
 ```
 
+### Box Plot from CSV
+
+```bash
+boxplot-gizmo data/data.csv --columns "Amount" -g "Category"
+```
+
 ## Credits
 
 Chart Gizmo is built on top of the following libraries:
 
 - [Chart.js](https://www.chartjs.org/) - Simple yet flexible JavaScript charting library
 - [H5Gizmos](https://github.com/AaronWatters/H5Gizmos) - HTML5 components for Python
+- [Chart.js BoxPlot plugin](https://github.com/sgratzl/chartjs-chart-boxplot) - Box plot support
