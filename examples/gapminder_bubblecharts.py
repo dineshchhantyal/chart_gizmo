@@ -35,7 +35,6 @@ class GapminderBubbleVisualizer:
             title="Gapminder: GDP vs Life Expectancy",
             tooltip_column="country",  # Use country as tooltip
             bubble_label_column="country",  # Use country as label
-
         )
 
         # Alternative approach
