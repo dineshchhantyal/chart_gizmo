@@ -102,7 +102,7 @@ class AbstractChart(raw_chart.RawChart):
         if configuration is None:
             configuration = dict(
                 type=self.type,
-                data=self.data.as_dict(),
+                data=self.data.as_dict() if hasattr(self.data, "as_dict") else self.data if self.data else None,
                 options=options,
             )
         return configuration

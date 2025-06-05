@@ -1,0 +1,3 @@
+from chart_gizmo.boxplot import serve_example_boxplot_chart
+
+serve_example_boxplot_chart()

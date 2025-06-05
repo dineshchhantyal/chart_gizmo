@@ -30,30 +30,55 @@ import {
   Legend,
   SubTitle,
   Title,
-  Tooltip
-} from 'chart.js';
+  Tooltip,
+} from "chart.js";
 
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import annotationPlugin from 'chartjs-plugin-annotation';
+import {
+  BoxPlotController,
+  BoxAndWiskers,
+} from "@sgratzl/chartjs-chart-boxplot";
+
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 Chart.register(
   // Controllers
-  BarController, BubbleController, DoughnutController,
-  LineController, PieController, PolarAreaController,
-  RadarController, ScatterController,
+  BarController,
+  BubbleController,
+  DoughnutController,
+  LineController,
+  PieController,
+  PolarAreaController,
+  RadarController,
+  ScatterController,
+  BoxPlotController,
+  BoxAndWiskers,
 
   // Elements
-  ArcElement, BarElement, LineElement, PointElement,
+  ArcElement,
+  BarElement,
+  LineElement,
+  PointElement,
 
   // Scales
-  CategoryScale, LinearScale, LogarithmicScale,
-  RadialLinearScale, TimeScale, TimeSeriesScale,
+  CategoryScale,
+  LinearScale,
+  LogarithmicScale,
+  RadialLinearScale,
+  TimeScale,
+  TimeSeriesScale,
 
   // Plugins
-  Decimation, Filler, Legend, SubTitle, Title, Tooltip,
+  Decimation,
+  Filler,
+  Legend,
+  SubTitle,
+  Title,
+  Tooltip,
 
   // additional plugins
-  ChartDataLabels, annotationPlugin
+  ChartDataLabels,
+  annotationPlugin
 );
 
 export { Chart };
