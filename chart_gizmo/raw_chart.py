@@ -1,4 +1,3 @@
-
 #from H5Gizmos import Html, Text, Button, Stack, serve, do
 from H5Gizmos import jQueryComponent, do, get
 import importlib.resources
@@ -40,15 +39,21 @@ class RawChart(jQueryComponent):
         #do(console.log("Chart loaded", Chart))
         #do(console.log("dom_canvas", dom_canvas))
         configuration = self.get_configuration()
-        # transfer configuration 
+        # transfer configuration
         config_js_ref = self.cache("config_js_ref", configuration)
         # configure logarithmic axes
         configureLogarithmicScale = chart_gizmo_js.configureLogarithmicScale
         for axis, value in self.logarithmic_axes.items():
             if value:
                 do(configureLogarithmicScale(config_js_ref, axis))
+        # Create chart
         my_chart = self.cache("my_chart", self.new(Chart, dom_canvas, config_js_ref))
         self.chart = my_chart
+
+        # Apply custom tooltip configuration
+        if self.type == "bubble" and hasattr(chart_gizmo_js, "configureCustomTooltips"):
+            do(chart_gizmo_js.configureCustomTooltips(my_chart))
+
         # attach callbacks
         for action, (callback, selection) in self.callbacks.items():
             self.on_click_call(callback, action, selection)
@@ -66,7 +71,7 @@ class RawChart(jQueryComponent):
         do(chart_gizmo_js.replaceData(my_chart, newdata))
         # update the chart is automatic.
         return self
-    
+
     def is_displayed(self):
         """
         Check if the chart is displayed.
@@ -93,7 +98,7 @@ class RawChart(jQueryComponent):
             return await get(self.chart.toBase64Image(type, quality))
         else:
             return await get(self.chart.toBase64Image())
-        
+
     async def getBase64ImageData(self):
         # only for png
         url = await self.getBase64URL()
@@ -101,7 +106,7 @@ class RawChart(jQueryComponent):
         assert url.startswith(prefix), f"Invalid base64 image data: {url[:40]}..."
         base64_data = url[len(prefix):]
         return base64_data
-    
+
     async def getImageBinary(self):
         import base64
         base64_data = await self.getBase64ImageData()
@@ -109,7 +114,7 @@ class RawChart(jQueryComponent):
         binary_data = base64.b64decode(base64_data)
         # convert to bytes
         return bytes(binary_data)
-    
+
     async def saveImage(self, filename):
         # save the image to a file
         binary_data = await self.getImageBinary()

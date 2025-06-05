@@ -7,12 +7,18 @@ The `csv-bubble-gizmo` command-line tool allows you to quickly create bubble cha
 ## Basic Usage
 
 ```bash
-csv-bubble-gizmo data/data.csv -x "GDP" -y "Life_Expectancy" -r "Population"
+csv-bubble-gizmo filename -x "x-column" -y "y-column" -r "r-column"
 ```
 
-This will create a bubble chart from the CSV file, using the "GDP" column for x-axis, "Life_Expectancy" column for y-axis, and "Population" for the bubble size.
+This will create a bubble chart from the CSV file, using the "x-column" for x-axis, "y-column" for y-axis, and "r-column" for the bubble size.
 
 ## Examples
+
+### Simple Bubble Chart
+
+```bash
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop"
+```
 
 ### Bubble Chart with Color Grouping
 
@@ -26,10 +32,16 @@ csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" 
 csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" --min_radius 3 --max_radius 20
 ```
 
+### With Multiple Tooltip Columns
+
+```bash
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --tooltip_columns "country,year"
+```
+
 ### Complete Customization Example
 
 ```bash
-csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --min_radius 3 --max_radius 20 --width 800 --height 600 --title "Global Health & Wealth"
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --min_radius 3 --max_radius 20 --width 800 --height 600 --title "Global Health & Wealth" --tooltip_columns country,gdpPercap,lifeExp,pop,year
 ```
 
 ## All Options
@@ -43,3 +55,5 @@ csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" 
 - `-w`, `--width`: Width of chart in pixels
 - `--height`: Height of chart in pixels
 - `--title`: Chart title
+- `--bubble_label_column`: Column for bubble labels
+- `--tooltip_columns`: **One or more columns to use for bubble tooltips on hover.** Accepts single comma-separated string.
