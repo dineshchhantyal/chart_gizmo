@@ -34,6 +34,12 @@ python gapimder_bubblecharts.py
 python tooltip_customization.py
 ```
 
+## Histogram Example
+
+```bash
+python example_histogram.py
+```
+
 ## Raw Chart Example
 
 ```bash
