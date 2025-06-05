@@ -17611,10 +17611,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         label: function(context) {
           const dataPoint = context.raw;
           if (dataPoint && dataPoint.tooltip) {
-            return dataPoint.tooltip;
-          }
-          if (dataPoint && dataPoint.label) {
-            return dataPoint.label;
+            return dataPoint.tooltip + " " + (context.dataset.label || "");
           }
           return context.dataset.label || "";
         }
