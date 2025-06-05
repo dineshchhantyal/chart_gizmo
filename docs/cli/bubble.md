@@ -32,10 +32,16 @@ csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" 
 csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" --min_radius 3 --max_radius 20
 ```
 
+### With Multiple Tooltip Columns
+
+```bash
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --tooltip_columns "country,year"
+```
+
 ### Complete Customization Example
 
 ```bash
-csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --min_radius 3 --max_radius 20 --width 800 --height 600 --title "Global Health & Wealth"
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" -g "continent" --min_radius 3 --max_radius 20 --width 800 --height 600 --title "Global Health & Wealth" --tooltip_columns country,gdpPercap,lifeExp,pop,year
 ```
 
 ## All Options
@@ -50,4 +56,4 @@ csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" 
 - `--height`: Height of chart in pixels
 - `--title`: Chart title
 - `--bubble_label_column`: Column for bubble labels
-- `--tooltip_column`: Column to use for bubble tooltips on hover
+- `--tooltip_columns`: **One or more columns to use for bubble tooltips on hover.** Accepts single comma-separated string.

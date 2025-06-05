@@ -84,7 +84,7 @@ All parameters from `BubbleChart`, plus:
 
 - `csv_file`: Path to the CSV file
 - `bubble_label_column`: Column to use for bubble labels
-- `tooltip_column`: Column to use for tooltip content
+- `tooltip_columns`: **List of columns to use for tooltip content.** Accepts a list of column names (space-separated or comma-separated).
 
 ### Example
 
@@ -104,7 +104,7 @@ chart = CSVBubbleChart(
     min_radius=3,
     max_radius=20,
     title="GDP vs Life Expectancy",
-    tooltip_column="country",
+    tooltip_columns=["country", "year"],  # Multiple columns for tooltip
     bubble_label_column="country"
 )
 
@@ -114,6 +114,6 @@ serve(chart.show())
 
 ### Command-line Script
 
-The module provides a command-line interface for creating bubble charts from CSV files:
+The module provides a command-line interface for creating bubble charts from CSV files.
 
 See the [Bubble Chart CLI documentation](../cli/bubble.md) for detailed usage instructions on the command-line tool.

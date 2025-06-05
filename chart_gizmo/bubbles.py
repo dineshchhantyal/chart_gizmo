@@ -87,9 +87,19 @@ class CSVBubbleChart(BubbleChart):
     def __init__(self, csv_file, x_column, y_column, r_column,
                  group_column=None, width=400, height=400, stacked=False,
                  configuration=None, options=None, min_radius=5, max_radius=20,
-                 title=None, bubble_label_column=None, tooltip_column=None):
+                 title=None, bubble_label_column=None, tooltip_columns=None):
 
-        # Initialize with parent's constructor using proper keyword arguments
+        # Accept both comma-separated string or list of strings
+        if tooltip_columns is None:
+            tooltip_columns = []
+        elif isinstance(tooltip_columns, str):
+            tooltip_columns = [tooltip_columns]
+        # Flatten comma-separated values
+        columns = []
+        for col in tooltip_columns:
+            columns.extend([c.strip() for c in col.split(",") if c.strip()])
+        tooltip_columns = columns
+
         super().__init__(
             configuration=configuration,
             width=width,
@@ -107,26 +117,21 @@ class CSVBubbleChart(BubbleChart):
 
         self.csv_file = csv_file
         self.bubble_label_column = bubble_label_column
-        self.tooltip_column = tooltip_column
+        self.tooltip_columns = tooltip_columns
 
         # Transform the data to bubble format
         self._transform_to_bubble_data(x_column, y_column, r_column)
 
-
     def _transform_to_bubble_data(self, x_column, y_column, r_column):
-        """Transform bar chart data to bubble chart format"""
         import csv
 
-        # Read CSV file to process it as bubble data
         with open(self.csv_file, "r") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
-        # Clear existing datasets AND labels from parent initialization
         self.clear()
-        self.data.labels = []  # Clear labels - bubble charts don't need one label per point
+        self.data.labels = []
 
-        # Find min and max values for radius scaling
         r_values = []
         for row in rows:
             try:
@@ -137,82 +142,62 @@ class CSVBubbleChart(BubbleChart):
         r_min = min(r_values) if r_values else 1
         r_max = max(r_values) if r_values else 100
 
-        # Define a scaling function to map r_values to min_radius...max_radius
         def scale_radius(r_val):
             if r_max == r_min:
                 return self.min_radius
-            # Linear scaling between min_radius and max_radius
             return self.min_radius + ((r_val - r_min) / (r_max - r_min)) * (self.max_radius - self.min_radius)
 
+        def build_tooltip(row):
+            return " | ".join(str(row[col]) for col in self.tooltip_columns if col in row)
 
-        # Group by group column if provided
         if self.group_column:
-            # Group by the group column
             groups = {}
             for row in rows:
                 group = row[self.group_column]
                 if group not in groups:
                     groups[group] = []
-
                 try:
                     x_val = float(row[x_column])
                     y_val = float(row[y_column])
                     r_raw = float(row[r_column])
-                    r_val = scale_radius(r_raw)  # Scale the radius
-
+                    r_val = scale_radius(r_raw)
                     bubble_data = {
                         'x': x_val,
                         'y': y_val,
                         'r': r_val
                     }
-
-                    # Add label if bubble_label_column is provided
                     if self.bubble_label_column and self.bubble_label_column in row:
                         bubble_data['label'] = row[self.bubble_label_column]
-
-                    # Add tooltip if tooltip_column is provided
-                    if self.tooltip_column and self.tooltip_column in row:
-                        bubble_data['tooltip'] = row[self.tooltip_column]
-
+                    if self.tooltip_columns:
+                        bubble_data['tooltip'] = build_tooltip(row)
                     groups[group].append(bubble_data)
                 except (ValueError, KeyError):
-                    # Skip invalid rows
                     continue
-
-            # Create a dataset for each group
             for group, bubble_data in groups.items():
                 self.add_data_values(group, bubble_data)
         else:
-            # No grouping, create a single dataset
             bubble_data = []
             for row in rows:
                 try:
                     x_val = float(row[x_column])
                     y_val = float(row[y_column])
                     r_raw = float(row[r_column])
-                    r_val = scale_radius(r_raw)  # Scale the radius
-
+                    r_val = scale_radius(r_raw)
                     data_point = {
                         'x': x_val,
                         'y': y_val,
                         'r': r_val
                     }
-
-                    # Add label if bubble_label_column is provided
                     if self.bubble_label_column and self.bubble_label_column in row:
                         data_point['label'] = row[self.bubble_label_column]
-
-                    # Add tooltip if tooltip_column is provided
-                    if self.tooltip_column and self.tooltip_column in row:
-                        data_point['tooltip'] = row[self.tooltip_column]
-
+                    if self.tooltip_columns:
+                        data_point['tooltip'] = build_tooltip(row)
                     bubble_data.append(data_point)
                 except (ValueError, KeyError):
-                    # Skip invalid rows
                     continue
-
             self.add_data_values("Bubbles", bubble_data)
         print(f"Bubble chart created with {len(self.data.datasets)} datasets from CSV file: {self.csv_file}")
+
 
 def serve_example_bubble_chart():
     """
@@ -295,11 +280,12 @@ def CSVBubbleChartScript():
                                   "required": False,
                                   "default": None
                               }, {
-                                  "name": "tooltip_column",
-                                  "flags": ["--tooltip_column"],
-                                  "help": "Column to use for bubble tooltips on hover",
+                                  "name": "tooltip_columns",
+                                  "flags": ["--tooltip_columns"],
+                                  "help": "Columns to use for bubble tooltips on hover (comma-separated or repeatable)",
                                   "required": False,
-                                  "default": None
+                                  "default": None,
+                                  "nargs": "+"  # Accepts one or more arguments
                               }
                           ]
                       })
