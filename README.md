@@ -38,7 +38,7 @@ Chart Gizmo is a Python library that provides a wrapper around Chart.js using th
 
 ```bash
 # Clone the repository
-git clone https://github.com/dineshchhantyal/chart_gizmo.git
+git clone https://github.com/AaronWatters/chart_gizmo.git
 cd chart_gizmo
 
 # Create and activate a virtual environment
@@ -78,7 +78,7 @@ Chart Gizmo uses Material for MkDocs for its documentation. You can access the d
 
 ### Online Documentation
 
-Visit our [documentation site](https://dineshchhantyal.github.io/chart_gizmo/) for comprehensive guides, API references, and examples.
+Visit our [documentation site](https://AaronWatters.github.io/chart_gizmo/) for comprehensive guides, API references, and examples.
 
 ### Local Documentation
 

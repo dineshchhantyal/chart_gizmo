@@ -1,10 +1,10 @@
 site_name: Chart Gizmo
-site_url: https://dineshchhantyal.github.io/chart_gizmo/
-repo_url: https://github.com/dineshchhantyal/chart_gizmo
-repo_name: dineshchhantyal/chart_gizmo
-site_author: Dinesh Chhantyal
+site_url: https://github.com/AaronWatters/chart_gizmo
+repo_url: https://github.com/AaronWatters/chart_gizmo
+repo_name: AaronWatters/chart_gizmo
+site_author: Aaron Watters
 site_description: H5Gizmos Library wrapper for Chart.js
-copyright: Copyright &copy; 2023 Dinesh Chhantyal
+copyright: Copyright &copy; 2025 Aaron Watters
 theme:
   name: material
   palette:
@@ -56,5 +56,5 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/dineshchhantyal
-      name: Dinesh Chhantyal on GitHub
+      link: https://github.com/AaronWatters
+      name: Aaron Watters on GitHub
