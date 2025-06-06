@@ -13,7 +13,7 @@ For development or contributing to the project:
 
 ```bash
 # Clone the repository
-git clone https://github.com/dineshchhantyal/chart_gizmo
+git clone https://github.com/AaronWatters/chart_gizmo
 cd chart_gizmo
 
 # Create a virtual environment

@@ -1,10 +1,10 @@
 site_name: Chart Gizmo
-site_url: https://dineshchhantyal.github.io/chart_gizmo/
-repo_url: https://github.com/dineshchhantyal/chart_gizmo
-repo_name: dineshchhantyal/chart_gizmo
-site_author: Dinesh Chhantyal
+site_url: https://github.com/AaronWatters/chart_gizmo
+repo_url: https://github.com/AaronWatters/chart_gizmo
+repo_name: AaronWatters/chart_gizmo
+site_author: Aaron Watters
 site_description: H5Gizmos Library wrapper for Chart.js
-copyright: Copyright &copy; 2023 Dinesh Chhantyal
+copyright: Copyright &copy; 2025 Aaron Watters
 theme:
   name: material
   palette:
@@ -34,6 +34,7 @@ nav:
       - Bubbles: api/bubbles.md
       - Histogram: api/histogram.md
       - Pie: api/pie.md
+      - Box Plot: api/boxplot.md
   - Command Line Tools:
       - Overview: cli/index.md
       - Bar Charts: cli/bar.md
@@ -41,6 +42,7 @@ nav:
       - Bubble Charts: cli/bubble.md
       - Histograms: cli/histogram.md
       - Pie Charts: cli/pie.md
+      - Box Plots: cli/boxplot.md
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -54,5 +56,5 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/dineshchhantyal
-      name: Dinesh Chhantyal on GitHub
+      link: https://github.com/AaronWatters
+      name: Aaron Watters on GitHub
