@@ -1,6 +1,6 @@
 # Box Plot Charts
 
-Box plots (box-and-whisker plots) visualize the distribution of numerical data through their quartiles, highlighting the median, spread, and outliers. Chart Gizmo's boxplot charts are built on [Chart.js BoxPlot plugin](https://github.com/sgratzl/chartjs-chart-boxplot).
+Box plots visualize the distribution of numerical data through their quartiles, highlighting the median, spread, and outliers. Chart Gizmo's boxplot charts are built on [Chart.js BoxPlot plugin](https://github.com/sgratzl/chartjs-chart-boxplot).
 
 ![Sample Box Plot](../screenshots/boxplot.png)
 
