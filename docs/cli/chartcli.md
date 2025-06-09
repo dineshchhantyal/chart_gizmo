@@ -8,7 +8,7 @@ The `ChartCLI` class is designed to be subclassed by specific chart CLI implemen
 
 ### Subclasses
 
-- [`CSVChartCLI`](bubble.md): Handles charts created from CSV files.
+-   [`CSVChartCLI`](bubble.md): Handles charts created from CSV files.
 
 ## Usage
 
@@ -60,19 +60,19 @@ cli.run()
 
 ## Key Methods
 
-- `parse_args(args=None)`: Parse command-line arguments.
-- `create_chart(args)`: Create a chart from parsed arguments (must be implemented by subclasses).
-- `run(args=None)`: Parse arguments, create the chart, and serve it.
+-   `parse_args(args=None)`: Parse command-line arguments.
+-   `create_chart(args)`: Create a chart from parsed arguments (must be implemented by subclasses).
+-   `run(args=None)`: Parse arguments, create the chart, and serve it.
 
 ## Common Arguments
 
-- `--width`: Chart width in pixels (default: 400)
-- `--height`: Chart height in pixels (default: 400)
-- `--stacked`: Create a stacked chart
-- `--log`: Use logarithmic scale for the y-axis
-- `--animate`: Enable or disable animations (default: `False`)
+-   `--width`: Chart width in pixels (default: 400)
+-   `--height`: Chart height in pixels (default: 400)
+-   `--stacked`: Create a stacked chart
+-   `--log`: Use logarithmic scale for the y-axis
+-   `--animate`: Enable or disable animations (default: `False`)
 
 ## Links
 
-- [API Documentation for ChartCLI](../api/charts.md)
-- [CLI Documentation Index](index.md)
+-   [API Documentation for ChartCLI](../api/charts.md)
+-   [CLI Documentation Index](index.md)

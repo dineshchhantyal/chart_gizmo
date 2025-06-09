@@ -48,18 +48,18 @@ csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" 
 
 ## All Options
 
-- `-x`: Column name for x-axis values
-- `-y`: Column name for y-axis values
-- `-r`: Column name for radius/bubble size values
-- `-g`, `--group`: Column name for grouping/coloring bubbles
-- `--min_radius`: Minimum radius size (default: 5)
-- `--max_radius`: Maximum radius size (default: 15)
-- `-w`, `--width`: Width of chart in pixels
-- `--height`: Height of chart in pixels
-- `--title`: Chart title
-- `--bubble_label_column`: Column for bubble labels
-- `--tooltip_columns`: **One or more columns to use for bubble tooltips on hover.** Accepts single comma-separated string.
-- `--animate`: Enable animations (default: no animation)
+-   `-x`: Column name for x-axis values
+-   `-y`: Column name for y-axis values
+-   `-r`: Column name for radius/bubble size values
+-   `-g`: Column name for grouping/coloring bubbles
+-   `--min_radius`: Minimum radius size (default: 5)
+-   `--max_radius`: Maximum radius size (default: 15)
+-   `-w`, `--width`: Width of chart in pixels
+-   `--height`: Height of chart in pixels
+-   `--title`: Chart title
+-   `--bubble_label_column`: Column for bubble labels
+-   `--tooltip_columns`: **One or more columns to use for bubble tooltips on hover.** Accepts single comma-separated string.
+-   `--animate`: Enable animations (default: no animation)
 
 ## Example
 

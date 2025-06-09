@@ -39,39 +39,39 @@ A class to represent a bubble chart. Inherits from [`AbstractChart`](../api/char
 
 ### Constructor Parameters
 
-- `configuration`: Chart data configuration
-- `width`: Chart width in pixels (default: 400)
-- `height`: Chart height in pixels (default: 400)
-- `stacked`: Whether the chart is stacked (not used for bubble charts)
-- `options`: Additional chart options
-- `title`: Chart title
-- `r_column`: Column for radius values
-- `x_column`: Column for x-axis values
-- `y_column`: Column for y-axis values
-- `group_column`: Column for grouping data
-- `min_radius`: Minimum radius for bubbles (default: 5)
-- `max_radius`: Maximum radius for bubbles (default: 20)
-- `animate`(bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
+-   `configuration`: Chart data configuration
+-   `width`: Chart width in pixels (default: 400)
+-   `height`: Chart height in pixels (default: 400)
+-   `stacked`: Whether the chart is stacked (not used for bubble charts)
+-   `options`: Additional chart options
+-   `title`: Chart title
+-   `r_column`: Column for radius values
+-   `x_column`: Column for x-axis values
+-   `y_column`: Column for y-axis values
+-   `group_column`: Column for grouping data
+-   `min_radius`: Minimum radius for bubbles (default: 5)
+-   `max_radius`: Maximum radius for bubbles (default: 20)
+-   `animate`(bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Key Methods
 
-- `add_data_values(label, values, background_color=None, border_color=None, border_width=1)`: Add data values to the chart.
+-   `add_data_values(label, values, background_color=None, border_color=None, border_width=1)`: Add data values to the chart.
 
-  - `label`: The dataset label
-  - `values`: List of data points. Each data point is a dictionary with:
-    - `x`: x-coordinate value
-    - `y`: y-coordinate value
-    - `r`: radius value
-    - `label` (optional): Text label to display on the bubble
-    - `tooltip` (optional): Custom tooltip text for the bubble
-  - `background_color`: Background color for bubbles
-  - `border_color`: Border color for bubbles
-  - `border_width`: Border width for bubbles
+    -   `label`: The dataset label
+    -   `values`: List of data points. Each data point is a dictionary with:
+        -   `x`: x-coordinate value
+        -   `y`: y-coordinate value
+        -   `r`: radius value
+        -   `label` (optional): Text label to display on the bubble
+        -   `tooltip` (optional): Custom tooltip text for the bubble
+    -   `background_color`: Background color for bubbles
+    -   `border_color`: Border color for bubbles
+    -   `border_width`: Border width for bubbles
 
-- `get_default_options()`: Get the default options for the bubble chart.
-- `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
-  - `filepath`: Path where the image file will be saved
-- `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
+-   `get_default_options()`: Get the default options for the bubble chart.
+-   `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
+    -   `filepath`: Path where the image file will be saved
+-   `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
 
 Note: You can use Python assignment expressions to set coordinates and include them in tooltips, for example:
 
@@ -91,10 +91,10 @@ Loads a CSV and creates a bubble chart.
 
 All parameters from `BubbleChart`, plus:
 
-- `csv_file`: Path to the CSV file
-- `bubble_label_column`: Column to use for bubble labels
-- `tooltip_columns`: **List of columns to use for tooltip content.** Accepts a list of column names (space-separated or comma-separated).
-- `animate`: Enable or disable animations (default: `False`)
+-   `csv_file`: Path to the CSV file
+-   `bubble_label_column`: Column to use for bubble labels
+-   `tooltip_columns`: **List of columns to use for tooltip content.** Accepts a list of column names (space-separated or comma-separated).
+-   `animate`: Enable or disable animations (default: `False`)
 
 ### Example
 

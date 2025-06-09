@@ -49,12 +49,12 @@ csv-pie-gizmo life1999.csv -l "Disaggregation" -v "Value" --width 900 --height 7
 
 ## All Options
 
-- `-l`, `--label`: Column name for slice labels
-- `-v`, `--value`: Column name for slice values
-- `-g`, `--group`: Column name for grouping data into multiple datasets
-- `-w`, `--width`: Width of chart in pixels
-- `--height`: Height of chart in pixels
-- `--donut`: Create a donut chart instead of a pie chart
-- `--donut-ratio`: Size of the donut hole (0.0-1.0, default: 0.5)
-- `--title`: Chart title
-- `--animate`: Enable animations (default: no animation)
+-   `-l`: Column name for slice labels
+-   `-v`: Column name for slice values
+-   `-g`: Column name for grouping data into multiple datasets
+-   `-w`, `--width`: Width of chart in pixels
+-   `-H`, `--height`: Height of chart in pixels
+-   `--donut`: Create a donut chart instead of a pie chart
+-   `--donut-ratio`: Size of the donut hole (0.0-1.0, default: 0.5)
+-   `--title`: Chart title
+-   `--animate`: Enable animations (default: no animation)

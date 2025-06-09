@@ -28,13 +28,13 @@ boxplot-gizmo historical_state_population_by_year.csv --columns "Population" -g 
 
 ## All Options
 
-- `--columns`: Comma-separated list of columns to include as boxes (default: all except group column)
-- `-g`: Name of the column to group by (optional)
-- `-l`: Comma-separated list of labels for the x-axis (optional)
-- `--title`: Chart title (optional)
-- `--width`: Chart width in pixels (default: 600)
-- `--height`: Chart height in pixels (default: 400)
-- `--animate`: Enable animations (default: no animation)
+-   `--columns`: Comma-separated list of columns to include as boxes (default: all except group column)
+-   `-g`: Name of the column to group by (optional)
+-   `-l`: Comma-separated list of labels for the x-axis (optional)
+-   `--title`: Chart title (optional)
+-   `--width`: Chart width in pixels (default: 600)
+-   `--height`: Chart height in pixels (default: 400)
+-   `--animate`: Enable animations (default: no animation)
 
 ## More Examples
 
@@ -52,5 +52,5 @@ boxplot-gizmo data/data.csv --columns "Amount" -g "Category"
 
 ## See Also
 
-- [BoxPlotChart API](../api/boxplot.md)
-- [Other CLI Tools](index.md)
+-   [BoxPlotChart API](../api/boxplot.md)
+-   [Other CLI Tools](index.md)

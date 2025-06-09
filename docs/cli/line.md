@@ -36,10 +36,10 @@ csv-line-gizmo life1999.csv -l "Country Name" -v "Value" --width 800 --height 60
 
 ## All Options
 
-- `-l`, `--label`: Column name for labels (x-axis)
-- `-v`, `--value`: Column name for values (y-axis)
-- `-g`, `--group`: Column name for grouping data into series
-- `-w`, `--width`: Width of chart in pixels
-- `--height`: Height of chart in pixels
-- `--title`: Chart title
-- `--animate`: Enable animations (default: no animation)
+-   `-l`, `--label`: Column name for labels (x-axis)
+-   `-v`: Column name for values (y-axis)
+-   `-g`: Column name for grouping data into series
+-   `-w`, `--width`: Width of chart in pixels
+-   `-H`, `--height`: Height of chart in pixels
+-   `--title`: Chart title
+-   `--animate`: Enable animations (default: no animation)

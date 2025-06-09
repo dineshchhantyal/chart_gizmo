@@ -39,21 +39,21 @@ Creates a histogram bar chart from numerical data using numpy's histogram functi
 
 ### Constructor Parameters
 
-- `width` (int): Chart width in pixels (default: 600)
-- `height` (int): Chart height in pixels (default: 400)
-- `title` (str): Chart title
-- `bins` (int): Number of bins for the histogram
-- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
+-   `width` (int): Chart width in pixels (default: 600)
+-   `height` (int): Chart height in pixels (default: 400)
+-   `title` (str): Chart title
+-   `bins` (int): Number of bins for the histogram
+-   `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Key Methods
 
-- `create_histogram(data)`: Create a histogram from data.
-- `from_file(filename, **kwargs)`: Create a histogram from a file.
-- `add_label(label)`: Add a label for each data point to the chart. The label should match the dataset value size.
-- `set_data(data)`: Set the data for the histogram. Data should be a list or NumPy array of numerical values.
-- `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
-- `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
-  - `filepath`: Path where the image file will be saved
+-   `create_histogram(data)`: Create a histogram from data.
+-   `from_file(filename, **kwargs)`: Create a histogram from a file.
+-   `add_label(label)`: Add a label for each data point to the chart. The label should match the dataset value size.
+-   `set_data(data)`: Set the data for the histogram. Data should be a list or NumPy array of numerical values.
+-   `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
+-   `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
+    -   `filepath`: Path where the image file will be saved
 
 ## Example
 
@@ -70,6 +70,6 @@ serve(chart.show())
 
 ### Command-line Script
 
-- `HistogramGizmoScript()`: Command-line script to create histogram from file.
+-   `HistogramGizmoScript()`: Command-line script to create histogram from file.
 
 See the [Histogram CLI documentation](../cli/histogram.md) for detailed usage instructions on the command-line tool.

@@ -71,12 +71,12 @@ histogram-gizmo data/sample_10000.txt --animate
 
 ## All Options
 
-- `-b`, `--bins`: Number of bins for the histogram (default: 30)
-- `-d`, `--density`: Create a density plot instead of frequency count (default: False)
-- `-r`, `--range`: Range of values to include as "min max" (e.g., "30 70")
-- `-w`, `--width`: Width of chart in pixels
-- `--height`: Height of chart in pixels
-- `--title`: Chart title
-- `--x-label`: Label for x-axis
-- `--y-label`: Label for y-axis
-- `--animate`: Enable animations (default: no animation)
+-   `-b`, `--bins`: Number of bins for the histogram (default: 30)
+-   `-d`, `--density`: Create a density plot instead of frequency count (default: False)
+-   `-r`, `--range`: Range of values to include as "min max" (e.g., "30 70")
+-   `-w`, `--width`: Width of chart in pixels
+-   `--height`: Height of chart in pixels
+-   `--title`: Chart title
+-   `--x-label`: Label for x-axis
+-   `--y-label`: Label for y-axis
+-   `--animate`: Enable animations (default: no animation)

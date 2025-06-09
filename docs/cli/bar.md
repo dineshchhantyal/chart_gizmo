@@ -30,11 +30,11 @@ csv-bar-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation" --wi
 
 ## All Options
 
-- `-l`, `--label`: Column name for labels (x-axis)
-- `-v`, `--value`: Column name for values (y-axis)
-- `-g`, `--group`: Column name for grouping data into series
-- `-w`, `--width`: Width of chart in pixels
-- `--height`: Height of chart in pixels
-- `--title`: Chart title
-- `--stacked`: Use stacked bar chart (default: False)
-- `--animate`: Enable animations (default: no animation)
+-   `-l`, `--label_column`: Column name for labels (x-axis)
+-   `-v`, `--value_column`: Column name for values (y-axis)
+-   `-g`, `--group_column`: Column name for grouping data into series
+-   `-w`, `--width`: Width of chart in pixels
+-   `-H`, `--height`: Height of chart in pixels
+-   `--title`: Chart title
+-   `--stacked`: Use stacked bar chart (default: False)
+-   `--animate`: Enable animations (default: no animation)
