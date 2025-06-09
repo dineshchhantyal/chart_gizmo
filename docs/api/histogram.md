@@ -72,3 +72,8 @@ chart.set_data([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])
 
 serve(chart.show())
 ```
+
+## Methods
+
+- `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
+  - `filepath`: Path where the image file will be saved

@@ -69,7 +69,8 @@ A class to represent a bubble chart. Inherits from [`AbstractChart`](../api/char
   - `border_width`: Border width for bubbles
 
 - `get_default_options()`: Get the default options for the bubble chart.
-- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`.
+- `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
+  - `filepath`: Path where the image file will be saved
 
 ## Class: CSVBubbleChart
 

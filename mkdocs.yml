@@ -25,7 +25,6 @@ nav:
   - Home: index.md
   - Introduction: introduction.md
   - Installation: installation.md
-  - Examples: examples.md
   - API Reference:
       - Overview: api/index.md
       - Charts: api/charts.md
@@ -35,6 +34,8 @@ nav:
       - Histogram: api/histogram.md
       - Pie: api/pie.md
       - Box Plot: api/boxplot.md
+      - Examples: api/examples.md
+
   - Command Line Tools:
       - Overview: cli/index.md
       - Chart CLI: cli/chartcli.md

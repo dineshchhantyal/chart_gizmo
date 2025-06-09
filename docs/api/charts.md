@@ -43,7 +43,7 @@ AbstractChart(configuration=None, width=400, height=400, stacked=False, options=
   - `border_width`: Border width for the dataset elements
 - `get_configuration()`: Get the complete chart configuration as a dictionary ready for Chart.js.
 - `get_default_options()`: Get the default chart options, can be overridden by subclasses.
-- `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called.
+- `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
   - `filepath`: Path where the image file will be saved
 
 All specific chart types inherit from this class and may override or extend its methods. The configuration options follow [Chart.js documentation](https://www.chartjs.org/docs/latest/configuration/) but are exposed through a Python interface.

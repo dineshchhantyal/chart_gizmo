@@ -42,7 +42,8 @@ A class to represent a bar chart. Inherits from [`AbstractChart`](../api/charts.
 - `add_dataset(dataset)`: Add a dataset to the chart.
 - `add_data_values(label, values=(), background_color=None, border_color=None, border_width=1)`: Add data values to the chart.
 - `get_configuration()`: Get the chart configuration.
-- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`.
+- `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
+  - `filepath`: Path where the image file will be saved
 
 ## Class: TabularBarChart
 
