@@ -270,7 +270,7 @@ class CSVChartCLI(ChartCLI):
 
         # Add custom args and other specific args (like r_column) if present
         for key, value in vars(args).items():
-            if key not in kwargs and value is not None and key != "log":
+            if key not in kwargs and value is not None and key != "log" and key != "log_x":
                 kwargs[key] = value
 
         return self.chart_cls(**kwargs)

@@ -70,6 +70,7 @@ cli.run()
 -   `--height`: Chart height in pixels (default: 400)
 -   `--stacked`: Create a stacked chart
 -   `--log`: Use logarithmic scale for the y-axis
+-   `--log-x`: Use logarithmic scale for the x-axis
 -   `--animate`: Enable or disable animations (default: `False`)
 
 ## Links

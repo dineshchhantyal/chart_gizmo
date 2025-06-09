@@ -223,56 +223,91 @@ class HistogramBarChart(BarChart):
         return cls(data=data, **kwargs)
 
 
-def HistogramGizmoScript():
-    """Command-line script to create histogram from file"""
+class HistogramBarChartCLI(ChartCLI):
+    """
+    Command-line interface for creating histogram bar charts.
+    """
+    def __init__(self, chart_cls, custom_args=None, description=None):
+        """
+        Initialize the CLI with custom arguments.
 
-    parser = argparse.ArgumentParser(description="Create a histogram from a file of numbers.")
-    parser.add_argument("file", help="File to read (.npy or text file with whitespace-separated numbers)")
-    parser.add_argument("-b", "--bins", type=int, default=10, help="Number of bins")
-    parser.add_argument("-r", "--range", type=float, nargs=2, help="Range for binning (min max)")
-    parser.add_argument("-d", "--density", action="store_true", help="Normalize to create a probability density")
-    parser.add_argument("-w", "--width", type=int, default=800, help="Width of the chart")
-    parser.add_argument("--height", type=int, default=500, help="Height of the chart")
-    parser.add_argument("--title", type=str, help="Chart title")
-    parser.add_argument("--x-label", type=str, help="Custom X-axis label")
-    parser.add_argument("--y-label", type=str, help="Custom Y-axis label")
-    parser.add_argument("--animate", action="store_true", help="Enable animations")
-    parser.add_argument("--log", action="store_true", help="Use logarithmic scale for y-axis")
+        Parameters
+        ----------
+        chart_cls : class
+            The chart class to create (e.g., HistogramBarChart)
+        custom_args : dict, optional
+            Custom arguments configuration, e.g., {
+                "custom_commands_args": [
+                    {"name": "custom_arg", "flags": ["-x", "--custom-arg"], "help": "Custom argument", "required": False}
+                ]
+            }
+        description : str, optional
+            Custom description for the CLI
+        """
+        self.custom_args = custom_args or {}
+        super().__init__(chart_cls, description)
+
+    def _add_common_arguments(self, parser):
+        """Add common and custom arguments to the parser."""
+        super()._add_common_arguments(parser)
+        parser.add_argument("file", help="File to read (.npy or text file with whitespace-separated numbers)")
+        parser.add_argument("-b", "--bins", type=int, default=10, help="Number of bins")
+        parser.add_argument("-r", "--range", type=float, nargs=2, help="Range for binning (min max)")
+        parser.add_argument("-d", "--density", action="store_true", help="Normalize to create a probability density")
+        parser.add_argument("--title", type=str, help="Chart title")
+        parser.add_argument("--x-label", type=str, help="Custom X-axis label")
+        parser.add_argument("--y-label", type=str, help="Custom Y-axis label")
+        parser.add_argument("--animate", action="store_true", help="Enable animations")
 
 
-    args = parser.parse_args()
 
-    # Check if file exists
-    if not os.path.exists(args.file):
-        print(f"Error: file not found: {args.file}", file=sys.stderr)
-        sys.exit(1)
+    def create_chart(self, args):
+        """
+        Create a histogram bar chart from parsed arguments.
 
-    try:
-        # Create histogram
-        histogram = HistogramBarChart.from_file(
-            args.file,
+        Parameters
+        ----------
+        args : argparse.Namespace
+            Parsed arguments
+
+        Returns
+        -------
+        HistogramBarChart
+            The created histogram chart instance
+        """
+        # Validate file existence
+        if not os.path.exists(args.file):
+            raise FileNotFoundError(f"File not found: {args.file}")
+
+        # Load data and create histogram
+        data = np.loadtxt(args.file) if args.file.endswith(".txt") else np.load(args.file)
+        histogram = HistogramBarChart(
+            data=data,
             bins=args.bins,
             range=tuple(args.range) if args.range else None,
             density=args.density,
             width=args.width,
             height=args.height,
             x_label=args.x_label,
-            y_label=args.y_label
+            y_label=args.y_label,
+            animate=args.animate
         )
+
+        # Apply logarithmic scale if specified
+        if args.log:
+            histogram.logarithmic(axis="y", value=True)
 
         # Set custom title if provided
         if args.title:
             histogram.options["plugins"]["title"]["text"] = args.title
-        if args.log:
-            histogram.logarithmic(axis="y", value=True)
+
+        return histogram
 
 
-        # Serve the histogram
-        serve(histogram.show())
-
-    except Exception as e:
-        print(f"Error creating histogram: {e}", file=sys.stderr)
-        sys.exit(1)
+def HistogramGizmoScript():
+    """Command-line script to create histogram from file"""
+    cli = HistogramBarChartCLI(HistogramBarChart, description="Create a histogram bar chart from a file of numbers.")
+    cli.run()
 
 
 def serve_example_histogram():
@@ -280,7 +315,7 @@ def serve_example_histogram():
     Serve an example histogram.
     """
     import numpy as np
-    data = np.random.randn(1000)  # 1000 points from standard normal distribution
+    data = np.random.randn(10000)  # 10000 points from standard normal distribution
     histogram = HistogramBarChart(data, bins=30)
     serve(histogram.show())
 
@@ -289,6 +324,6 @@ def serve_example_histogram():
 if __name__ == "__main__":
     # Example usage
     import numpy as np
-    data = np.random.randn(1000)  # 1000 points from standard normal distribution
+    data = np.random.randn(10000)  # 10000 points from standard normal distribution
     histogram = HistogramBarChart(data, bins=30)
     serve(histogram.show())
