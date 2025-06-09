@@ -63,6 +63,12 @@ histogram-gizmo data/sample_10000.txt -b 50 -d -r 20 80 --title "Sample Data Dis
 histogram-gizmo data/perfect_normal.npy
 ```
 
+### Enable Animations
+
+```bash
+histogram-gizmo data/sample_10000.txt --animate
+```
+
 ## All Options
 
 - `-b`, `--bins`: Number of bins for the histogram (default: 30)
@@ -73,3 +79,4 @@ histogram-gizmo data/perfect_normal.npy
 - `--title`: Chart title
 - `--x-label`: Label for x-axis
 - `--y-label`: Label for y-axis
+- `--animate`: Enable animations (default: no animation)

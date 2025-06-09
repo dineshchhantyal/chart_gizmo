@@ -102,11 +102,12 @@ PieChart(configuration=None, width=400, height=400, donut=False, donut_ratio=0.5
 **Parameters:**
 
 - `configuration`: Optional chart configuration
-- `width`: Chart width in pixels
-- `height`: Chart height in pixels
-- `donut`: If True, creates a donut chart instead of a pie chart
-- `donut_ratio`: The size of the hole in a donut chart (0-1)
-- `options`: Additional Chart.js options
+- `width` (int): Chart width in pixels (default: 400)
+- `height` (int): Chart height in pixels (default: 400)
+- `title` (str): Chart title
+- `donut` (bool): Whether to render the chart as a donut chart
+- `donut_ratio` (float): Ratio of the donut hole size (0-1)
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 **Methods:**
 
@@ -133,9 +134,14 @@ CSVPieChart(csv_file, label_column=None, value_column=None, width=400, height=40
 - `donut_ratio`: The size of the hole in a donut chart (0-1)
 - `configuration`: Optional chart configuration
 - `options`: Additional Chart.js options
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Command-line Script
 
 - `CSVPieChartScript()`: Command-line entrypoint for CSVPieChart.
 
 See the [Pie Chart CLI documentation](../cli/pie.md) for detailed usage instructions on the command-line tool.
+
+### Description
+
+A class to represent a pie chart. Inherits from [`AbstractChart`](../api/charts.md).

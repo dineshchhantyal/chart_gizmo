@@ -19,7 +19,7 @@ class BubbleChart(AbstractChart):
     """
     def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None,
                  title=None, r_column=None, x_column=None, y_column=None, group_column=None,
-                 min_radius=None, max_radius=None):
+                 min_radius=None, max_radius=None, animate=None):
         """
         Initialize the BubbleChart.
 
@@ -39,7 +39,7 @@ class BubbleChart(AbstractChart):
             bubble_label_column: Column for bubble labels
             tooltip_column: Column for tooltip content
         """
-        super().__init__(configuration, width, height, stacked, options, title)
+        super().__init__(configuration, width, height, stacked, options, title, animate=animate)
         self.title = title
         self.type = "bubble"
 
@@ -87,7 +87,7 @@ class CSVBubbleChart(BubbleChart):
     def __init__(self, csv_file, x_column, y_column, r_column,
                  group_column=None, width=400, height=400, stacked=False,
                  configuration=None, options=None, min_radius=5, max_radius=20,
-                 title=None, bubble_label_column=None, tooltip_columns=None):
+                 title=None, bubble_label_column=None, tooltip_columns=None, animate=None):
 
         # Accept both comma-separated string or list of strings
         if tooltip_columns is None:
@@ -112,7 +112,8 @@ class CSVBubbleChart(BubbleChart):
             y_column=y_column,
             group_column=group_column,
             min_radius=min_radius,
-            max_radius=max_radius
+            max_radius=max_radius,
+            animate=animate
         )
 
         self.csv_file = csv_file

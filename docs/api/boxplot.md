@@ -25,7 +25,7 @@ serve(chart.show())
 
 ### Description
 
-A class to represent a box plot chart. Inherits from `AbstractChart`.
+A class to represent a box plot chart. Inherits from [`AbstractChart`](../api/charts.md).
 
 ### Constructor Parameters
 
@@ -35,6 +35,7 @@ A class to represent a box plot chart. Inherits from `AbstractChart`.
 - `options`: Additional chart options (optional)
 - `title`: Chart title (optional)
 - `stacked`: Whether to stack boxplots (default: False)
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Key Methods
 
@@ -59,6 +60,7 @@ Create a boxplot chart from a CSV file. Supports classic and grouped boxplots.
 - `width`: Chart width in pixels (default: 600)
 - `height`: Chart height in pixels (default: 400)
 - `title`: Chart title (optional)
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Example: Classic Boxplot from CSV
 

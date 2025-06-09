@@ -34,7 +34,7 @@ serve(chart.show())
 
 ### Description
 
-A class to represent a bar chart. Inherits from `AbstractChart`.
+A class to represent a bar chart. Inherits from [`AbstractChart`](../api/charts.md).
 
 ### Key Methods
 
@@ -64,6 +64,7 @@ Create a bar chart from a tabular data source (a list of dictionaries).
 - `configuration`: Chart.js configuration (optional)
 - `options`: Additional chart options (optional)
 - `title`: Chart title (optional)
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Example
 
@@ -107,6 +108,7 @@ Create a bar chart from a CSV file. Inherits from `TabularBarChart`.
 - `configuration`: Chart.js configuration (optional)
 - `options`: Additional chart options (optional)
 - `title`: Chart title (optional)
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Example
 

@@ -4,6 +4,8 @@ The `csv-bar-gizmo` command-line tool allows you to quickly create bar charts fr
 
 ![Sample Bar Chart](../screenshots/barchart.png)
 
+This CLI is built on top of the [`ChartCLI`](chartcli.md) base class. For more details on the base CLI class, see the [ChartCLI Documentation](chartcli.md).
+
 ## Basic Usage
 
 ```bash
@@ -35,3 +37,4 @@ csv-bar-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation" --wi
 - `--height`: Height of chart in pixels
 - `--title`: Chart title
 - `--stacked`: Use stacked bar chart (default: False)
+- `--animate`: Enable animations (default: no animation)

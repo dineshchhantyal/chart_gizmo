@@ -14,8 +14,38 @@ class ChartCLI:
     """
     Base class for chart command-line interfaces.
 
-    This class handles argument parsing and chart display,
-    while subclasses handle specific data loading.
+    This class provides a flexible framework for creating charts from the command line.
+    It handles argument parsing, chart creation, and chart display.
+
+    Subclasses should implement the `create_chart` method to define how charts are created
+    based on parsed arguments.
+
+    **Subclasses:**
+    - [`CSVChartCLI`](../api/cli.md): Handles charts created from CSV files.
+
+    **Usage:**
+    ```python
+    from chart_gizmo.cli import ChartCLI
+
+    class MyCustomCLI(ChartCLI):
+        def create_chart(self, args):
+            # Custom chart creation logic
+            pass
+
+    cli = MyCustomCLI(MyChartClass)
+    cli.run()
+    ```
+
+    **Key Methods:**
+    - `parse_args(args=None)`: Parse command-line arguments.
+    - `create_chart(args)`: Create a chart from parsed arguments (must be implemented by subclasses).
+    - `run(args=None)`: Parse arguments, create the chart, and serve it.
+
+    **Common Arguments:**
+    - `--width`: Chart width in pixels (default: 400)
+    - `--height`: Chart height in pixels (default: 400)
+    - `--stacked`: Create a stacked chart
+    - `--log`: Use logarithmic scale for the y-axis
     """
 
     def __init__(self, chart_cls, description=None):
@@ -150,6 +180,11 @@ class CSVChartCLI(ChartCLI):
         parser.add_argument("-v", "--value_column", help="Column for values (y-axis)")
         parser.add_argument("-g", "--group_column", help="Column for grouping data series")
         parser.add_argument("-t", "--title", help="Chart title")
+        parser.add_argument(
+            '--animate',
+            action='store_true',
+            help='Enable animations (default: no animation)'
+        )
 
 
         # Add any custom command arguments

@@ -8,6 +8,7 @@ Chart Gizmo provides several command-line tools for quick visualization of data.
 
 Chart Gizmo provides the following command-line tools:
 
+- [ChartCLI](chartcli.md) - Base class for all command-line interfaces.
 - [Bar Chart CLI](bar.md) - Create bar charts from CSV files
 - [Line Chart CLI](line.md) - Create line charts from CSV files
 - [Bubble Chart CLI](bubble.md) - Create bubble charts from CSV files

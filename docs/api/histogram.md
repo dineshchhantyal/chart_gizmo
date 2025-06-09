@@ -33,16 +33,42 @@ serve(histogram.show())
 
 ### Description
 
+A class to represent a histogram bar chart. Inherits from [`AbstractChart`](../api/charts.md).
+
 Creates a histogram bar chart from numerical data using numpy's histogram functionality. Inherits from `BarChart`.
 
 ### Key Methods
 
 - `create_histogram(data)`: Create a histogram from data.
 - `from_file(filename, **kwargs)`: Create a histogram from a file.
-- `saveImage(filepath)`: Save the chart as a PNG image file. This is an async method and must be used with `await`.
+- `add_label(label)`: Add a label for each data point to the chart. The label should match the dataset value size.
+- `set_data(data)`: Set the data for the histogram. Data should be a list or NumPy array of numerical values.
 
 ### Command-line Script
 
 - `HistogramGizmoScript()`: Command-line script to create histogram from file.
 
 See the [Histogram CLI documentation](../cli/histogram.md) for detailed usage instructions on the command-line tool.
+
+# HistogramBarChart API
+
+## Parameters
+
+- `width` (int): Chart width in pixels (default: 600)
+- `height` (int): Chart height in pixels (default: 400)
+- `title` (str): Chart title
+- `bins` (int): Number of bins for the histogram
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
+
+## Example
+
+```python
+from chart_gizmo.histogrambar import HistogramBarChart
+from H5Gizmos import serve
+
+chart = HistogramBarChart(title="Example Histogram", animate=False)
+
+chart.set_data([1, 2, 2, 3, 3, 3, 4, 4, 4, 4])
+
+serve(chart.show())
+```

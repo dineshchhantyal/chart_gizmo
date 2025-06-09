@@ -39,7 +39,7 @@ serve(chart.show())
 
 ### Description
 
-A class to represent a line chart. Inherits from `AbstractChart`.
+A class to represent a line chart. Inherits from [`AbstractChart`](../api/charts.md).
 
 ### Key Methods
 
@@ -55,7 +55,7 @@ A class to represent a line chart. Inherits from `AbstractChart`.
 
 ### Description
 
-Create a line chart from a CSV file. Inherits from `CSVBarChart`.
+Create a line chart from a CSV file. Inherits from [`CSVBarChart`](../api/bars.md).
 
 ### Constructor Parameters
 
@@ -69,6 +69,7 @@ Create a line chart from a CSV file. Inherits from `CSVBarChart`.
 - `configuration`: Chart.js configuration (optional)
 - `options`: Additional chart options (optional)
 - `title`: Chart title (optional)
+- `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Example
 
@@ -77,14 +78,15 @@ from chart_gizmo.lines import CSVLineChart
 from H5Gizmos import serve
 
 chart = CSVLineChart(
-    csv_file="data.csv",
-    label_column="Month",
-    value_column="Temperature",
-    group_column="City",
+    csv_file="data/data.csv",
+    label_column="Category",
+    value_column="Amount",
+    group_column="Year",
     width=800,
     height=400,
     stacked=False,
-    title="Monthly Temperatures"
+    title="Yearly expenses",
+    animate=True,
 )
 serve(chart.show())
 ```

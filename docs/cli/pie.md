@@ -57,3 +57,4 @@ csv-pie-gizmo life1999.csv -l "Disaggregation" -v "Value" --width 900 --height 7
 - `--donut`: Create a donut chart instead of a pie chart
 - `--donut-ratio`: Size of the donut hole (0.0-1.0, default: 0.5)
 - `--title`: Chart title
+- `--animate`: Enable animations (default: no animation)

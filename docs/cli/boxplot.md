@@ -15,7 +15,7 @@ This creates a boxplot for the "Amount" and "Score" columns in the CSV file.
 ## Grouped Boxplot Example
 
 ```bash
-boxplot-gizmo data/data.csv --columns "Amount,Score" --group-column "Year"
+boxplot-gizmo data/data.csv --columns "Amount,Score" -g "Year"
 ```
 
 This creates a grouped boxplot, grouping by the "Year" column.
@@ -23,17 +23,18 @@ This creates a grouped boxplot, grouping by the "Year" column.
 ## Real-World Example: State Population by Year
 
 ```bash
-boxplot-gizmo historical_state_population_by_year.csv --columns "California,Texas,New York" --group-column "Year" --title "State Population Distribution by Year"
+boxplot-gizmo historical_state_population_by_year.csv --columns "Population" -g "Year" --title "State Population Distribution by Year" --animate
 ```
 
 ## All Options
 
 - `--columns`: Comma-separated list of columns to include as boxes (default: all except group column)
-- `--group-column`: Name of the column to group by (optional)
-- `--labels`: Comma-separated list of labels for the x-axis (optional)
+- `-g`: Name of the column to group by (optional)
+- `-l`: Comma-separated list of labels for the x-axis (optional)
 - `--title`: Chart title (optional)
 - `--width`: Chart width in pixels (default: 600)
 - `--height`: Chart height in pixels (default: 400)
+- `--animate`: Enable animations (default: no animation)
 
 ## More Examples
 

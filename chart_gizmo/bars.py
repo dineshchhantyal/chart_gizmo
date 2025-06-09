@@ -33,8 +33,14 @@ class BarChart(AbstractChart):
             configuration=None,
             width=400,
             height=400,
-            stacked=False, options=None, title=None):
-        super().__init__(configuration, width, height, stacked, options, title)
+            options=None,
+            title=None,
+            stacked=False,
+            animate=AbstractChart.ANIMATION_DEFAULT,
+            **kwargs
+        ):
+        # Pass 'stacked' explicitly and remove it from kwargs
+        super().__init__(configuration, width, height, options, title, animate=animate, **kwargs)
         self.configuration = configuration
         self.type = "bar"
         self.data = None
@@ -60,12 +66,14 @@ class TabularBarChart(BarChart):
             stacked=False,
             configuration=None,
             options=None,
-            title=None
+            title=None,
+            animate=AbstractChart.ANIMATION_DEFAULT,
+            **kwargs
         ):
         """
         Create a bar chart from a tabular data source represented as a list of dictionaries.
         """
-        super().__init__(configuration, width, height, stacked, options, title)
+        super().__init__(configuration, width, height, stacked, options, title, animate=animate, **kwargs)
         self.dictionaries = dictionaries
         self.label_column = label_column
         self.value_columns = value_column
@@ -113,14 +121,16 @@ class CSVBarChart(TabularBarChart):
             stacked=False,
             configuration=None,
             options=None,
-            title=None
+            title=None,
+            animate=AbstractChart.ANIMATION_DEFAULT,
+            **kwargs
         ):
         import csv
         dictionaries = []
         with open(csv_file, "r") as f:
             reader = csv.DictReader(f)
             dictionaries = list(reader)
-        super().__init__(dictionaries, label_column, value_column, group_column, width, height, stacked, configuration, options, title)
+        super().__init__(dictionaries, label_column, value_column, group_column, width, height, stacked, configuration, options, title, animate=animate, **kwargs)
 
 def CSVBarChartScript():
     "Command line script to create a CSV bar chart."

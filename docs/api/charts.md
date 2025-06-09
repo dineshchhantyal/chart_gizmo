@@ -24,6 +24,7 @@ AbstractChart(configuration=None, width=400, height=400, stacked=False, options=
 - `height`: Chart height in pixels (default: 400)
 - `stacked`: Boolean indicating whether the chart should be stacked (default: False)
 - `options`: Optional dictionary with Chart.js options
+- `animate`: Boolean to enable or disable animations (default: False, controlled by the symbolic constant `ANIMATION_DEFAULT`)
 
 ### Key Methods
 

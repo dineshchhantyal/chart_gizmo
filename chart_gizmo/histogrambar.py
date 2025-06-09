@@ -17,7 +17,7 @@ class HistogramBarChart(BarChart):
 
     def __init__(self, data=None, bins=10, range=None, density=False, weights=None,
                  width=600, height=400, configuration=None, options=None,
-                 x_label=None, y_label=None):
+                 x_label=None, y_label=None, animate=None, **kwargs):
         """
         Initialize a histogram bar chart.
 
@@ -45,8 +45,10 @@ class HistogramBarChart(BarChart):
             Custom X-axis label (defaults to "Value")
         y_label : str, optional
             Custom Y-axis label (defaults to "Frequency" or "Density")
+        animate : bool, optional
+            Enable or disable animations
         """
-        super().__init__(configuration, width, height, stacked=False, options=options)
+        super().__init__(configuration, width, height, options=options, animate=animate, **kwargs)
 
         # Store histogram parameters
         self.bins = bins
@@ -173,6 +175,10 @@ class HistogramBarChart(BarChart):
                     "categoryPercentage": 1.0,
                     "borderWidth": 0
                 }
+            },
+            "animation": {
+                "duration": 800 if self.animate else 0,  # Use animation duration if enabled
+                "easing": "easeInOutQuad" if self.animate else "linear"
             }
         }
 
@@ -229,6 +235,7 @@ def HistogramGizmoScript():
     parser.add_argument("--title", type=str, help="Chart title")
     parser.add_argument("--x-label", type=str, help="Custom X-axis label")
     parser.add_argument("--y-label", type=str, help="Custom Y-axis label")
+    parser.add_argument("--animate", action="store_true", help="Enable animations")
 
     args = parser.parse_args()
 

@@ -35,7 +35,7 @@ serve(chart.show())
 
 ### Description
 
-A class to represent a bubble chart. Inherits from `AbstractChart`.
+A class to represent a bubble chart. Inherits from [`AbstractChart`](../api/charts.md).
 
 ### Constructor Parameters
 
@@ -51,6 +51,7 @@ A class to represent a bubble chart. Inherits from `AbstractChart`.
 - `group_column`: Column for grouping data
 - `min_radius`: Minimum radius for bubbles (default: 5)
 - `max_radius`: Maximum radius for bubbles (default: 20)
+- `animate`(bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
 
 ### Key Methods
 
@@ -85,6 +86,7 @@ All parameters from `BubbleChart`, plus:
 - `csv_file`: Path to the CSV file
 - `bubble_label_column`: Column to use for bubble labels
 - `tooltip_columns`: **List of columns to use for tooltip content.** Accepts a list of column names (space-separated or comma-separated).
+- `animate`: Enable or disable animations (default: `False`)
 
 ### Example
 
@@ -94,7 +96,7 @@ from H5Gizmos import serve
 
 # Create a bubble chart from CSV data
 chart = CSVBubbleChart(
-    csv_file="gapminder.csv",
+    csv_file="gapminderDataFiveYear.csv",
     x_column="gdpPercap",
     y_column="lifeExp",
     r_column="pop",

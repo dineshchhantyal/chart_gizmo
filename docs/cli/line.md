@@ -4,6 +4,8 @@ The `csv-line-gizmo` command-line tool allows you to quickly create line charts 
 
 ![Sample Line Chart](../screenshots/linechart.png)
 
+This CLI is built on top of the [`ChartCLI`](chartcli.md) base class. For more details on the base CLI class, see the [ChartCLI Documentation](chartcli.md).
+
 ## Basic Usage
 
 ```bash
@@ -40,3 +42,4 @@ csv-line-gizmo life1999.csv -l "Country Name" -v "Value" --width 800 --height 60
 - `-w`, `--width`: Width of chart in pixels
 - `--height`: Height of chart in pixels
 - `--title`: Chart title
+- `--animate`: Enable animations (default: no animation)

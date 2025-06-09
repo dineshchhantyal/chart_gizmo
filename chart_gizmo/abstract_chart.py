@@ -6,6 +6,8 @@ from . import raw_chart
 from . import data_config
 
 class AbstractChart(raw_chart.RawChart):
+    ANIMATION_DEFAULT = False
+
     """
     Base class for all chart types (bar, line, etc.).
     Provides common functionality while specific chart types set their own type.
@@ -16,7 +18,8 @@ class AbstractChart(raw_chart.RawChart):
             width=400,
             height=400,
             stacked=False,
-            options=None, title=None,):
+            options=None, title=None,
+            animate=ANIMATION_DEFAULT, **kwargs):
         super().__init__(configuration, width, height)
         self.configuration = configuration
         # Chart type should be set by subclasses
@@ -26,17 +29,26 @@ class AbstractChart(raw_chart.RawChart):
         # only allow data configuration if configuration is None
         if configuration is None:
             self.data = data_config.ChartData()
+        # Ensure options is a dictionary
+        if not isinstance(options, dict):
+            options = {}  # Initialize as an empty dictionary if None or invalid
         self.options = options
+        self.animate = animate
 
         if title is not None:
-            if self.options is None:
-                self.options = {}
             if "plugins" not in self.options:
                 self.options["plugins"] = {}
             if "title" not in self.options["plugins"]:
                 self.options["plugins"]["title"] = {}
             self.options["plugins"]["title"]["display"] = True
             self.options["plugins"]["title"]["text"] = title
+
+        if not self.animate:
+            if "animation" not in self.options:
+                self.options["animation"] = {}
+            # disable animation by default
+            if "duration" not in self.options["animation"]:
+                self.options["animation"]["duration"] = 0
 
     def clear(self):
         """

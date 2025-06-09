@@ -11,8 +11,8 @@ class LineChart(AbstractChart):
     """
     LineChart class for creating line charts.
     """
-    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None):
-        super().__init__(configuration, width, height, stacked, options)
+    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None, animate=None):
+        super().__init__(configuration, width, height, stacked, options, animate=animate)
         self.type = "line"
 
     def get_default_options(self):
@@ -32,7 +32,7 @@ class CSVLineChart(CSVBarChart):
     Loads a CSV and then calls super().__init__(...) exactly
     like CSVBarChart does.
     """
-    def __init__(self, csv_file, label_column, value_column, group_column=None, width=400, height=400, stacked=False, configuration=None, options=None, title=None):
+    def __init__(self, csv_file, label_column, value_column, group_column=None, width=400, height=400, stacked=False, configuration=None, options=None, title=None, animate=None):
         super().__init__(
             csv_file,
             label_column,
@@ -43,7 +43,8 @@ class CSVLineChart(CSVBarChart):
             stacked,
             configuration,
             options,
-            title
+            title,
+            animate=animate
         )
         # After initialization, set the chart type to line
         self.type = "line"

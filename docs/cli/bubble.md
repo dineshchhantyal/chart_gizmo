@@ -4,6 +4,8 @@ The `csv-bubble-gizmo` command-line tool allows you to quickly create bubble cha
 
 ![Sample Bubble Chart](../screenshots/bubblechart.png)
 
+This CLI is built on top of the [`ChartCLI`](chartcli.md) base class. For more details on the base CLI class, see the [ChartCLI Documentation](chartcli.md).
+
 ## Basic Usage
 
 ```bash
@@ -57,3 +59,12 @@ csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" 
 - `--title`: Chart title
 - `--bubble_label_column`: Column for bubble labels
 - `--tooltip_columns`: **One or more columns to use for bubble tooltips on hover.** Accepts single comma-separated string.
+- `--animate`: Enable animations (default: no animation)
+
+## Example
+
+```bash
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" --animate
+```
+
+This will create a bubble chart with animations enabled, using the "gdpPercap" column for x-axis, "lifeExp" for y-axis, and "pop" for bubble size.

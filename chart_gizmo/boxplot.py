@@ -19,9 +19,10 @@ class BoxPlotChart(AbstractChart):
         options=None,
         title=None,
         stacked=False,
+        animate=AbstractChart.ANIMATION_DEFAULT,
         **kwargs
     ):
-        super().__init__(configuration, width, height, stacked=stacked, options=options, title=title, **kwargs)
+        super().__init__(configuration, width, height, options, title, animate=animate, **kwargs)
 
         self.type = "boxplot"
         self.data = None
@@ -53,8 +54,8 @@ class CSVBoxPlotChart(BoxPlotChart):
     Loads a CSV and creates a boxplot chart.
     Each column is a group, each row is a sample.
     """
-    def __init__(self, csv_file, labels=None, columns=None, group_column=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, csv_file, labels=None, columns=None, group_column=None, animate=AbstractChart.ANIMATION_DEFAULT, **kwargs):
+        super().__init__(animate=animate, **kwargs)
         self.csv_file = csv_file
         self.labels = labels
         self.columns = self.cleaned_columns(columns) if columns else None
@@ -109,6 +110,9 @@ class CSVBoxPlotChart(BoxPlotChart):
             return
 
         # Group by group_column
+        if self.group_column not in rows[0]:
+            raise ValueError(f"Group column '{self.group_column}' not found in CSV file: {csv_file}")
+
         group_values = sorted(set(row[self.group_column] for row in rows if row[self.group_column] != ""))
         data = []
         for group in group_values:

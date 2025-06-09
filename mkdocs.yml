@@ -37,6 +37,7 @@ nav:
       - Box Plot: api/boxplot.md
   - Command Line Tools:
       - Overview: cli/index.md
+      - Chart CLI: cli/chartcli.md
       - Bar Charts: cli/bar.md
       - Line Charts: cli/line.md
       - Bubble Charts: cli/bubble.md
