@@ -37,18 +37,7 @@ class GapminderBubbleVisualizer:
         )
 
         # Alternative approach
-        chart.options = {
-            **chart.options,  # Keep existing options
-            "scales": {
-                "x": {
-                    "type": "logarithmic",
-                    "title": {"display": True, "text": "GDP per Capita"},
-                },
-                "y": {
-                    "title": {"display": True, "text": "Life Expectancy"},
-                }
-            }
-        }
+        chart.logarithmic(axis="x")
 
         # Customize datasets with colors
         for dataset in chart.data.datasets:

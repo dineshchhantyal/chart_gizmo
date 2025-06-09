@@ -118,6 +118,9 @@ chart = CSVBubbleChart(
     bubble_label_column="country"
 )
 
+# Add logarithmic scaling to the x-axis
+chart.logarithmic(axis="x")
+
 # Display the chart
 serve(chart.show())
 ```
