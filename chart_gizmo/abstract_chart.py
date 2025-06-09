@@ -20,7 +20,7 @@ class AbstractChart(raw_chart.RawChart):
             stacked=False,
             options=None, title=None,
             animate=ANIMATION_DEFAULT, **kwargs):
-        super().__init__(configuration, width, height)
+        super().__init__(configuration, width, height, **kwargs)
         self.configuration = configuration
         # Chart type should be set by subclasses
         self.type = None

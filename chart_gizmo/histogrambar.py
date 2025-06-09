@@ -16,8 +16,7 @@ class HistogramBarChart(BarChart):
     """
 
     def __init__(self, data=None, bins=10, range=None, density=False, weights=None,
-                 width=600, height=400, configuration=None, options=None,
-                 x_label=None, y_label=None, animate=None, **kwargs):
+                 x_label=None, y_label=None, **kwargs):
         """
         Initialize a histogram bar chart.
 
@@ -48,7 +47,7 @@ class HistogramBarChart(BarChart):
         animate : bool, optional
             Enable or disable animations
         """
-        super().__init__(configuration, width, height, options=options, animate=animate, **kwargs)
+        super().__init__(**kwargs)
 
         # Store histogram parameters
         self.bins = bins
