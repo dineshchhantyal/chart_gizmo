@@ -73,6 +73,12 @@ A class to represent a bubble chart. Inherits from [`AbstractChart`](../api/char
   - `filepath`: Path where the image file will be saved
 - `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
 
+Note: You can use Python assignment expressions to set coordinates and include them in tooltips, for example:
+
+```python
+{"x": (x:= 10), "y": (y:= 20), "r": 8, "label": "San Francisco", "tooltip": f"San Francisco: High tech hub (x: {x}, y: {y})"}
+```
+
 ## Class: CSVBubbleChart
 
 **Location:** `chart_gizmo/bubbles.py`
