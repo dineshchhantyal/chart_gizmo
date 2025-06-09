@@ -225,6 +225,7 @@ class HistogramBarChart(BarChart):
 
 def HistogramGizmoScript():
     """Command-line script to create histogram from file"""
+
     parser = argparse.ArgumentParser(description="Create a histogram from a file of numbers.")
     parser.add_argument("file", help="File to read (.npy or text file with whitespace-separated numbers)")
     parser.add_argument("-b", "--bins", type=int, default=10, help="Number of bins")
@@ -236,6 +237,8 @@ def HistogramGizmoScript():
     parser.add_argument("--x-label", type=str, help="Custom X-axis label")
     parser.add_argument("--y-label", type=str, help="Custom Y-axis label")
     parser.add_argument("--animate", action="store_true", help="Enable animations")
+    parser.add_argument("--log", action="store_true", help="Use logarithmic scale for y-axis")
+
 
     args = parser.parse_args()
 
@@ -260,6 +263,9 @@ def HistogramGizmoScript():
         # Set custom title if provided
         if args.title:
             histogram.options["plugins"]["title"]["text"] = args.title
+        if args.log:
+            histogram.logarithmic(axis="y", value=True)
+
 
         # Serve the histogram
         serve(histogram.show())

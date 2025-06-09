@@ -93,6 +93,8 @@ class ChartCLI:
                            help="Create a stacked chart")
         parser.add_argument("--log", action="store_true",
                            help="Use logarithmic scale for y-axis")
+        parser.add_argument("--log-x", action="store_true",
+                           help="Use logarithmic scale for x-axis")
 
     def parse_args(self, args=None):
         """
@@ -143,6 +145,8 @@ class ChartCLI:
         # Apply common settings
         if getattr(parsed_args, "log", False):
             chart.logarithmic()
+        if getattr(parsed_args, "log_x", False):
+            chart.logarithmic(axis="x")
 
         # Serve the chart
         serve(chart.show())
