@@ -45,5 +45,9 @@ AbstractChart(configuration=None, width=400, height=400, stacked=False, options=
 - `get_default_options()`: Get the default chart options, can be overridden by subclasses.
 - `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
   - `filepath`: Path where the image file will be saved
+- `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. This method uses the [Chart.js getElementsAtEventForMode API](https://www.chartjs.org/docs/latest/developers/api.html#getelementsateventformode-e-mode-options-usefinalposition) under the hood. See [OnClick Event Example](../examples/#onclick-event-example).
+  - `callback`: Function to be called when the chart is clicked.
+  - `action`: Type of action to listen for (default: `'click'`).
+  - `selection`: Selection mode for the click event (default: `'nearest'`).
 
 All specific chart types inherit from this class and may override or extend its methods. The configuration options follow [Chart.js documentation](https://www.chartjs.org/docs/latest/configuration/) but are exposed through a Python interface.

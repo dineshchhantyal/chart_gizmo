@@ -44,6 +44,7 @@ A class to represent a bar chart. Inherits from [`AbstractChart`](../api/charts.
 - `get_configuration()`: Get the chart configuration.
 - `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
   - `filepath`: Path where the image file will be saved
+- `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
 
 ## Class: TabularBarChart
 

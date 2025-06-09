@@ -99,7 +99,7 @@ serve(chart.show())
 PieChart(configuration=None, width=400, height=400, donut=False, donut_ratio=0.5, options=None)
 ```
 
-**Parameters:**
+### Constructor Parameters:
 
 - `configuration`: Optional chart configuration
 - `width` (int): Chart width in pixels (default: 400)
@@ -108,8 +108,9 @@ PieChart(configuration=None, width=400, height=400, donut=False, donut_ratio=0.5
 - `donut` (bool): Whether to render the chart as a donut chart
 - `donut_ratio` (float): Ratio of the donut hole size (0-1)
 - `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
+- `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
 
-**Methods:**
+### Methods:
 
 - `add_label(label)`: Add a slice label to the chart
 - `add_data_values(label, values, background_color, border_color, border_width)`: Add data values with colors
@@ -123,7 +124,7 @@ PieChart(configuration=None, width=400, height=400, donut=False, donut_ratio=0.5
 CSVPieChart(csv_file, label_column=None, value_column=None, width=400, height=400, donut=False, donut_ratio=0.5, configuration=None, options=None)
 ```
 
-**Parameters:**
+### Constructor Parameters:
 
 - `csv_file`: Path to the CSV file
 - `label_column`: Name of the column to use for slice labels
@@ -135,6 +136,7 @@ CSVPieChart(csv_file, label_column=None, value_column=None, width=400, height=40
 - `configuration`: Optional chart configuration
 - `options`: Additional Chart.js options
 - `animate` (bool): Enable or disable animations. Default is `False` (no animation). Controlled by the symbolic constant `ANIMATION_DEFAULT`.
+- `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
 
 ### Command-line Script
 

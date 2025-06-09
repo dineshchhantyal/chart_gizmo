@@ -43,6 +43,7 @@ A class to represent a box plot chart. Inherits from [`AbstractChart`](../api/ch
 - `add_data_values(label, values, background_color=None, border_color=None, border_width=1, ...)`: Add a dataset of boxplot values. `values` should be a list of arrays (one per label), or a list of lists.
 - `get_configuration()`: Get the chart configuration.
 - `saveImage(filepath)`: Asynchronous method to save the chart as a PNG image file. Must be awaited when called. See [Chart Image Export Example](../examples/#chart-image-export).
+- `on_click_call(callback, action='click', selection='nearest')`: Set a callback function for click events on the chart. See [OnClick Event Example](../examples/#onclick-event-example).
 
 ## Class: CSVBoxPlotChart
 
