@@ -29,3 +29,6 @@ venv/
 .DS_Store
 
 site/*
+
+# node_modules
+*/node_modules/*
