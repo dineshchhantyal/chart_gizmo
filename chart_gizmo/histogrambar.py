@@ -200,6 +200,45 @@ class HistogramBarChart(BarChart):
         HistogramBarChart
             The histogram chart instance
         """
+        # Load and clean data from the file
+        data = cls.cleaned_data(filename)
+
+        # Create and return the histogram
+        return cls(data=data, **kwargs)
+
+    @staticmethod
+    def cleaned_data(filename):
+        """
+        Load and clean data from a file.
+        Supports .npy, .npz, and text files with whitespace-separated numbers.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the file to read data from
+        Returns
+        -------
+        data : np.ndarray
+            Cleaned data array
+        Raises
+        ------
+        ValueError
+            If the file cannot be loaded or contains no valid data
+        FileNotFoundError
+            If the specified file does not exist
+        Notes
+        -----
+        This method attempts to load data from a file, first trying to read it as a numpy binary file (.npy),
+        then as a numpy compressed file (.npz), and finally as a text file with whitespace-separated numbers.
+        If the file is not found or cannot be read, it raises an appropriate error.
+
+        """
+
+        # Validate file existence
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"File not found: {filename}")
+
+        # Try loading the file
         try:
             if filename.endswith(".npz"):
                 # Load npz and extract the first array
@@ -217,10 +256,16 @@ class HistogramBarChart(BarChart):
                 data = np.loadtxt(filename)
             except Exception:
                 raise ValueError(f"Could not load data from file: {filename}")
+        # Ensure data is a numpy array
+        if not isinstance(data, np.ndarray):
+            data = np.array(data, dtype=float)
 
-        # Create and return the histogram
-        return cls(data=data, **kwargs)
+        # Check if data is empty
+        if data.size == 0:
+            raise ValueError(f"No valid data found in file: {filename}")
 
+        # Perform any necessary cleaning on the data
+        return data
 
 class HistogramBarChartCLI(ChartCLI):
     """
@@ -274,12 +319,9 @@ class HistogramBarChartCLI(ChartCLI):
         HistogramBarChart
             The created histogram chart instance
         """
-        # Validate file existence
-        if not os.path.exists(args.file):
-            raise FileNotFoundError(f"File not found: {args.file}")
+        # Clean and load data from the specified file
+        data = HistogramBarChart.cleaned_data(args.file)
 
-        # Load data and create histogram
-        data = np.loadtxt(args.file) if args.file.endswith(".txt") else np.load(args.file)
         histogram = HistogramBarChart(
             data=data,
             bins=args.bins,
