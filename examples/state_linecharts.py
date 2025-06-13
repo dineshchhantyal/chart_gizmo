@@ -28,7 +28,7 @@ class PopulationData:
     """
     def __init__(self, path=data_path, chart_class=lines.LineChart):
         self.chart_class = chart_class
-        self.chart = chart_class()
+        self.chart = chart_class(responsive=True)
         self.data = list(load_population_data(path))
         self.years = sorted(set([d["year"] for d in self.data]))
         self.states = sorted(set([d["abbrev"] for d in self.data]))
@@ -51,7 +51,7 @@ class PopulationData:
         if year is None:
             year = self.years[0]
         labels, data = self.data_by_year(year)
-        chart = self.chart_class()
+        chart = self.chart_class(responsive=True)
         for label in labels:
             chart.add_label(label)
         [title, values] = data
@@ -100,7 +100,7 @@ class PopulationData:
         if state is None:
             state = self.states[0]
         labels, data = self.data_by_state(state)
-        chart = self.chart_class()
+        chart = self.chart_class(responsive=True)
         for label in labels:
             chart.add_label(label)
         [title, values] = data

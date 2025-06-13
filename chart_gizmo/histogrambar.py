@@ -321,6 +321,12 @@ class HistogramBarChartCLI(ChartCLI):
         """
         # Clean and load data from the specified file
         data = HistogramBarChart.cleaned_data(args.file)
+        # Determine responsive behavior
+        if args.responsive:
+            # Responsive is True if height and width are not explicitly defined
+            args.responsive = not (
+                args.width != 400 or args.height != 400
+            )
 
         histogram = HistogramBarChart(
             data=data,
@@ -331,8 +337,10 @@ class HistogramBarChartCLI(ChartCLI):
             height=args.height,
             x_label=args.x_label,
             y_label=args.y_label,
-            animate=args.animate
+            animate=args.animate,
+            responsive = args.responsive
         )
+
 
         # Apply logarithmic scale if specified
         if args.log:
@@ -357,7 +365,7 @@ def serve_example_histogram():
     """
     import numpy as np
     data = np.random.randn(10000)  # 10000 points from standard normal distribution
-    histogram = HistogramBarChart(data, bins=30)
+    histogram = HistogramBarChart(data, bins=30, responsive=True, animate=True,)
     serve(histogram.show())
 
 

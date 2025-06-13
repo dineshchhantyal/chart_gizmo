@@ -25,6 +25,7 @@ AbstractChart(configuration=None, width=400, height=400, stacked=False, options=
 -   `stacked`: Boolean indicating whether the chart should be stacked (default: False)
 -   `options`: Optional dictionary with Chart.js options
 -   `animate`: Boolean to enable or disable animations (default: False, controlled by the symbolic constant `ANIMATION_DEFAULT`)
+-   `responsive`: Make chart fits in screen also maintaining aspect ratio, `False` if height or weight is provided or flag is provided (default: `True`, controlled by the symbolic constant `RESPONSIVE_DEFAULT`)
 
 ### Key Methods
 

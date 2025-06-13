@@ -19,7 +19,7 @@ class BubbleChart(AbstractChart):
     """
     def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None,
                  title=None, r_column=None, x_column=None, y_column=None, group_column=None,
-                 min_radius=None, max_radius=None, animate=None):
+                 min_radius=None, max_radius=None, animate=None, responsive=AbstractChart.RESPONSIVE_DEFAULT):
         """
         Initialize the BubbleChart.
 
@@ -66,6 +66,10 @@ class BubbleChart(AbstractChart):
         self.options["plugins"]["tooltip"] = self.options.get("plugins", {}).get("tooltip", {})
         self.options["plugins"]["tooltip"]["enabled"] = True
 
+        if responsive:
+            self.options["responsive"] = responsive
+
+
     def add_data_values(self, label, values=..., background_color=None, border_color=None, border_width=1):
         """
         Bubble charts has one label per dataset, so we can use the label as the group name.
@@ -87,7 +91,7 @@ class CSVBubbleChart(BubbleChart):
     def __init__(self, csv_file, x_column, y_column, r_column,
                  group_column=None, width=400, height=400, stacked=False,
                  configuration=None, options=None, min_radius=5, max_radius=20,
-                 title=None, bubble_label_column=None, tooltip_columns=None, animate=None):
+                 title=None, bubble_label_column=None, tooltip_columns=None, animate=None, **kwargs):
 
         # Accept both comma-separated string or list of strings
         if tooltip_columns is None:
@@ -113,7 +117,8 @@ class CSVBubbleChart(BubbleChart):
             group_column=group_column,
             min_radius=min_radius,
             max_radius=max_radius,
-            animate=animate
+            animate=animate,
+            **kwargs
         )
 
         self.csv_file = csv_file
@@ -207,7 +212,7 @@ def serve_example_bubble_chart():
     from H5Gizmos import serve
     import random
 
-    chart = BubbleChart(width=600, height=400, title="Bubble Chart with Tooltips and Labels")
+    chart = BubbleChart(width=200, height=200, title="Bubble Chart with Tooltips and Labels", responsive=True)
 
     # Add some random bubbles in different colors with labels and tooltips
     chart.add_data_values(
@@ -237,7 +242,7 @@ def serve_example_bubble_chart():
     def click_callback(event):
         print("Click event:", event)
     chart.on_click_call(click_callback)
-
+    print(chart.get_configuration())
     # Serve the chart
     serve(chart.show())
 

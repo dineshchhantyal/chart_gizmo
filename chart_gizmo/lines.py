@@ -11,8 +11,8 @@ class LineChart(AbstractChart):
     """
     LineChart class for creating line charts.
     """
-    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None, animate=None):
-        super().__init__(configuration, width, height, stacked, options, animate=animate)
+    def __init__(self, configuration=None, width=400, height=400, stacked=False, options=None, animate=None, **kwargs):
+        super().__init__(configuration, width, height, stacked, options, animate=animate, **kwargs)
         self.type = "line"
 
     def get_default_options(self):

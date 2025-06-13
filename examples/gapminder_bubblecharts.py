@@ -34,6 +34,7 @@ class GapminderBubbleVisualizer:
             max_radius=20,
             title="Gapminder: GDP vs Life Expectancy",
             tooltip_columns=["country", "gdpPercap", "lifeExp", "pop", "year"],
+            responsive=True
         )
 
         # Alternative approach

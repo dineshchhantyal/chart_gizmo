@@ -48,7 +48,7 @@ class PopulationData:
         if year is None:
             year = self.years[0]
         labels, data = self.data_by_year(year)
-        chart = bars.BarChart()
+        chart = bars.BarChart(responsive=True)
         for label in labels:
             chart.add_label(label)
         [title, values] = data
@@ -97,7 +97,7 @@ class PopulationData:
         if state is None:
             state = self.states[0]
         labels, data = self.data_by_state(state)
-        chart = bars.BarChart()
+        chart = bars.BarChart(responsive=True)
         for label in labels:
             chart.add_label(label)
         [title, values] = data

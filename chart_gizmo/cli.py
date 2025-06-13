@@ -46,6 +46,7 @@ class ChartCLI:
     - `--height`: Chart height in pixels (default: 400)
     - `--stacked`: Create a stacked chart
     - `--log`: Use logarithmic scale for the y-axis
+    - '--responsive`: Make the chart responsive (default: True)
     """
 
     def __init__(self, chart_cls, description=None):
@@ -95,6 +96,8 @@ class ChartCLI:
                            help="Use logarithmic scale for y-axis")
         parser.add_argument("--log-x", action="store_true",
                            help="Use logarithmic scale for x-axis")
+        parser.add_argument("--responsive", action="store_false",
+                           help="Make the chart responsive (default: True)")
 
     def parse_args(self, args=None):
         """
@@ -140,6 +143,13 @@ class ChartCLI:
             Command-line arguments (default: sys.argv)
         """
         parsed_args = self.parse_args(args)
+        # Determine responsive behavior
+        if parsed_args.responsive:
+            # Responsive is True if height and width are not explicitly defined
+            parsed_args.responsive = not (
+                parsed_args.width != 400 or parsed_args.height != 400
+            )
+
         chart = self.create_chart(parsed_args)
 
         # Apply common settings

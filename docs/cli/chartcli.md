@@ -72,6 +72,7 @@ cli.run()
 -   `--log`: Use logarithmic scale for the y-axis
 -   `--log-x`: Use logarithmic scale for the x-axis
 -   `--animate`: Enable or disable animations (default: `False`)
+-   `--responsive`: Make chart fits in screen also maintaining aspect ratio, `False` if height or weight is provided or flag is provided (default: `True`)
 
 ## Links
 

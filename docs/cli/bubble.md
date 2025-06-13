@@ -19,7 +19,7 @@ This will create a bubble chart from the CSV file, using the "x-column" for x-ax
 ### Simple Bubble Chart
 
 ```bash
-csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop"
+csv-bubble-gizmo gapminderDataFiveYear.csv -x "gdpPercap" -y "lifeExp" -r "pop" --log-x
 ```
 
 ### Bubble Chart with Color Grouping

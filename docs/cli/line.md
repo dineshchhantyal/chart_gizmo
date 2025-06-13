@@ -31,7 +31,7 @@ csv-line-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation"
 ### With Custom Dimensions
 
 ```bash
-csv-line-gizmo life1999.csv -l "Country Name" -v "Value" --width 800 --height 600
+csv-line-gizmo life1999.csv -l "Country Name" -v "Value" -g "Disaggregation" --width 800 --height 600
 ```
 
 ## All Options
